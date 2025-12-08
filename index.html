@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flexi HQ - HRMS Foundation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['League Spartan', 'sans-serif'],
+            },
+            colors: {
+              brand: {
+                dark: '#1e1b4b', // Deep Indigo/Navy for Sidebar (Dark Areas Cover)
+                primary: '#4338ca', // Indigo 700 for Primary Actions
+                surface: '#f8fafc', // Light Background
+                accent1: '#F3C995', // Color 01 (Peach/Gold)
+                accent2: '#F4A79A', // Color 02 (Salmon/Pink)
+              },
+              primary: {
+                50: '#eef2ff',
+                100: '#e0e7ff',
+                500: '#6366f1',
+                600: '#4f46e5',
+                700: '#4338ca',
+                800: '#3730a3',
+                900: '#312e81',
+              },
+              slate: {
+                850: '#1e293b',
+                900: '#0f172a',
+              }
+            },
+            boxShadow: {
+              'soft': '0 2px 10px rgba(0, 0, 0, 0.03)',
+              'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)',
+              'card-hover': '0 0 0 1px rgba(0,0,0,0.03), 0 8px 16px rgba(0,0,0,0.08)',
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'League Spartan', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1; 
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; 
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "@tanstack/react-query": "https://aistudiocdn.com/@tanstack/react-query@^5.90.11",
+    "react-hook-form": "https://aistudiocdn.com/react-hook-form@^7.67.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-brand-surface text-slate-900">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

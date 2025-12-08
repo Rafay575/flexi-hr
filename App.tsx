@@ -1,0 +1,329 @@
+import React, { useState } from "react";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+import { Sidebar } from "./components/Sidebar";
+
+// ---------- Flexi HQ pages ----------
+import { Dashboard } from "./pages/Dashboard";
+import { CompanyManagement } from "./pages/CompanyManagement";
+import { CompanyDetails } from "./pages/CompanyDetails";
+import { DepartmentTree } from "./pages/DepartmentTree";
+import { DesignationDirectory } from "./pages/DesignationDirectory";
+import { Divisions } from "./pages/Divisions";
+import { Grades } from "./pages/Grades";
+import { Locations } from "./pages/Locations";
+import { CostCenters } from "./pages/CostCenters";
+import { AuditLog } from "./pages/AuditLog";
+
+
+import DashboardHeader from "./components/DashboardHeader";
+import StatCard from "./components/StatCard";
+import QuickAction from "./components/QuickAction";
+import RecentActivity from "./components/RecentActivity";
+import UpcomingEvents from "./components/UpcomingEvents";
+import Directory from "./components/Directory";
+import Employee360 from "./components/Employee360";
+import OnboardX from "./components/OnboardX";
+import Transfers from "./components/Transfers";
+import ExitHorizon from "./components/ExitHorizon";
+import Documents from "./components/Documents";
+import BulkImport from "./components/BulkImport";
+
+
+import {
+  StatMetric,
+  ActivityItem,
+  Employee,
+  Transfer,
+  ExitRequest,
+} from "./types";
+
+import {
+  generateEmployees,
+  generateTransfers,
+  INITIAL_STATS,
+  INITIAL_ACTIVITIES,
+  INITIAL_UPCOMING_EVENTS,
+} from "./mockData";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+// Shared layout for all routes (HQ + PeopleHub)
+const Layout = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900">
+    <Sidebar />
+    <main className="flex-1 ml-64 p-4 px-8 overflow-x-hidden">
+      <DashboardHeader userName="Alexandra" onMenuClick={() => {}} />
+      <div className="max-w-7xl mx-auto">{children}</div>
+    </main>
+  </div>
+);
+
+// ---------- PeopleHub Dashboard page built from your first App ----------
+type PeopleHubDashboardProps = {
+  stats: StatMetric[];
+  activities: ActivityItem[];
+};
+
+const PeopleHubDashboard: React.FC<PeopleHubDashboardProps> = ({
+  stats,
+  activities,
+}) => {
+  const navigate = useNavigate();
+
+  return (
+    <>
+    
+      {/* Stats Row */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+        {stats.map((stat) => (
+          <StatCard key={stat.id} metric={stat} />
+        ))}
+      </section>
+
+      {/* Main Grid: Actions + Activity vs Upcoming */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Left Column */}
+        <div className="xl:col-span-2 flex flex-col gap-8">
+          {/* Quick Actions */}
+          <section className="animate-in fade-in slide-in-from-left-4 duration-500 delay-100">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-neutral-primary">
+                Quick Actions
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+              <QuickAction
+                type="add"
+                onClick={() => navigate("/peoplehub/onboardx")}
+              />
+              <QuickAction
+                type="directory"
+                onClick={() => navigate("/peoplehub/directory")}
+              />
+              <QuickAction
+                type="transfer"
+                onClick={() => navigate("/peoplehub/transfers")}
+              />
+              <QuickAction
+                type="exit"
+                onClick={() => navigate("/peoplehub/exit")}
+              />
+              <QuickAction
+                type="upload"
+                onClick={() => navigate("/peoplehub/import")}
+              />
+            </div>
+          </section>
+
+          {/* Recent Activity */}
+          <section className="flex-1 animate-in fade-in slide-in-from-left-4 duration-500 delay-200">
+            <RecentActivity activities={activities} />
+          </section>
+        </div>
+
+        {/* Right Column */}
+        <div className="xl:col-span-1 animate-in fade-in slide-in-from-right-4 duration-500 delay-300">
+          <UpcomingEvents events={INITIAL_UPCOMING_EVENTS} />
+
+          {/* Banner / Promotion Placeholder */}
+          <div className="mt-8 bg-gradient-to-r from-flexi-primary to-flexi-secondary rounded-xl p-6 text-white shadow-md relative overflow-hidden">
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl"></div>
+            <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl"></div>
+            <h3 className="text-lg font-bold relative z-10">
+              Annual Review Cycle
+            </h3>
+            <p className="text-sm text-blue-100 mt-2 relative z-10 font-light">
+              The 2024 performance review period begins in 5 days. Prepare your
+              team's documents.
+            </p>
+            <button className="mt-4 px-4 py-3 bg-white text-flexi-primary text-sm font-bold rounded-lg shadow-sm hover:bg-blue-50 transition-colors relative z-10">
+              View Guidelines
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const App: React.FC = () => {
+  // ---------- PeopleHub state (from your first project) ----------
+  const [employees, setEmployees] = useState<Employee[]>(() =>
+    generateEmployees(142)
+  );
+  const [transfers, setTransfers] = useState<Transfer[]>(() =>
+    generateTransfers(25)
+  );
+  const [activities, setActivities] =
+    useState<ActivityItem[]>(INITIAL_ACTIVITIES);
+  const [stats, setStats] = useState<StatMetric[]>(INITIAL_STATS);
+
+  // Handlers reused from your original PeopleHub App:
+  const handleOnboardComplete = (newEmployee: Employee) => {
+    setEmployees((prev) => [newEmployee, ...prev]);
+
+    const newActivity: ActivityItem = {
+      id: `act-${Date.now()}`,
+      user: "Alexandra M.",
+      action: "completed onboarding for",
+      target: newEmployee.name,
+      time: "Just now",
+      avatarUrl:
+        "https://ui-avatars.com/api/?name=Alexandra+M&background=0A3AA9&color=fff",
+      type: "onboard",
+    };
+
+    setActivities((prev) => [newActivity, ...prev]);
+    setStats((prev) =>
+      prev.map((stat) => {
+        if (stat.id === "total") {
+          const val = parseInt(stat.value.toString().replace(/,/g, ""));
+          return { ...stat, value: (val + 1).toLocaleString() };
+        }
+        if (stat.id === "new") {
+          const val = parseInt(stat.value.toString());
+          return { ...stat, value: (val + 1).toString() };
+        }
+        return stat;
+      })
+    );
+  };
+
+  const handleTransferCreate = (newTransfer: Transfer) => {
+    setTransfers((prev) => [newTransfer, ...prev]);
+
+    const newActivity: ActivityItem = {
+      id: `act-tr-${Date.now()}`,
+      user: "Alexandra M.",
+      action: "initiated transfer for",
+      target: newTransfer.name,
+      time: "Just now",
+      avatarUrl:
+        "https://ui-avatars.com/api/?name=Alexandra+M&background=0A3AA9&color=fff",
+      type: "transfer",
+    };
+
+    setActivities((prev) => [newActivity, ...prev]);
+    setStats((prev) =>
+      prev.map((stat) => {
+        if (stat.id === "transfers") {
+          const val = parseInt(stat.value.toString());
+          return { ...stat, value: (val + 1).toString() };
+        }
+        return stat;
+      })
+    );
+  };
+
+  const handleExitCreate = (newExit: ExitRequest) => {
+    const newActivity: ActivityItem = {
+      id: `act-ex-${Date.now()}`,
+      user: "Alexandra M.",
+      action: "initiated exit for",
+      target: newExit.name,
+      time: "Just now",
+      avatarUrl:
+        "https://ui-avatars.com/api/?name=Alexandra+M&background=0A3AA9&color=fff",
+      type: "exit",
+    };
+
+    setActivities((prev) => [newActivity, ...prev]);
+    setStats((prev) =>
+      prev.map((stat) => {
+        if (stat.id === "exits") {
+          const val = parseInt(stat.value.toString());
+          return { ...stat, value: (val + 1).toString() };
+        }
+        return stat;
+      })
+    );
+  };
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Layout>
+          <Routes>
+            {/* ---------- Flexi HQ routes ---------- */}
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/companies" element={<CompanyManagement />} />
+            <Route path="/companies/:id" element={<CompanyDetails />} />
+            <Route path="/divisions" element={<Divisions />} />
+            <Route path="/departments" element={<DepartmentTree />} />
+            <Route path="/designations" element={<DesignationDirectory />} />
+            <Route path="/grades" element={<Grades />} />
+            <Route path="/locations" element={<Locations />} />
+            <Route path="/cost-centers" element={<CostCenters />} />
+            <Route path="/audit" element={<AuditLog />} />
+
+            {/* ---------- PeopleHub routes (from second project) ---------- */}
+            <Route
+              path="/peoplehub"
+              element={
+                <PeopleHubDashboard stats={stats} activities={activities} />
+              }
+            />
+
+            <Route
+              path="/peoplehub/directory"
+              element={<Directory employees={employees} />}
+            />
+
+            <Route path="/peoplehub/employee360" element={<Employee360 />} />
+
+            <Route
+              path="/peoplehub/onboardx"
+              element={
+                <OnboardX onOnboardComplete={handleOnboardComplete} />
+              }
+            />
+
+            <Route
+              path="/peoplehub/transfers"
+              element={
+                <Transfers
+                  transfers={transfers}
+                  employees={employees}
+                  onTransferCreate={handleTransferCreate}
+                />
+              }
+            />
+
+            <Route
+              path="/peoplehub/exit"
+              element={
+                <ExitHorizon
+                  employees={employees}
+                  onExitCreate={handleExitCreate}
+                />
+              }
+            />
+
+            <Route path="/peoplehub/docs" element={<Documents />} />
+            <Route path="/peoplehub/import" element={<BulkImport />} />
+
+            {/* ---------- Fallback ---------- */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Layout>
+      </Router>
+    </QueryClientProvider>
+  );
+};
+
+export default App;

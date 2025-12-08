@@ -1,0 +1,5 @@
+{
+  "name": "Flexi HQ",
+  "description": "Core Foundation module of Flexi HRMS including Company Management, Org Structure, and Directories.",
+  "requestFramePermissions": []
+}
