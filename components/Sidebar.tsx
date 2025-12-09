@@ -68,10 +68,8 @@ type BuildResult = {
 // ✅ Only use the CURRENT module; no fallback to first / previous module
 const buildNavItemsFromModule = (moduleId: number | string): BuildResult => {
   const numericId = Number(moduleId);
-
   const module = modules.find((m) => m.id === numericId);
 
-  // If module not found, return empty (no “old” sidebar sticking around)
   if (!module) {
     return {
       navItems: [],
@@ -80,11 +78,9 @@ const buildNavItemsFromModule = (moduleId: number | string): BuildResult => {
     };
   }
 
-  // Take only the FIRST Menu group (e.g. "Hr GroundZero", "PeopleZone", etc.)
   const firstMenu = module.Menu?.[0];
   const rawItems = ((firstMenu?.subMenu ?? []) as RawSubMenu[]) || [];
 
-  // Build nav items only from these direct children
   const navItems: NavItem[] = rawItems
     .filter(
       (node) => typeof node.pathname === "string" && node.pathname.length > 0
@@ -98,7 +94,6 @@ const buildNavItemsFromModule = (moduleId: number | string): BuildResult => {
         icon: Icon,
       };
     });
-console.log("ACTIVE MODULE:", numericId, module?.name, navItems.map(i => i.label));
 
   return {
     navItems,
@@ -106,6 +101,7 @@ console.log("ACTIVE MODULE:", numericId, module?.name, navItems.map(i => i.label
     moduleTagline: firstMenu?.title,
   };
 };
+
 
 export const Sidebar: React.FC = () => {
   // Redux: which main module is selected (1 = Flexi HQ, 2 = PeopleHub, ...)

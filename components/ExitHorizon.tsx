@@ -6,7 +6,7 @@ import {
   Briefcase, UserX, FileText, ArrowRight, PieChart, BarChart3, TrendingUp
 } from 'lucide-react';
 import { ExitRequest, Employee } from '../types';
-import { generateExitRequests, DEPARTMENTS } from '../mockData.ts';
+import { generateExitRequests, DEPARTMENTS } from '../mockData';
 import ExitWizard from './ExitWizard';
 import ExitDetails from './ExitDetails';
 

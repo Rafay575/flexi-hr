@@ -8,7 +8,7 @@ import {
   Clock
 } from 'lucide-react';
 import { EmployeeDocument, DocVersion } from '../types';
-import { DOCUMENTS_DATA } from '../mockData.ts';
+import { DOCUMENTS_DATA } from '../mockData';
 
 const DOC_CATEGORIES = ['All', 'Personal ID', 'Education', 'Employment', 'Tax & Compliance', 'Payroll', 'Medical', 'Legal'];
 

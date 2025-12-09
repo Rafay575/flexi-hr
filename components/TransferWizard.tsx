@@ -6,7 +6,7 @@ import {
   FileText, Users, Loader2, Check, Award
 } from 'lucide-react';
 import { Employee, Transfer } from '../types';
-import { DEPARTMENTS, LOCATIONS, GRADES, ROLES } from '../mockData.ts';
+import { DEPARTMENTS, LOCATIONS, GRADES, ROLES } from '../mockData';
 
 interface TransferWizardProps {
   employees: Employee[];

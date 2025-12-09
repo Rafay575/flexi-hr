@@ -6,7 +6,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { Transfer, Employee } from '../types';
-import { DEPARTMENTS } from '../mockData.ts';
+import { DEPARTMENTS } from '../mockData';
 import TransferWizard from './TransferWizard';
 
 interface TransfersProps {
