@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, FileSpreadsheet, CheckCircle, AlertTriangle, Download, RefreshCw, XCircle } from 'lucide-react';
 import { Drawer } from './ui/Drawer';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface DepartmentImportDrawerProps {

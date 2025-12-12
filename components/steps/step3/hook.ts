@@ -2,7 +2,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/api/client";
+import { api } from "@/components/api/client";
 import { useCompanyContext } from "@/context/CompanyContext";
 import { toast } from "sonner";
 import type {
@@ -117,5 +117,98 @@ export function useUpdateCompanyStep3() {
       console.error("Error saving step 3:", error);
       toast("Something went wrong while saving. Please try again.");
     },
+  });
+}
+
+
+
+type ApiItem = { id: number; name: string };
+type ApiItem2 = { id: number; iso_code: string; symbol  : string };
+
+// ——— Fetch all countries ———
+export async function fetchAllCountries(): Promise<{ value: string; label: string }[]> {
+  const res = await api.get<{ data: ApiItem[] }>("/countries", {
+    params: { all: true, per_page: "all" },
+  });
+  return (res.data?.data ?? []).map((c) => ({ value: String(c.id), label: c.name }));
+}
+
+// ——— Fetch states by country ID ———
+export async function fetchStatesByCountry(
+  countryId?: string
+): Promise<{ value: string; label: string }[]> {
+  if (!countryId) return [];
+  const res = await api.get<{ data: ApiItem[] }>("/states", {
+    params: { country_id: countryId, all: true ,per_page: "all"},
+  });
+  return (res.data?.data ?? []).map((s) => ({ value: String(s.id), label: s.name }));
+}
+
+// ——— Fetch cities by state ID ———
+export async function fetchCitiesByState(
+  stateId?: string
+): Promise<{ value: string; label: string }[]> {
+  if (!stateId) return [];
+  const res = await api.get<{ data: ApiItem[] }>("/cities", {
+    params: { state_id: stateId, all: true ,per_page: "all"},
+  });
+  return (res.data?.data ?? []).map((c) => ({ value: String(c.id), label: c.name }));
+}
+
+// lib/locationOptions.ts
+// lib/locationOptions.ts
+
+// ——— Fetch currencies ———
+export async function fetchCurrencies(): Promise<{ value: string; label: string }[]> {
+  const response = await api.get<{ data: ApiItem2[] }>("/meta/companies/finance/currencies", {
+    params: { all: true, per_page: "all" },
+  });
+
+  // Map the data from the API response to the desired structure
+  return (response.data?.data ?? []).map((currency) => ({
+    value: String(currency.id),  // Ensure value is a string
+    label: `${currency.iso_code} — ${currency.symbol}`,  // Combining iso_code and symbol for label
+  }));
+}
+
+
+
+
+
+export function useCountryOptions() {
+  return useQuery({
+    queryKey: ["countries-all"],
+    queryFn: fetchAllCountries,
+    staleTime: 60 * 60 * 1000, // 1 hour
+    refetchOnWindowFocus: false,
+  });
+}
+
+// State options
+export function useStateOptions(countryId?: string) {
+  return useQuery({
+    queryKey: ["states-by-country", countryId],
+    queryFn: () => fetchStatesByCountry(countryId),
+    enabled: !!countryId,
+    staleTime: 30 * 60 * 1000, // 30 min
+  });
+}
+
+// City options
+export function useCityOptions(stateId?: string) {
+  return useQuery({
+    queryKey: ["cities-by-state", stateId],
+    queryFn: () => fetchCitiesByState(stateId),
+    enabled: !!stateId,
+    staleTime: 30 * 60 * 1000,
+  });
+}
+
+export function useCurrencyOptions() {
+  return useQuery({
+    queryKey: ["currencies-all"],
+    queryFn: fetchCurrencies,
+    staleTime: 30 * 60 * 1000, // 30 min
+    refetchOnWindowFocus: false,
   });
 }

@@ -1,9 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import navItemReducer from '../slices/navItemSlice';
-
+import authReducer from '../slices/authSlice';
 export const store = configureStore({
   reducer: {
     navItem: navItemReducer,
+     auth: authReducer,
     // add more slices here later...
   },
  

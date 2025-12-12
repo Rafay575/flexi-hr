@@ -2,7 +2,7 @@
 "use client";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { api } from "@/api/client";
+import { api } from "@/components/api/client";
 import { toast } from "sonner";
 import { useCompanyContext } from "@/context/CompanyContext";
 import {

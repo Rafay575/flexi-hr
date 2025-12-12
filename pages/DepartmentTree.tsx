@@ -21,7 +21,7 @@ import {
 import { api } from '../services/mockData';
 import { downloadCSV } from '../services/csvUtils';
 import { Department, OrgUnitType } from '../types';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { DepartmentModal } from '../components/DepartmentModal';
 import { BulkImportDrawer } from '../components/BulkImportDrawer';

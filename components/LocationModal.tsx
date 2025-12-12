@@ -6,7 +6,7 @@ import { api } from '../services/mockData';
 import { Location } from '../types';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 
 interface LocationModalProps {
   isOpen: boolean;
@@ -111,17 +111,17 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose, l
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <Input 
-              label="Location Name *" 
+              // label="Location Name *" 
               {...register('name', { required: 'Name is required' })} 
-              error={errors.name?.message}
+              // error={errors.name?.message}
               placeholder="e.g. New York Headquarters"
             />
           </div>
 
           <Input 
-            label="Location Code *" 
+            // label="Location Code *" 
             {...register('code', { required: 'Code is required' })} 
-            error={errors.code?.message}
+            // error={errors.code?.message}
             placeholder="e.g. US-NYC-01"
           />
 
@@ -141,9 +141,9 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose, l
 
           <div className="col-span-2">
             <Input 
-              label="Address Line 1 *" 
+              // label="Address Line 1 *" 
               {...register('addressLine1', { required: 'Address is required' })} 
-              error={errors.addressLine1?.message}
+              // error={errors.addressLine1?.message}
             />
           </div>
 
@@ -201,7 +201,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose, l
 
           <div>
             <Input 
-              label="Timezone" 
+              // label="Timezone" 
               {...register('timezone')} 
               placeholder="e.g. America/New_York"
             />
@@ -233,7 +233,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose, l
 
         <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
           <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button type="submit" isLoading={mutation.isPending}>
+          <Button type="submit" >
             {location ? 'Save Changes' : 'Create Location'}
           </Button>
         </div>

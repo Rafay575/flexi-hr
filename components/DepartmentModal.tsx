@@ -7,7 +7,7 @@ import { canDeactivateDepartment, canDeactivateLine } from '../services/guards';
 import { Department } from '../types';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 
 interface DepartmentModalProps {
   isOpen: boolean;
@@ -136,74 +136,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
            </div>
 
            {/* --- COMMON FIELDS --- */}
-           <div className="col-span-2">
-             <Input 
-               label="Name *" 
-               {...register('name', { required: 'Name is required' })} 
-               error={errors.name?.message}
-               placeholder={isLine ? "e.g. Backend Line A" : "e.g. Engineering"}
-             />
-           </div>
-
-           {/* --- FORM A: DEPARTMENT FIELDS --- */}
-           {!isLine && (
-             <>
-               <Input 
-                 label="Code *" 
-                 {...register('code', { required: 'Code is required for departments' })} 
-                 error={errors.code?.message}
-                 placeholder="e.g. ENG"
-               />
-               <Input 
-                 label="Short Name" 
-                 {...register('shortName')} 
-                 placeholder="e.g. Eng"
-               />
-               <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                  <select 
-                    {...register('category')} 
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
-                  >
-                    <option value="Operational">Operational</option>
-                    <option value="Support">Support</option>
-                    <option value="R&D">R&D</option>
-                    <option value="Administrative">Administrative</option>
-                  </select>
-               </div>
-               <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Head of Department</label>
-                  {/* Mock Employee Select */}
-                  <select 
-                    {...register('managerId')} 
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white"
-                  >
-                    <option value="">Select Manager</option>
-                    <option value="emp1">Sarah Jenkins (CTO)</option>
-                    <option value="emp2">Mike Ross (VP Eng)</option>
-                    <option value="emp3">Jessica Pearson (Dir)</option>
-                  </select>
-               </div>
-             </>
-           )}
-
-           {/* --- FORM B: LINE FIELDS --- */}
-           {isLine && (
-             <>
-               <Input 
-                 label="Code (Optional)" 
-                 {...register('code')} 
-                 placeholder="e.g. LINE-01"
-               />
-               <Input 
-                 label="Planned Headcount" 
-                 type="number"
-                 {...register('plannedHeadcount', { valueAsNumber: true })} 
-                 placeholder="0"
-               />
-             </>
-           )}
-
+     
            {/* --- SHARED FOOTER --- */}
            <div>
              <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
@@ -252,12 +185,7 @@ export const DepartmentModal: React.FC<DepartmentModalProps> = ({
           </div>
         )}
 
-        <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
-          <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button type="submit" isLoading={mutation.isPending}>
-            {isEditing ? 'Save Changes' : 'Create Unit'}
-          </Button>
-        </div>
+       
       </form>
     </Modal>
   );

@@ -4,12 +4,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/mockData';
 import { downloadCSV } from '../services/csvUtils';
 import { Search, Filter, Briefcase, Plus, Pencil, Trash2, LayoutList, Network, ChevronDown, ChevronRight, User, Download, Upload } from 'lucide-react';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { PageHeader } from '../components/ui/PageHeader';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Designation } from '../types';
-import { DesignationModal } from '../components/DesignationModal';
+
 import { Skeleton } from '../components/ui/Skeleton';
 import { BulkImportDrawer } from '../components/BulkImportDrawer';
 
@@ -393,13 +393,7 @@ export const DesignationDirectory: React.FC = () => {
         </div>
       )}
 
-      {isModalOpen && (
-        <DesignationModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          designation={editingDesignation} 
-        />
-      )}
+      
 
       <BulkImportDrawer
         isOpen={isImportOpen}

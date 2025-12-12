@@ -7,7 +7,7 @@ import { api } from '../services/mockData';
 import { CostCenter } from '../types';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 
 interface CostCenterModalProps {
   isOpen: boolean;

@@ -20,7 +20,7 @@ import {
 import { api } from '../services/mockData';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { CompanyWizard } from '../components/CompanyWizard';
 
@@ -223,7 +223,7 @@ export const CompanyDetails: React.FC = () => {
                 <Globe className="mb-4 text-brand-accent1" size={32} />
                 <h3 className="text-xl font-bold mb-2">Company Portal</h3>
                 <p className="text-slate-300 text-sm mb-6 leading-relaxed">Manage employee-facing portal settings, access control and themes.</p>
-                <Button variant="primary" size="sm" className="w-full bg-brand-accent1 text-brand-dark hover:bg-brand-accent2 border-0">
+                <Button variant="default" size="sm" className="w-full bg-brand-accent1 text-brand-dark hover:bg-brand-accent2 border-0">
                   Configure Portal <ArrowUpRight size={14} className="ml-2" />
                 </Button>
               </div>

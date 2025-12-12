@@ -14,10 +14,10 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 import {
   companyStep3Schema,
@@ -33,7 +33,7 @@ import {
   useStateOptions,
   useCityOptions,
   useCurrencyOptions,
-} from "../../../hooks/useLocationOptions";
+} from "./hook";
 
 import SearchableSelect, {
   type Option as SearchOption,
@@ -45,7 +45,7 @@ const buildFileSrc = (path: string | null | undefined) => {
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL_IMAGE ?? "";
+  const base = process.env.API_BASE_URL_IMAGE ?? "";
   return base + path;
 };
 

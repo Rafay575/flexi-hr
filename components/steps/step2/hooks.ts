@@ -2,7 +2,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/api/client";
+import { api } from "@/components/api/client";
 import { useCompanyContext } from "@/context/CompanyContext";
 import { toast } from "sonner";
 import type { DigitalPresenceForm } from "./types";

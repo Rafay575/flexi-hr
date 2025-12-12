@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
   useNavigate,
+  Outlet,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -12,7 +13,7 @@ import { Sidebar } from "./components/Sidebar";
 
 // ---------- Flexi HQ pages ----------
 import { Dashboard } from "./pages/Dashboard";
-import { CompanyManagement } from "./pages/CompanyManagement";
+import  CompaniesPage  from "./pages/CompanyManagement";
 import { CompanyDetails } from "./pages/CompanyDetails";
 import { DepartmentTree } from "./pages/DepartmentTree";
 import { DesignationDirectory } from "./pages/DesignationDirectory";
@@ -21,7 +22,6 @@ import { Grades } from "./pages/Grades";
 import { Locations } from "./pages/Locations";
 import { CostCenters } from "./pages/CostCenters";
 import { AuditLog } from "./pages/AuditLog";
-
 
 import DashboardHeader from "./components/DashboardHeader";
 import StatCard from "./components/StatCard";
@@ -35,7 +35,6 @@ import Transfers from "./components/Transfers";
 import ExitHorizon from "./components/ExitHorizon";
 import Documents from "./components/Documents";
 import BulkImport from "./components/BulkImport";
-
 
 import {
   StatMetric,
@@ -53,6 +52,9 @@ import {
   INITIAL_UPCOMING_EVENTS,
 } from "./mockData";
 
+import LoginPage from "./pages/Login";
+import CompanyStepper from "./pages/Create";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -62,13 +64,15 @@ const queryClient = new QueryClient({
   },
 });
 
-// Shared layout for all routes (HQ + PeopleHub)
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900">
+// ---------- Shared layout for all protected routes (HQ + PeopleHub) ----------
+const Layout: React.FC = () => (
+  <div className="flex min-h-screen bg-white font-sans text-slate-900">
     <Sidebar />
-    <main className="flex-1 ml-64 p-4 px-8 overflow-x-hidden">
+    <main className="flex-1 ml-64 overflow-x-hidden">
       <DashboardHeader userName="Alexandra" onMenuClick={() => {}} />
-      <div className="max-w-7xl mx-auto">{children}</div>
+      <div className="max-w-7xl mx-auto px-6 py-5">
+        <Outlet /> {/* All nested routes render here */}
+      </div>
     </main>
   </div>
 );
@@ -87,7 +91,6 @@ const PeopleHubDashboard: React.FC<PeopleHubDashboardProps> = ({
 
   return (
     <>
-    
       {/* Stats Row */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
         {stats.map((stat) => (
@@ -142,8 +145,8 @@ const PeopleHubDashboard: React.FC<PeopleHubDashboardProps> = ({
 
           {/* Banner / Promotion Placeholder */}
           <div className="mt-8 bg-gradient-to-r from-flexi-primary to-flexi-secondary rounded-xl p-6 text-white shadow-md relative overflow-hidden">
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl"></div>
-            <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl"></div>
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl" />
+            <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl" />
             <h3 className="text-lg font-bold relative z-10">
               Annual Review Cycle
             </h3>
@@ -162,7 +165,7 @@ const PeopleHubDashboard: React.FC<PeopleHubDashboardProps> = ({
 };
 
 const App: React.FC = () => {
-  // ---------- PeopleHub state (from your first project) ----------
+  // ---------- PeopleHub state ----------
   const [employees, setEmployees] = useState<Employee[]>(() =>
     generateEmployees(142)
   );
@@ -173,7 +176,7 @@ const App: React.FC = () => {
     useState<ActivityItem[]>(INITIAL_ACTIVITIES);
   const [stats, setStats] = useState<StatMetric[]>(INITIAL_STATS);
 
-  // Handlers reused from your original PeopleHub App:
+  // Handlers reused from original PeopleHub App:
   const handleOnboardComplete = (newEmployee: Employee) => {
     setEmployees((prev) => [newEmployee, ...prev]);
 
@@ -257,11 +260,20 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <Layout>
-          <Routes>
-            {/* ---------- Flexi HQ routes ---------- */}
+        <Routes>
+          {/* Auth routes (no main layout) */}
+          <Route path="/auth/login" element={<LoginPage />} />
+          {/* You can later add /auth/forgot, /auth/reset, etc. */}
+
+          {/* Protected / main app routes with Layout */}
+          <Route element={<Layout />}>
+            {/* Dashboard: both / and /dashboard work */}
             <Route path="/" element={<Dashboard />} />
-            <Route path="/companies" element={<CompanyManagement />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+
+            {/* Flexi HQ routes */}
+            <Route path="/companies" element={<CompaniesPage />} />
+            <Route path="/company-create" element={<CompanyStepper />} />
             <Route path="/companies/:id" element={<CompanyDetails />} />
             <Route path="/divisions" element={<Divisions />} />
             <Route path="/departments" element={<DepartmentTree />} />
@@ -271,28 +283,22 @@ const App: React.FC = () => {
             <Route path="/cost-centers" element={<CostCenters />} />
             <Route path="/audit" element={<AuditLog />} />
 
-            {/* ---------- PeopleHub routes (from second project) ---------- */}
+            {/* PeopleHub routes */}
             <Route
               path="/peoplehub"
               element={
                 <PeopleHubDashboard stats={stats} activities={activities} />
               }
             />
-
             <Route
               path="/peoplehub/directory"
               element={<Directory employees={employees} />}
             />
-
             <Route path="/peoplehub/employee360" element={<Employee360 />} />
-
             <Route
               path="/peoplehub/onboardx"
-              element={
-                <OnboardX onOnboardComplete={handleOnboardComplete} />
-              }
+              element={<OnboardX onOnboardComplete={handleOnboardComplete} />}
             />
-
             <Route
               path="/peoplehub/transfers"
               element={
@@ -303,7 +309,6 @@ const App: React.FC = () => {
                 />
               }
             />
-
             <Route
               path="/peoplehub/exit"
               element={
@@ -313,14 +318,13 @@ const App: React.FC = () => {
                 />
               }
             />
-
             <Route path="/peoplehub/docs" element={<Documents />} />
             <Route path="/peoplehub/import" element={<BulkImport />} />
 
-            {/* ---------- Fallback ---------- */}
+            {/* Fallback (inside layout) */}
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Layout>
+          </Route>
+        </Routes>
       </Router>
     </QueryClientProvider>
   );

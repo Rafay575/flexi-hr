@@ -7,7 +7,7 @@ import { canDeactivateGrade } from '../services/guards';
 import { Grade } from '../types';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 
 interface GradeModalProps {
   isOpen: boolean;

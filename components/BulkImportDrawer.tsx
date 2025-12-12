@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Upload, AlertTriangle, CheckCircle, FileText, AlertCircle, Play } from 'lucide-react';
 import { Drawer } from './ui/Drawer';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 import { parseCSV } from '../services/csvUtils';
 
 interface ValidationError {

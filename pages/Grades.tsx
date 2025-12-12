@@ -5,7 +5,7 @@ import { Plus, Search, Pencil, Users, Download, Upload } from 'lucide-react';
 import { api } from '../services/mockData';
 import { downloadCSV } from '../services/csvUtils';
 import { PageHeader } from '../components/ui/PageHeader';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Grade } from '../types';

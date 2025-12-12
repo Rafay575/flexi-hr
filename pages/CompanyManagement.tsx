@@ -1,238 +1,348 @@
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { ColumnDef } from "@tanstack/react-table";
+import { Link, useNavigate } from "react-router-dom";
 
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Building2, Eye, Pencil, Download, Upload } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '../services/mockData';
-import { downloadCSV } from '../services/csvUtils';
-import { Button } from '../components/ui/Button';
-import { PageHeader } from '../components/ui/PageHeader';
-import { StatusBadge } from '../components/ui/StatusBadge';
-import { DataTable, Column } from '../components/ui/DataTable';
-import { Company } from '../types';
-import { CompanyWizard } from '../components/CompanyWizard';
-import { BulkImportDrawer } from '../components/BulkImportDrawer';
+import { DataTable } from "@/components/ui/CustomDatatable";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 
-export const CompanyManagement: React.FC = () => {
+import {
+  Eye,
+  Pencil,
+  MoreVertical,
+  Building2,
+  PlusIcon,
+  Download,
+  Upload,
+} from "lucide-react";
+import { api } from "@/components/api/client"; // or "@/lib/apiClient" if you renamed it
+import { CompanyProvider, useCompanyContext } from "@/context/CompanyContext";
+
+// ---------- Types ----------
+type Company = {
+  id: number;
+  legal_name: string;
+  registration_no: string;
+  entity_type: string | null;
+  status: string | null; // e.g. "active", "inactive", "draft"
+  divisions: number | null;
+  departments: number | null;
+  employees: number | null;
+  website: string | null;
+};
+
+type CompaniesResponse = {
+  success: boolean;
+  data: Company[];
+  meta: {
+    total: number;
+    current_page: number;
+    last_page: number;
+    per_page: number;
+  };
+};
+
+type TableQuery = {
+  pageIndex: number; // 0-based for DataTable
+  pageSize: number;
+  search: string;
+};
+
+type StatusFilter = "all" | "active" | "inactive";
+
+// ---------- API ----------
+async function fetchCompanies(
+  query: TableQuery,
+  status: StatusFilter
+): Promise<CompaniesResponse> {
+  const page = query.pageIndex + 1; // backend is 1-based
+
+  const params: Record<string, string> = {
+    page: String(page),
+    per_page: String(query.pageSize),
+  };
+
+  if (query.search.trim()) {
+    params.q = query.search.trim();
+  }
+
+  if (status !== "all") {
+    params.status = status;
+  }
+
+  const res = await api.get<CompaniesResponse>("/v1/companies", {
+    params,
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!res.data.success) {
+    throw new Error("Network response was not ok");
+  }
+
+  return res.data;
+}
+
+// ---------- Inner page that can use context ----------
+function CompaniesPageInner() {
+  const [tableQuery, setTableQuery] = React.useState<TableQuery>({
+    pageIndex: 0,
+    pageSize: 10,
+    search: "",
+  });
+
+  const [statusFilter, setStatusFilter] =
+    React.useState<StatusFilter>("all");
+
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isImportOpen, setIsImportOpen] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  
-  const { data: companies, isLoading } = useQuery({ 
-    queryKey: ['companies'], 
-    queryFn: api.getCompanies 
+  const { setCompanyData } = useCompanyContext();
+
+  const { data, isFetching } = useQuery({
+    queryKey: ["companies", tableQuery, statusFilter],
+    queryFn: () => fetchCompanies(tableQuery, statusFilter),
   });
 
-  const handleEdit = (company: Company, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setEditingCompany(company);
-    setIsModalOpen(true);
-  };
+  const companies = data?.data ?? [];
+  const totalItems = data?.meta.total ?? 0;
 
-  const handleCreate = () => {
-    setEditingCompany(null);
-    setIsModalOpen(true);
-  };
+  // columns need access to setCompanyData and navigate → define INSIDE component
+  const columns = React.useMemo<ColumnDef<Company>[]>(() => {
+    return [
+      {
+        accessorKey: "legal_name",
+        header: "Name",
+        meta: { headerClassName: "text-left pl-2" },
+        cell: ({ row }) => {
+          const company = row.original;
+          return (
+            <div className="flex gap-1 justify-start">
+              <div className="flex p-2 items-center justify-center rounded-md bg-muted text-xs font-medium">
+                <Building2 className="h-4 w-4" />
+              </div>
+              <div className="ml-2 flex flex-col">
+                <span className="font-medium text-sm">
+                  {company.legal_name}
+                </span>
+                <span className="font-medium text-xs">
+                  {company.website ?? "—"}
+                </span>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "registration_no",
+        header: "Code / Reg No.",
+        meta: { headerClassName: "text-left pl-2" },
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {row.original.registration_no || "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "entity_type",
+        header: "Entity type",
+        meta: { headerClassName: "text-left pl-2" },
+        cell: ({ row }) => (
+          <span className="text-sm">
+            {row.original.entity_type && row.original.entity_type !== ""
+              ? row.original.entity_type
+              : "--"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const rawStatus = (row.original.status ?? "").toLowerCase();
 
-  const handleExport = () => {
-    if (companies) {
-      const exportData = companies.map(c => ({
-        name: c.name,
-        registrationNumber: c.registrationNumber,
-        sector: c.sector,
-        taxId: c.taxId,
-        addressLine1: c.addressLine1,
-        city: c.city,
-        country: c.country,
-        status: c.status
-      }));
-      downloadCSV(exportData, `companies_export_${new Date().toISOString().slice(0,10)}.csv`);
-    }
-  };
+          let label = "DRAFT";
+          let className =
+            "bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-center w-fit mx-auto text-[11px] font-semibold";
 
-  const handleBulkImport = async (rows: any[]) => {
-    for (const row of rows) {
-      const payload: any = {
-        name: row.name,
-        registrationNumber: row.registrationNumber,
-        sector: row.sector || '',
-        addressLine1: row.addressLine1 || 'Unknown',
-        city: row.city || 'Unknown',
-        state: row.state || 'Unknown',
-        country: row.country || 'USA',
-        postalCode: row.postalCode || '00000',
-        status: 'active'
-      };
-      await api.addCompany(payload);
-    }
-    queryClient.invalidateQueries({ queryKey: ['companies'] });
-  };
+          if (rawStatus === "active") {
+            label = "ACTIVE";
+            className =
+              "bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full text-center w-fit mx-auto text-[11px] font-semibold";
+          } else if (rawStatus === "inactive") {
+            label = "INACTIVE";
+            className =
+              "bg-rose-50 text-rose-700 border border-rose-200 px-3 py-1 rounded-full text-center w-fit mx-auto text-[11px] font-semibold";
+          }
 
-  const validateImportRow = (row: any) => {
-    const errors = [];
-    if (!row.name) errors.push('Name is required');
-    if (!row.registrationNumber) errors.push('Registration Number is required');
-    return errors;
-  };
-
-  const filteredCompanies = companies?.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          c.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const columns: Column<Company>[] = [
-    {
-      header: 'Name',
-      accessor: (c) => (
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-             {c.logoUrl ? <img src={c.logoUrl} alt="" className="w-full h-full object-cover rounded" /> : <Building2 size={16} />}
+          return <div className={className}>{label}</div>;
+        },
+      },
+      {
+        accessorKey: "divisions",
+        header: "Divisions",
+        meta: { headerClassName: "text-center" },
+        cell: ({ row }) => (
+          <div className="flex h-7 px-4 w-fit items-center justify-center rounded-md mx-auto bg-muted text-xs font-medium">
+            {row.original.divisions ?? 0}
           </div>
-          <div>
-            <div className="font-medium text-slate-900">{c.name}</div>
-            <div className="text-xs text-slate-500">{c.domain || 'No domain'}</div>
+        ),
+      },
+      {
+        accessorKey: "departments",
+        header: "Depts",
+        meta: { headerClassName: "text-center" },
+        cell: ({ row }) => (
+          <div className="flex h-7 px-4 w-fit items-center justify-center rounded-md mx-auto bg-muted text-xs font-medium">
+            {row.original.departments ?? 0}
           </div>
-        </div>
-      )
-    },
-    {
-      header: 'Code / Reg No.',
-      accessor: (c) => <span className="font-mono text-slate-600">{c.registrationNumber}</span>
-    },
-    {
-      header: 'Sector',
-      accessor: (c) => <span className="text-slate-600">{c.sector || '-'}</span>
-    },
-    {
-      header: 'Status',
-      accessor: (c) => <StatusBadge status={c.status} />
-    },
-    {
-      header: 'Divisions',
-      accessor: (c) => <span className="inline-flex items-center justify-center bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-medium min-w-[30px]">{c._count?.divisions ?? 0}</span>,
-      className: 'text-center'
-    },
-    {
-      header: 'Depts',
-      accessor: (c) => <span className="inline-flex items-center justify-center bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-medium min-w-[30px]">{c._count?.departments ?? 0}</span>,
-      className: 'text-center'
-    },
-    {
-      header: 'Employees',
-      accessor: (c) => <span className="font-medium text-slate-900">{c._count?.employees ?? 0}</span>,
-      className: 'text-center'
-    },
-    {
-      header: 'Actions',
-      width: '100px',
-      className: 'text-right',
-      accessor: (c) => (
-        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-           <button 
-             className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded"
-             onClick={(e) => { e.stopPropagation(); navigate(`/companies/${c.id}`); }}
-             title="View Details"
-           >
-             <Eye size={16} />
-           </button>
-           <button 
-             className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
-             onClick={(e) => handleEdit(c, e)}
-             title="Edit"
-           >
-             <Pencil size={16} />
-           </button>
-        </div>
-      )
-    }
-  ];
+        ),
+      },
+      {
+        accessorKey: "employees",
+        header: "Employees",
+        meta: { headerClassName: "text-center" },
+        cell: ({ row }) => (
+          <div className="flex h-7 px-4 w-fit items-center justify-center rounded-md mx-auto bg-muted text-xs font-medium">
+            {row.original.employees ?? 0}
+          </div>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => {
+          const company = row.original;
+
+          return (
+            <div className="flex justify-center">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 rounded-full"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent
+                  align="end"
+                  className="w-40 p-2 bg-white flex flex-col gap-1"
+                >
+                  <Button
+                    asChild
+                    size="sm"
+                    variant="ghost"
+                    className="w-full justify-start gap-2 text-sm"
+                  >
+                    <Link
+                      to={`/flexi-hq/hr-groundzero/companies/${company.id}/summary`}
+                    >
+                      <Eye className="h-3 w-3" />
+                      View
+                    </Link>
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-full justify-start gap-2 text-sm"
+                    onClick={() => {
+                      setCompanyData(company.id, "");
+                      navigate("/flexi-hq/hr-groundzero/companies/create");
+                    }}
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Edit
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            </div>
+          );
+        },
+      },
+    ];
+  }, [setCompanyData, navigate]);
+
+  const filtersSlot = (
+    <Select
+      value={statusFilter}
+      onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+    >
+      <SelectTrigger className="h-9 w-[130px]">
+        <SelectValue placeholder="All Status" />
+      </SelectTrigger>
+      <SelectContent className="bg-white">
+        <SelectItem value="all">All Status</SelectItem>
+        <SelectItem value="active">Active</SelectItem>
+        <SelectItem value="inactive">Inactive</SelectItem>
+      </SelectContent>
+    </Select>
+  );
 
   return (
-    <div>
-      <PageHeader 
-        title="Company Management" 
-        description="Manage your legal entities, subsidiaries, and registration details."
-        breadcrumbs={[{ label: 'Flexi HQ', href: '/' }, { label: 'Companies' }]}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={handleExport}>
-              <Download size={16} className="mr-2" /> Export
-            </Button>
-            <Button variant="outline" onClick={() => setIsImportOpen(true)}>
-              <Upload size={16} className="mr-2" /> Import
-            </Button>
-            <Button onClick={handleCreate} className="shadow-lg shadow-primary-500/20">
-              <Plus size={18} className="mr-2" />
+    <div className="p-2">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Companies</h1>
+          <p className="text-sm">
+            Manage your legal entities, subsidiaries, and registration details.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="my-0">
+            <Download />
+            Import
+          </Button>
+          <Button variant="outline" className="my-0">
+            <Upload />
+            Export
+          </Button>
+          <Link to="/company-create">
+            <Button
+              variant="outline"
+              className="my-0 transition-all duration-500 hover:bg-[#1E1B4B]  hover:text-white "
+            >
+              <PlusIcon />
               Add Company
             </Button>
-          </div>
-        }
-      />
-
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-           <input 
-             type="text" 
-             placeholder="Search by company name or code..." 
-             className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-             value={searchTerm}
-             onChange={(e) => setSearchTerm(e.target.value)}
-           />
-        </div>
-        <div className="w-full sm:w-48">
-          <select 
-            className="w-full px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-primary-500 bg-white"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+          </Link>
         </div>
       </div>
 
-      <DataTable 
-        columns={columns} 
-        data={filteredCompanies} 
-        isLoading={isLoading} 
-        onRowClick={(c) => navigate(`/companies/${c.id}`)}
-        emptyState={
-          <div className="flex flex-col items-center justify-center py-10">
-             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                <Building2 size={32} className="text-slate-300" />
-             </div>
-             <h3 className="text-lg font-medium text-slate-900">No companies found</h3>
-             <p className="text-slate-500 mt-1 mb-6">Get started by creating your first legal entity.</p>
-             <Button onClick={handleCreate}>Add Company</Button>
-          </div>
-        }
-      />
-
-      {isModalOpen && (
-        <CompanyWizard 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          company={editingCompany} 
-        />
-      )}
-
-      <BulkImportDrawer
-        isOpen={isImportOpen}
-        onClose={() => setIsImportOpen(false)}
-        title="Import Companies"
-        entityName="Company"
-        templateHeader="name,registrationNumber,sector,taxId,addressLine1,city,country"
-        onValidate={validateImportRow}
-        onImport={handleBulkImport}
+      <DataTable<Company, unknown>
+        columns={columns}
+        data={companies}
+        totalItems={totalItems}
+        serverSide
+        onQueryChange={(q) => setTableQuery(q)}
+        isLoading={isFetching}
+        filtersSlot={filtersSlot}
       />
     </div>
   );
+}
+
+// ---------- Wrapper with Provider on top ----------
+const CompaniesPage: React.FC = () => {
+  return (
+    <CompanyProvider>
+      <CompaniesPageInner />
+    </CompanyProvider>
+  );
 };
+
+export default CompaniesPage;

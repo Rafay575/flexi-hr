@@ -55,18 +55,18 @@ export const canDeactivateDesignation = async (designationId: string): Promise<G
  * Checks if a Division can be deactivated.
  * Rule: Cannot deactivate if it contains active departments.
  */
-export const canDeactivateDivision = async (divisionId: string): Promise<GuardResult> => {
-  const depts = await api.getDepartments();
-  const activeDepts = depts.filter(d => d.divisionId === divisionId && d.status === 'active');
+// export const canDeactivateDivision = async (divisionId: string): Promise<GuardResult> => {
+//   const depts = await api.getDepartments();
+//   const activeDepts = depts.filter(d => d.divisionId === divisionId && d.status === 'active');
   
-  if (activeDepts.length > 0) {
-    return { 
-      allowed: false, 
-      reason: `Cannot deactivate: Contains ${activeDepts.length} active department(s). Please deactivate or move them first.` 
-    };
-  }
-  return { allowed: true };
-};
+//   if (activeDepts.length > 0) {
+//     return { 
+//       allowed: false, 
+//       reason: `Cannot deactivate: Contains ${activeDepts.length} active department(s). Please deactivate or move them first.` 
+//     };
+//   }
+//   return { allowed: true };
+// };
 
 /**
  * Checks if a Department can be deactivated.

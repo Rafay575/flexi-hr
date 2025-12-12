@@ -2,7 +2,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/api/client";
+import { api } from "@/components/api/client";
 import { useCompanyContext } from "@/context/CompanyContext";
 import { toast } from "sonner";
 
@@ -149,5 +149,78 @@ export function useUpdateCompanyStep4() {
       console.error("Error saving step 4:", error);
       toast.error("Something went wrong while saving. Please try again.");
     },
+  });
+}
+
+
+
+async function fetchBusinessLinesAll() {
+  const res = await api.get("/meta/companies/business", {
+    params: { per_page: "all" },
+  });
+  return res.data.data; // array only
+}
+
+async function fetchEntityTypesAll() {
+  const res = await api.get("/meta/companies/entities", {
+    params: { per_page: "all" },
+  });
+  return res.data.data;
+}
+
+async function fetchLocationTypesAll() {
+  const res = await api.get("/meta/companies/location", {
+    params: { per_page: "all" },
+  });
+  return res.data.data;
+}
+
+export type Option = { value: string; label: string };
+
+export function useBusinessLineOptions() {
+  return useQuery<Option[], Error>({
+    queryKey: ["meta-business-lines-all"],
+    queryFn: async () => {
+      const list = await fetchBusinessLinesAll();
+      return list.map((item: any) => ({
+        value: String(item.id),
+        label: item.name, // or item.code?
+      }));
+    },
+    staleTime: 1000 * 60 * 10, // 10 mins
+  });
+}
+
+// -------------------------------
+//  ENTITY TYPES
+// -------------------------------
+export function useEntityTypeOptions() {
+  return useQuery<Option[], Error>({
+    queryKey: ["meta-entity-types-all"],
+    queryFn: async () => {
+      const list = await fetchEntityTypesAll();
+      return list.map((item: any) => ({
+        value: String(item.id),
+        label: item.name,
+      }));
+    },
+    staleTime: 1000 * 60 * 10,
+  });
+}
+
+// -------------------------------
+//  LOCATION TYPES
+// -------------------------------
+export function useLocationTypeOptions() {
+  return useQuery<Option[], Error>({
+    queryKey: ["meta-location-types-all"],
+    queryFn: async () => {
+      const list = await fetchLocationTypesAll();
+      return list.map((item: any) => ({
+        value: String(item.id),
+        label: item.name,
+      }));
+    },
+    staleTime: 1000 * 60 * 10,
   });
 }

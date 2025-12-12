@@ -6,7 +6,7 @@ import { api } from '../services/mockData';
 import { GeoCountry, GeoState, GeoCity } from '../types';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 
 export type GeoType = 'country' | 'state' | 'city';
 

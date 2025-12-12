@@ -5,7 +5,7 @@ import { Plus, Search, Wallet, Pencil, Building, MapPin, Download, Upload } from
 import { api } from '../services/mockData';
 import { downloadCSV } from '../services/csvUtils';
 import { PageHeader } from '../components/ui/PageHeader';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { CostCenter } from '../types';

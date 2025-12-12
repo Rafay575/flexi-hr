@@ -7,7 +7,7 @@ import { api } from '../services/mockData';
 import { PageHeader } from '../components/ui/PageHeader';
 import { DataTable, Column } from '../components/ui/DataTable';
 import { AuditEntry } from '../types';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 
 export const AuditLog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');

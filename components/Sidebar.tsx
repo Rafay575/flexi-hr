@@ -113,7 +113,7 @@ export const Sidebar: React.FC = () => {
     buildNavItemsFromModule(activeModuleId);
 
   return (
-    <aside className="w-64 bg-brand-dark text-slate-300 flex flex-col h-screen fixed left-0 top-0 z-30 shadow-xl">
+    <aside className="w-64 bg-[#1E1B4B] text-slate-300 flex flex-col h-screen fixed left-0 top-0 z-30 shadow-xl">
       {/* Header */}
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center gap-3">

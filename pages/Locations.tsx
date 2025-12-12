@@ -5,7 +5,7 @@ import { Plus, Trash2, MapPin, ChevronRight, Globe, Building, Pencil, Download, 
 import { api } from '../services/mockData';
 import { downloadCSV } from '../services/csvUtils';
 import { PageHeader } from '../components/ui/PageHeader';
-import { Button } from '../components/ui/Button';
+import { Button } from '../components/ui/button';
 import { Skeleton } from '../components/ui/Skeleton';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { DataTable, Column } from '../components/ui/DataTable';

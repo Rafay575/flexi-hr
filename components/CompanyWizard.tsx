@@ -7,7 +7,7 @@ import { api } from '../services/mockData';
 import { Company } from '../types';
 import { Modal } from './ui/Modal';
 import { Input } from './ui/Input';
-import { Button } from './ui/Button';
+import { Button } from './ui/button';
 import { Stepper, Step } from './ui/Stepper';
 
 interface CompanyWizardProps {

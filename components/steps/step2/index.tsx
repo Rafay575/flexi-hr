@@ -14,9 +14,9 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { Plus, Trash2 } from "lucide-react";
 import {
   Select,
@@ -182,7 +182,7 @@ const Step2: React.FC<props> = ({ next, prev }) => {
                           <SelectTrigger className="h-9 w-full">
                             <SelectValue placeholder="Select platform" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             <SelectItem value="linkedin">
                               LinkedIn
                             </SelectItem>

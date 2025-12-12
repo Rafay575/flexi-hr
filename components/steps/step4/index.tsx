@@ -15,9 +15,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { Input } from "@/components/ui/Input";
+import { Card } from "@/components/ui/Card";
 import { Plus, Trash2, GitBranch, Building2, UserCircle } from "lucide-react";
 
 import SearchableSelect, {
@@ -35,7 +35,7 @@ import {
   useBusinessLineOptions,
   useEntityTypeOptions,
   useLocationTypeOptions,
-} from "../../../hooks/useStep4"; // ⬅️ adjust path if needed
+} from "./hook"; // ⬅️ adjust path if needed
 
 import {
   useGetCompanyStep4,

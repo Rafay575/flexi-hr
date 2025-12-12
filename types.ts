@@ -52,15 +52,26 @@ export interface Company extends Entity {
 // 2. Organization Structure (Divisions, Departments, Lines)
 // ------------------------------------------------------------------
 
-export interface Division extends Entity {
-  name: string;
-  code: string; // Unique Identifier e.g., "ENG"
-  companyId: string; // Link to Parent Company
-  region?: string; // e.g., "North America", "EMEA"
-  headOfDivisionId?: string; // Employee ID
-  description?: string;
-  status: 'active' | 'inactive';
-}
+// Division type in '../types'
+// ../types
+export type Division = {
+ id: number;
+ name: string;
+ code: string;
+ company_id: string; // Stays as string for Select component
+ companyName?: string | null;
+ region_id?: string | null;
+ // status: string; <-- REMOVE THIS
+ active?: boolean; // <-- ADD THIS BOOLEAN FIELD
+ description?: string | null;
+ headOfDivisionId?: number | null;
+ createdAt?: string;
+ updatedAt?: string;
+};
+
+// Also update DivisionStatus if you still use it for filtering:
+export type DivisionStatus = "active" | "inactive" | "draft"; // Keep this if used for DataTable filtering
+
 
 export type OrgUnitType = 'department' | 'sub-department' | 'line' | 'team';
 

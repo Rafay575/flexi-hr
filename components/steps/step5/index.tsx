@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { api } from "@/api/client";
+import { api } from "@/components/api/client";
 import { props } from "./types";
 
 import {
@@ -19,7 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCompanyContext } from "@/context/CompanyContext";
-import { useRouter } from "next/navigation";
+
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 // ---- Types for the API response ----
@@ -93,7 +94,7 @@ type SummaryResponse = {
 
 // ------------------------------------
 
-const Step5Preview: React.FC<props> = ({ next, prev, isLast }) => {
+const Step5: React.FC<props> = ({ next, prev, isLast }) => {
   const { companyId } = useCompanyContext();
 
   const { data, isLoading, isError, refetch } = useQuery<SummaryResponse>({
@@ -104,7 +105,7 @@ const Step5Preview: React.FC<props> = ({ next, prev, isLast }) => {
       return res.data;
     },
   });
-  const router = useRouter();
+  const router = useNavigate();
   useEffect(() => {
     if (companyId) refetch();
   }, [companyId, refetch]);
@@ -149,7 +150,7 @@ const Step5Preview: React.FC<props> = ({ next, prev, isLast }) => {
     },
     onSuccess: () => {
       toast.success("Company published successfully");
-      router.push("/flexi-hq/hr-groundzero/companies");
+      router("/flexi-hq/hr-groundzero/companies");
     },
     onError: () => {
       toast.error("Failed to publish company");
@@ -161,7 +162,7 @@ const Step5Preview: React.FC<props> = ({ next, prev, isLast }) => {
   // You can customise how you build logo URL
   const logoUrl =
     summary?.company.logo_path &&
-    `${process.env.NEXT_PUBLIC_API_BASE_URL_IMAGE ?? ""}/${
+    `${process.env.API_BASE_URL_IMAGE ?? ""}/${
       summary.company.logo_path
     }`;
   const entityTag = summary?.org.meta.entity_type?.name;
@@ -571,4 +572,4 @@ const Step5Preview: React.FC<props> = ({ next, prev, isLast }) => {
   );
 };
 
-export default Step5Preview;
+export default Step5;

@@ -16,10 +16,10 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 
 import {
@@ -87,7 +87,7 @@ useEffect(() => {
       description: c.description ?? "",
       logo_path: c.logo_path ?? null,
       theme_color: c.theme_color ?? "#000000",
-      fiscal_year_start_month: fyValue,        // ⬅️ use converted value
+      fiscal_year_start_month: fyValue,      
     });
 
     if (c.logo_path) {
@@ -102,7 +102,7 @@ useEffect(() => {
     // if it's already an absolute URL or a blob preview, just use it
     if (url.startsWith("http") || url.startsWith("blob:")) return url;
 
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL_IMAGE ?? "";
+    const base = process.env.API_BASE_URL_IMAGE ?? "https://app.myflexihr.com/storage/";
     return `${base}${url}`;
   };
 
