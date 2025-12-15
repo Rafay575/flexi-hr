@@ -129,8 +129,8 @@ function CompaniesPageInner() {
           const company = row.original;
           return (
             <div className="flex gap-1 justify-start">
-              <div className="flex p-2 items-center justify-center rounded-md bg-muted text-xs font-medium">
-                <Building2 className="h-4 w-4" />
+            <div className="w-8 h-8 rounded bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                <Building2 className="h-5 w-5" />
               </div>
               <div className="ml-2 flex flex-col">
                 <span className="font-medium text-sm">

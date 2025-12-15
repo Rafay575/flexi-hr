@@ -15,12 +15,12 @@ import { Sidebar } from "./components/Sidebar";
 import { Dashboard } from "./pages/Dashboard";
 import  CompaniesPage  from "./pages/CompanyManagement";
 import { CompanyDetails } from "./pages/CompanyDetails";
-import { DepartmentTree } from "./pages/DepartmentTree";
+import DepartmentTree  from "./pages/DepartmentTree";
 import { DesignationDirectory } from "./pages/DesignationDirectory";
 import { Divisions } from "./pages/Divisions";
-import { Grades } from "./pages/Grades";
-import { Locations } from "./pages/Locations";
-import { CostCenters } from "./pages/CostCenters";
+import Grades from "./pages/Grades";
+import Locations  from "./pages/Locations";
+import CostCenters  from "./pages/CostCenters";
 import { AuditLog } from "./pages/AuditLog";
 
 import DashboardHeader from "./components/DashboardHeader";
