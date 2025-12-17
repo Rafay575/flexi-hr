@@ -14,9 +14,9 @@ import { Sidebar } from "./components/Sidebar";
 // ---------- Flexi HQ pages ----------
 import { Dashboard } from "./pages/Dashboard";
 import  CompaniesPage  from "./pages/CompanyManagement";
-import { CompanyDetails } from "./pages/CompanyDetails";
+
 import DepartmentTree  from "./pages/DepartmentTree";
-import { DesignationDirectory } from "./pages/DesignationDirectory";
+import  DesignationDirectory  from "./pages/DesignationDirectory";
 import { Divisions } from "./pages/Divisions";
 import Grades from "./pages/Grades";
 import Locations  from "./pages/Locations";
@@ -54,6 +54,7 @@ import {
 
 import LoginPage from "./pages/Login";
 import CompanyStepper from "./pages/Create";
+import CompanySummaryPage from "./pages/CompanySummaryPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -273,8 +274,9 @@ const App: React.FC = () => {
 
             {/* Flexi HQ routes */}
             <Route path="/companies" element={<CompaniesPage />} />
+            <Route path="/companies/:id/summary"  element={<CompanySummaryPage />} />
             <Route path="/company-create" element={<CompanyStepper />} />
-            <Route path="/companies/:id" element={<CompanyDetails />} />
+            {/* <Route path="/companies/:id" element={<CompanyDetails />} /> */}
             <Route path="/divisions" element={<Divisions />} />
             <Route path="/departments" element={<DepartmentTree />} />
             <Route path="/designations" element={<DesignationDirectory />} />

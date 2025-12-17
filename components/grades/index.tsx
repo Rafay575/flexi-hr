@@ -5,22 +5,25 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { DataTable, DataTableQuery } from "@/components/ui/CustomDatatable";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Eye, Pencil, MoreVertical, Download, Upload, Plus, Layers } from "lucide-react";
 
 import fetchGrades from "./fetchGrades";
 import { GradeForUI } from "./types";
 import { mapGradeData } from "./mapGradeData";
+import GradeModal, { GradeFormValues } from "./GradeModal";
 
 const fmtMoney = (val?: string, symbol?: string | null) => {
   const num = Number(val ?? 0);
   const s = symbol || "";
   if (Number.isNaN(num)) return `${s}0`;
   return `${s}${num.toLocaleString()}`;
+};
+
+const toNumOrNull = (v: any): number | null => {
+  if (v === null || v === undefined || v === "") return null;
+  const n = Number(v);
+  return Number.isNaN(n) ? null : n;
 };
 
 const GradesTable: React.FC = () => {
@@ -30,28 +33,24 @@ const GradesTable: React.FC = () => {
     search: "",
   });
 
+  // ✅ Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"view" | "create" | "edit">("view");
   const [selectedGrade, setSelectedGrade] = useState<GradeForUI | null>(null);
+  const [selectedGradeId, setSelectedGradeId] = useState<string | number>("");
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["employee_grades", tableQuery.pageIndex, tableQuery.pageSize, tableQuery.search],
-    queryFn: () =>
-      fetchGrades(
-        tableQuery.pageIndex + 1,
-        tableQuery.pageSize,
-        tableQuery.search
-      ),
+    queryFn: () => fetchGrades(tableQuery.pageIndex + 1, tableQuery.pageSize, tableQuery.search),
   });
 
-  const grades: GradeForUI[] = useMemo(
-    () => (data?.data ? mapGradeData(data.data) : []),
-    [data]
-  );
+  const grades: GradeForUI[] = useMemo(() => (data?.data ? mapGradeData(data.data) : []), [data]);
 
+  // ✅ Modal handlers
   const handleCreate = () => {
     setModalMode("create");
     setSelectedGrade(null);
+    setSelectedGradeId("");
     setIsModalOpen(true);
   };
 
@@ -59,6 +58,7 @@ const GradesTable: React.FC = () => {
     e.stopPropagation();
     setModalMode("edit");
     setSelectedGrade(grade);
+    setSelectedGradeId(grade.id);
     setIsModalOpen(true);
   };
 
@@ -66,12 +66,31 @@ const GradesTable: React.FC = () => {
     e.stopPropagation();
     setModalMode("view");
     setSelectedGrade(grade);
+    setSelectedGradeId(grade.id);
     setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedGrade(null);
+    setSelectedGradeId("");
+  };
+
+  // ✅ Map listing row -> modal payload (matching GradeModal GradeFormValues)
+  const getGradeDataForModal = (): Partial<GradeFormValues> | null => {
+    if (!selectedGrade) return null;
+
+    const g: any = selectedGrade;
+
+    return {
+      name: g.name ?? "",
+      code: g.code ?? "",
+      hierarchy_level: toNumOrNull(g.hierarchy_level),
+      currency_id: toNumOrNull(g.currency_id), // IMPORTANT: make sure mapGradeData keeps currency_id
+      min_base_salary: toNumOrNull(g.min_base_salary) ?? 0,
+      max_base_salary: toNumOrNull(g.max_base_salary) ?? 0,
+      active: !!g.active,
+    };
   };
 
   const handleExport = () => {
@@ -112,11 +131,7 @@ const GradesTable: React.FC = () => {
     {
       id: "hierarchy_level",
       header: "Level",
-      cell: ({ row }) => (
-        <span className="text-slate-600">
-          {row.original.hierarchy_level ?? "—"}
-        </span>
-      ),
+      cell: ({ row }) => <span className="text-slate-600">{row.original.hierarchy_level ?? "—"}</span>,
       meta: { headerClassName: "text-left pl-2" },
     },
     {
@@ -124,7 +139,8 @@ const GradesTable: React.FC = () => {
       header: "Currency",
       cell: ({ row }) => (
         <span className="text-slate-600">
-          {row.original.currency_name || "—"} {row.original.currency_code ? `(${row.original.currency_code})` : ""}
+          {row.original.currency_name || "—"}{" "}
+          {row.original.currency_code ? `(${row.original.currency_code})` : ""}
         </span>
       ),
       meta: { headerClassName: "text-left pl-2" },
@@ -134,8 +150,7 @@ const GradesTable: React.FC = () => {
       header: "Salary Range",
       cell: ({ row }) => (
         <span className="text-slate-600">
-          {fmtMoney(row.original.min_base_salary, row.original.currency_code)}{" "}
-          -{" "}
+          {fmtMoney(row.original.min_base_salary, row.original.currency_code)} -{" "}
           {fmtMoney(row.original.max_base_salary, row.original.currency_code)}
         </span>
       ),
@@ -144,9 +159,7 @@ const GradesTable: React.FC = () => {
     {
       id: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <StatusBadge status={row.original.active ? "active" : "inactive"} />
-      ),
+      cell: ({ row }) => <StatusBadge status={row.original.active ? "active" : "inactive"} />,
       meta: { headerClassName: "text-left" },
     },
     {
@@ -233,16 +246,15 @@ const GradesTable: React.FC = () => {
         className="mb-6"
       />
 
-      {/* TODO: GradeModal (same pattern as LocationModal) */}
-      {/* 
-        <GradeModal
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          mode={modalMode}
-          gradeData={selectedGrade}
-          refetchGrades={refetch}
-        />
-      */}
+      {/* ✅ Grade Modal */}
+      <GradeModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        mode={modalMode}
+        gradeId={selectedGradeId}
+        gradeData={getGradeDataForModal()}
+        refetchGrades={refetch}
+      />
     </div>
   );
 };

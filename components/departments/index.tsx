@@ -11,6 +11,7 @@ import { Eye, Pencil, MoreVertical, Download, Upload, Plus, Building2 } from "lu
 import fetchDepartments from "./fetchDepartments";
 import { DepartmentForUI } from "./types";
 import { mapDepartmentData } from "./mapDepartmentData";
+import DepartmentModal from "./DepartmentModal";
 
 interface DepartmentsTableProps {
   companyId: number;
@@ -22,6 +23,12 @@ const DepartmentsTable: React.FC<DepartmentsTableProps> = ({ companyId }) => {
     pageSize: 10,
     search: "",
   });
+
+  // ✅ Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"view" | "create" | "edit">("view");
+  const [selectedDepartment, setSelectedDepartment] = useState<DepartmentForUI | null>(null);
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<string | number>("");
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["departments", companyId, tableQuery.pageIndex, tableQuery.pageSize, tableQuery.search],
@@ -39,6 +46,85 @@ const DepartmentsTable: React.FC<DepartmentsTableProps> = ({ companyId }) => {
     () => (data?.data ? mapDepartmentData(data.data) : []),
     [data]
   );
+
+  // ✅ Modal handlers
+  const handleCreate = () => {
+    setModalMode("create");
+    setSelectedDepartment(null);
+    setSelectedDepartmentId("");
+    setIsModalOpen(true);
+  };
+
+  const handleView = (dept: DepartmentForUI, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setModalMode("view");
+    setSelectedDepartment(dept);
+    setSelectedDepartmentId(dept.id);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (dept: DepartmentForUI, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setModalMode("edit");
+    setSelectedDepartment(dept);
+    setSelectedDepartmentId(dept.id);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedDepartment(null);
+    setSelectedDepartmentId("");
+  };
+
+// ✅ helpers (keep inside component)
+const toNumOrEmpty = (v: any): number | "" => {
+  if (v === null || v === undefined || v === "") return "";
+  const n = Number(v);
+  return Number.isNaN(n) ? "" : n;
+};
+
+const toNumOrNull = (v: any): number | null => {
+  if (v === null || v === undefined || v === "") return null;
+  const n = Number(v);
+  return Number.isNaN(n) ? null : n;
+};
+
+const getDepartmentDataForModal = () => {
+  if (!selectedDepartment) return null;
+
+  // ✅ read optional fields safely
+  const extra = selectedDepartment as any;
+
+  return {
+    division_id: toNumOrEmpty(selectedDepartment.division_id),
+
+    // ✅ take real unit_type if available (fallback Department)
+    unit_type: (extra.unit_type ?? "Department") as
+      | "Department"
+      | "Sub-Department"
+      | "Line / Function"
+      | "Team",
+
+    name: selectedDepartment.name ?? "",
+    code: selectedDepartment.code ?? "",
+    short_name: selectedDepartment.short_name ?? "",
+    category: (selectedDepartment.category ?? "Operational") as
+      | "Operational"
+      | "Support"
+      | "Strategic",
+
+    // ✅ keep these (modal has it disabled but type is needed)
+    head_of_department_id: toNumOrNull(extra.head_of_department_id),
+
+    status: (selectedDepartment.status ?? "Active") as "Active" | "Inactive",
+
+    // ✅ cost center + description may not exist in listing response
+    cost_centre_id: toNumOrNull(extra.cost_centre_id),
+    description: (extra.description ?? "") as string,
+  };
+};
+
 
   const handleExport = () => {
     if (!departments.length) return;
@@ -118,10 +204,21 @@ const DepartmentsTable: React.FC<DepartmentsTableProps> = ({ companyId }) => {
               </PopoverTrigger>
 
               <PopoverContent align="end" className="w-40 p-2 bg-white flex flex-col gap-1">
-                <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-sm">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full justify-start gap-2 text-sm"
+                  onClick={(e) => handleView(dept, e)}
+                >
                   <Eye className="h-3 w-3" /> View
                 </Button>
-                <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-sm">
+
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full justify-start gap-2 text-sm"
+                  onClick={(e) => handleEdit(dept, e)}
+                >
                   <Pencil className="h-3 w-3" /> Edit
                 </Button>
               </PopoverContent>
@@ -153,7 +250,7 @@ const DepartmentsTable: React.FC<DepartmentsTableProps> = ({ companyId }) => {
           <Button
             variant="outline"
             className="my-0 transition-all duration-500 hover:bg-[#1E1B4B] hover:text-white"
-            onClick={() => console.log("open create modal")}
+            onClick={handleCreate}
           >
             <Plus size={18} className="mr-2" />
             Add Department
@@ -172,6 +269,17 @@ const DepartmentsTable: React.FC<DepartmentsTableProps> = ({ companyId }) => {
         initialPageSize={10}
         showSrColumn={true}
         className="mb-6"
+      />
+
+      {/* ✅ Department Modal */}
+      <DepartmentModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        mode={modalMode}
+        companyId={companyId}
+        departmentId={selectedDepartmentId}
+        departmentData={getDepartmentDataForModal()}
+        refetchDepartments={refetch}
       />
     </div>
   );

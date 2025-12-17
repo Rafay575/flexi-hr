@@ -1,31 +1,16 @@
-// types/costCenter.ts
-export interface CostCenterForUI {
+export type CostCenterForUI = {
   id: number;
   company_id: number;
-  code: string;
+  code: string | null;
   name: string;
-  department_id?: number | null;
-  department_name?: string;
-  location_id?: number | null;
-  location_name?: string;
-  parent_id?: number | null;
-  parent_name?: string;
-  valid_from?: string | null;
-  valid_to?: string | null;
-  active: boolean;
-  status: string;
-  is_draft: boolean;
-  created_at: string;
-  updated_at: string;
-}
+  department_id: number | null;
+  location_id: number | null;
 
-export interface CostCenterFormData {
-  code: string;
-  name: string;
-  department_id?: string;
-  location_id?: string;
-  parent_id?: string;
-  valid_from?: string;
-  valid_to?: string;
+  is_draft: boolean;
   active: boolean;
-}
+
+  valid_from: string | null;
+
+  department_name?: string | null;
+  location_name?: string | null;
+};

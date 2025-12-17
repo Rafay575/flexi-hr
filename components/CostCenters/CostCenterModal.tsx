@@ -1,524 +1,386 @@
-// components/cost-centers/CostCenterModal.tsx
-"use client";
+import React, { useEffect, useMemo } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogOverlay,
-} from "@/components/ui/dialog";
+import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Loader2, Calendar } from "lucide-react";
-import {
-  useCostCenterOptions,
-  useLocationOptions,
-  useDepartmentOptions,
-} from "./useCostCenterOptions";
+import { api } from "@/components/api/client";
+import { Building2, MapPin, CalendarDays, Landmark } from "lucide-react";
+
+type Mode = "view" | "create" | "edit";
+
+type Option = { id: number; label: string };
+
+export type CostCenterFormValues = {
+  company_id: number;
+  code: string | null;
+  name: string;
+  department_id: number | null;
+  location_id: number | null;
+  active: boolean;
+  valid_from: string | null; // "YYYY-MM-DD"
+  valid_to: string | null;   // "YYYY-MM-DD"
+};
 
 interface CostCenterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mode: "view" | "create" | "edit";
-  costCenterData?: any;
-  costCenterId?: string | number;
-  refetchCostCenters?: () => Promise<void>;
-  companyId?: number;
+  mode: Mode;
+  companyId: number;
+  costCenterId?: number | string;
+  costCenterData?: Partial<CostCenterFormValues> | null;
+  refetchCostCenters: () => Promise<any> | void;
 }
 
-interface FormData {
-  code: string;
-  name: string;
-  department_id: string;
-  location_id: string;
-  parent_id: string;
-  valid_from: string;
-  valid_to: string;
-  active: boolean;
-}
+const toNumOrNull = (v: any): number | null => {
+  if (v === null || v === undefined || v === "") return null;
+  const n = Number(v);
+  return Number.isNaN(n) ? null : n;
+};
 
-export default function CostCenterModal({
+const toStrOrNull = (v: any): string | null => {
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  return s === "" ? null : s;
+};
+
+const toDateOrNull = (v: any): string | null => {
+  if (!v) return null;
+  const s = String(v).trim();
+  return s === "" ? null : s; // API wants YYYY-MM-DD, keep as-is
+};
+
+const fmtDate = (v?: string | null) => (v ? v : "—");
+
+const CostCenterModal: React.FC<CostCenterModalProps> = ({
   isOpen,
   onClose,
-  mode = "view",
-  costCenterData = null,
-  costCenterId = null,
-  refetchCostCenters,
+  mode,
   companyId,
-}: CostCenterModalProps) {
-  const [formData, setFormData] = useState<FormData>({
-    code: "",
-    name: "",
-    department_id: "",
-    location_id: "",
-    parent_id: "",
-    valid_from: "",
-    valid_to: "",
-    active: true,
+  costCenterId,
+  costCenterData,
+  refetchCostCenters,
+}) => {
+  const isView = mode === "view";
+  const isEdit = mode === "edit";
+  const isCreate = mode === "create";
+
+  // -----------------------------
+  // Dropdown sources
+  // -----------------------------
+  const { data: departmentsRes, isLoading: departmentsLoading } = useQuery({
+    queryKey: ["departments_all_for_costcenter", companyId],
+    enabled: !!companyId && isOpen,
+    queryFn: async () => {
+      // same one you used in DesignationModal
+      const res = await api.post("/departments/departments_index", {
+        company_id: companyId,
+        per_page: "all",
+      });
+      return res.data;
+    },
   });
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const { data: locationsRes, isLoading: locationsLoading } = useQuery({
+    queryKey: ["locations_all_for_costcenter", companyId],
+    enabled: !!companyId && isOpen,
+    queryFn: async () => {
+      // ⚠️ Update this endpoint if yours is different
+      // Example: /meta/companies/locations/locations_index
+      const res = await api.get("/meta/companies/locations", {
+          headers:{ per_page: "all",}
+      });
+      return res.data;
+    },
+  });
 
-  // Fetch dropdown data using custom hooks
-  const { data: departments = [], isLoading: loadingDepartments } =
-    useDepartmentOptions();
-  const { data: locations = [], isLoading: loadingLocations } =
-    useLocationOptions();
-  const { data: parentCostCenters = [], isLoading: loadingParents } =
-    useCostCenterOptions();
+  const departmentOptions: Option[] = useMemo(() => {
+    const rows = departmentsRes?.data || [];
+    return rows.map((d: any) => ({ id: Number(d.id), label: d.name }));
+  }, [departmentsRes]);
 
-  // Initialize form with existing data
+  const locationOptions: Option[] = useMemo(() => {
+    const rows = locationsRes?.data || [];
+    return rows.map((l: any) => ({ id: Number(l.id), label: l.name }));
+  }, [locationsRes]);
+
+  const findLabel = (opts: Option[], id: number | null | undefined) =>
+    id ? opts.find((o) => o.id === id)?.label ?? "—" : "—";
+
+  // -----------------------------
+  // Form
+  // -----------------------------
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<CostCenterFormValues>({
+    defaultValues: {
+      company_id: companyId,
+      code: null,
+      name: "",
+      department_id: null,
+      location_id: null,
+      active: true,
+      valid_from: null,
+      valid_to: null,
+    },
+  });
+
   useEffect(() => {
-    if (costCenterData && !isInitialized && isOpen) {
-      setFormData({
-        code: costCenterData.code || "",
-        name: costCenterData.name || "",
-        department_id: costCenterData.department_id || "",
-        location_id: costCenterData.location_id || "",
-        parent_id: costCenterData.parent_id || "",
-        valid_from: costCenterData.valid_from || "",
-        valid_to: costCenterData.valid_to || "",
-        active: costCenterData.active ?? true,
-      });
-      setIsInitialized(true);
-    } else if (mode === "create" && !isInitialized && isOpen) {
-      // Reset form for create mode
-      setFormData({
-        code: "",
-        name: "",
-        department_id: "",
-        location_id: "",
-        parent_id: "",
-        valid_from: "",
-        valid_to: "",
-        active: true,
-      });
-      setIsInitialized(true);
-    }
-  }, [costCenterData, mode, isInitialized, isOpen]);
+    if (!isOpen) return;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    reset({
+      company_id: companyId,
+      code: toStrOrNull(costCenterData?.code),
+      name: costCenterData?.name ?? "",
+      department_id: toNumOrNull(costCenterData?.department_id),
+      location_id: toNumOrNull(costCenterData?.location_id),
+      active: costCenterData?.active ?? true,
+      valid_from: toDateOrNull(costCenterData?.valid_from),
+      valid_to: toDateOrNull(costCenterData?.valid_to),
+    });
+  }, [isOpen, companyId, costCenterData, reset]);
+
+  // -----------------------------
+  // Mutations
+  // -----------------------------
+  const createMutation = useMutation({
+    mutationFn: async (payload: CostCenterFormValues) =>
+      api.post("/meta/companies/cost-centers/store", payload),
+    onSuccess: async () => {
+      await refetchCostCenters?.();
+      onClose();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (payload: CostCenterFormValues) => {
+      if (!costCenterId) throw new Error("Cost center ID missing");
+      return api.put(`/meta/companies/cost-centers/update/${costCenterId}`, payload);
+    },
+    onSuccess: async () => {
+      await refetchCostCenters?.();
+      onClose();
+    },
+  });
+
+  const onSubmit = async (values: CostCenterFormValues) => {
+    const payload: CostCenterFormValues = {
+      company_id: companyId,
+      code: toStrOrNull(values.code),
+      name: values.name.trim(),
+      department_id: toNumOrNull(values.department_id),
+      location_id: toNumOrNull(values.location_id),
+      active: !!values.active,
+      valid_from: toDateOrNull(values.valid_from),
+      valid_to: toDateOrNull(values.valid_to),
+    };
+
+    if (isCreate) return createMutation.mutateAsync(payload);
+    if (isEdit) return updateMutation.mutateAsync(payload);
   };
 
-  const handleSelectChange = (name: keyof FormData, value: string) => {
-    // Convert "none" to empty string for form state
-    const finalValue = value === "none" ? "" : value;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: finalValue,
-    }));
-  };
+  const modalTitle =
+    mode === "create"
+      ? "Add Cost Centre"
+      : mode === "edit"
+      ? "Edit Cost Centre"
+      : "Cost Centre Details";
 
-  const handleSwitchChange = (checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      active: checked,
-    }));
-  };
+  const saving = isSubmitting || createMutation.isPending || updateMutation.isPending;
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
-    try {
-      const token = localStorage.getItem("authToken");
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      };
-
-      // Prepare data for API
-      const submitData = {
-        code: formData.code,
-        name: formData.name,
-        department_id: formData.department_id
-          ? parseInt(formData.department_id)
-          : null,
-        location_id: formData.location_id
-          ? parseInt(formData.location_id)
-          : null,
-        parent_id: formData.parent_id ? parseInt(formData.parent_id) : null,
-        valid_from: formData.valid_from || null,
-        valid_to: formData.valid_to || null,
-        active: formData.active,
-      };
-
-      // Add company_id
-      const payload = companyId
-        ? { ...submitData, company_id: companyId }
-        : submitData;
-
-      if (mode === "create") {
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/meta/companies/cost-centers/store`,
-          payload,
-          config
-        );
-
-        toast.success("Cost center created successfully");
-      } else if (mode === "edit" && costCenterId) {
-        await axios.put(
-          `${process.env.NEXT_PUBLIC_API_URL}/meta/companies/cost-centers/update/${costCenterId}`,
-          payload,
-          config
-        );
-
-        toast.success("Cost center updated successfully");
-      }
-
-      // Refresh cost centers list
-      if (refetchCostCenters) {
-        await refetchCostCenters();
-      }
-
-      handleClose();
-    } catch (error: any) {
-      console.error("Error saving cost center:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to save cost center"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    setIsInitialized(false);
-    onClose();
-  };
-
-  const getTitle = () => {
-    switch (mode) {
-      case "create":
-        return "Create New Cost Center";
-      case "edit":
-        return "Edit Cost Center";
-      case "view":
-        return "Cost Center Details";
-      default:
-        return "Cost Center";
-    }
-  };
-
-  // Helper function to get label from value
-  const getLabelFromValue = (
-    options: Array<{ value: string; label: string }>,
-    value: string
-  ) => {
-    return options.find((option) => option.value === value)?.label || "—";
-  };
-
-  const isFormValid = () => {
-    return formData.code.trim() && formData.name.trim();
-  };
-
-  const isLoadingAny = loadingDepartments || loadingLocations || loadingParents;
-
-  // Filter parent cost centers (exclude current one in edit mode)
-  const filteredParents =
-    mode === "edit" && costCenterId
-      ? parentCostCenters.filter((cc) => cc.value !== costCenterId.toString())
-      : parentCostCenters;
-
-  return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
-      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto bg-white  border-gray-200 ">
-        <DialogHeader className="px-6 pt-6 pb-0">
-          <DialogTitle className="text-xl font-semibold text-gray-900 ">
-            {getTitle()}
-            {mode === "view" && (
-              <Badge
-                variant={formData.active ? "default" : "secondary"}
-                className="ml-2"
-              >
-                {formData.active ? "Active" : "Inactive"}
-              </Badge>
-            )}
-          </DialogTitle>
-          <DialogDescription className="text-gray-500 ">
-            {mode === "view"
-              ? "View cost center details"
-              : mode === "create"
-              ? "Create a new cost center for your company"
-              : "Edit cost center information"}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="px-6 py-4">
-          <div className="space-y-4">
-            {/* Code and Name */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-gray-700 ">
-                  GL Code <span className="text-red-500">*</span>
-                </Label>
-                {mode === "view" ? (
-                  <div className="text-gray-900  font-medium p-2 bg-gray-50  rounded-md">
-                    {formData.code}
-                  </div>
-                ) : (
-                  <Input
-                    name="code"
-                    value={formData.code}
-                    onChange={handleInputChange}
-                    disabled={isLoading}
-                    placeholder="Enter GL code"
-                    className="bg-white  border-gray-300 "
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-gray-700 ">
-                  Name <span className="text-red-500">*</span>
-                </Label>
-                {mode === "view" ? (
-                  <div className="text-gray-900  font-medium p-2 bg-gray-50  rounded-md">
-                    {formData.name}
-                  </div>
-                ) : (
-                  <Input
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    disabled={isLoading}
-                    placeholder="Enter cost center name"
-                    className="bg-white  border-gray-300 "
-                  />
-                )}
+  // -----------------------------
+  // Sexy View
+  // -----------------------------
+  const SexyView = () => (
+    <div className="space-y-4">
+      <div className="rounded-xl border bg-white p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center">
+              <Landmark className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-lg font-semibold text-slate-900">{costCenterData?.name || "—"}</div>
+              <div className="text-sm text-slate-500">
+                {costCenterData?.code ? `Code: ${costCenterData.code}` : "No code"}
               </div>
             </div>
+          </div>
 
-            {/* Department and Location */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-gray-700 ">Department</Label>
-                {mode === "view" ? (
-                  <div className="text-gray-900  p-2 bg-gray-50  rounded-md">
-                    {getLabelFromValue(departments, formData.department_id)}
-                  </div>
-                ) : (
-                  <Select
-                    value={formData.department_id || "none"}
-                    onValueChange={(value) =>
-                      handleSelectChange("department_id", value)
-                    }
-                    disabled={isLoading || loadingDepartments}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select department" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept.value} value={dept.value}>
-                          {dept.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
+          <StatusBadge status={(costCenterData?.active ?? true) ? "active" : "inactive"} />
+        </div>
 
-              <div className="space-y-2">
-                <Label className="text-gray-700 ">Location</Label>
-                {mode === "view" ? (
-                  <div className="text-gray-900  p-2 bg-gray-50  rounded-md">
-                    {getLabelFromValue(locations, formData.location_id)}
-                  </div>
-                ) : (
-                  <Select
-                    value={formData.location_id || "none"} // Add fallback to "none"
-                    onValueChange={(value) =>
-                      handleSelectChange("location_id", value)
-                    }
-                    disabled={isLoading || loadingLocations}
-                  >
-                    <SelectTrigger className="w-full bg-white  border-gray-300 ">
-                      {loadingLocations ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Loading...</span>
-                        </div>
-                      ) : (
-                        <SelectValue placeholder="Select location" />
-                      )}
-                    </SelectTrigger>
-                    <SelectContent className="bg-white  border-gray-300 ">
-                      <SelectItem value="none">None</SelectItem>{" "}
-                      {/* Change "" to "none" */}
-                      {locations.map((location) => (
-                        <SelectItem
-                          key={location.value}
-                          value={location.value}
-                          className="hover:bg-gray-100 "
-                        >
-                          {location.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="rounded-lg bg-slate-50 p-3">
+            <div className="flex items-center gap-2 text-slate-600 text-sm">
+              <Building2 className="h-4 w-4" /> Department
             </div>
-
-            {/* Parent Cost Center */}
-            <div className="space-y-2">
-              <Label className="text-gray-700 ">Parent Cost Center</Label>
-              {mode === "view" ? (
-                <div className="text-gray-900  p-2 bg-gray-50  rounded-md">
-                  {getLabelFromValue(parentCostCenters, formData.parent_id)}
-                </div>
-              ) : (
-                <Select
-                  value={formData.parent_id || "none"} // Add fallback to "none"
-                  onValueChange={(value) =>
-                    handleSelectChange("parent_id", value)
-                  }
-                  disabled={isLoading || loadingParents}
-                >
-                  <SelectTrigger className="w-full bg-white  border-gray-300 ">
-                    {loadingParents ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Loading...</span>
-                      </div>
-                    ) : (
-                      <SelectValue placeholder="Select parent cost center" />
-                    )}
-                  </SelectTrigger>
-                  <SelectContent className="bg-white  border-gray-300 ">
-                    <SelectItem value="none">None</SelectItem>{" "}
-                    {/* Change "" to "none" */}
-                    {filteredParents.map((parent) => (
-                      <SelectItem
-                        key={parent.value}
-                        value={parent.value}
-                        className="hover:bg-gray-100 "
-                      >
-                        {parent.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+            <div className="mt-1 font-medium text-slate-900">
+              {findLabel(departmentOptions, toNumOrNull(costCenterData?.department_id))}
             </div>
+          </div>
 
-            <Separator className="my-4" />
-
-            {/* Valid From and Valid To */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-gray-700 ">Valid From</Label>
-                {mode === "view" ? (
-                  <div className="text-gray-900  p-2 bg-gray-50  rounded-md flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    {formData.valid_from || "—"}
-                  </div>
-                ) : (
-                  <Input
-                    type="date"
-                    name="valid_from"
-                    value={formData.valid_from}
-                    onChange={handleInputChange}
-                    disabled={isLoading}
-                    className="bg-white  border-gray-300 "
-                  />
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-gray-700 ">Valid To</Label>
-                {mode === "view" ? (
-                  <div className="text-gray-900  p-2 bg-gray-50  rounded-md flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    {formData.valid_to || "—"}
-                  </div>
-                ) : (
-                  <Input
-                    type="date"
-                    name="valid_to"
-                    value={formData.valid_to}
-                    onChange={handleInputChange}
-                    disabled={isLoading}
-                    className="bg-white  border-gray-300 "
-                  />
-                )}
-              </div>
+          <div className="rounded-lg bg-slate-50 p-3">
+            <div className="flex items-center gap-2 text-slate-600 text-sm">
+              <MapPin className="h-4 w-4" /> Location
             </div>
+            <div className="mt-1 font-medium text-slate-900">
+              {findLabel(locationOptions, toNumOrNull(costCenterData?.location_id))}
+            </div>
+          </div>
 
-            {/* Active Status */}
-            <div className="space-y-2">
-              <Label className="text-gray-700 ">Status</Label>
-              {mode === "view" ? (
-                <div className="text-gray-900  p-2 bg-gray-50  rounded-md">
-                  {formData.active ? "Active" : "Inactive"}
-                </div>
-              ) : (
-                <div className="flex items-center space-x-3 p-2">
-                  <Switch
-                    checked={formData.active}
-                    onCheckedChange={handleSwitchChange}
-                    disabled={isLoading}
-                    className="data-[state=checked]:bg-blue-600"
-                  />
-                  <span className="text-gray-700 ">
-                    {formData.active ? "Active" : "Inactive"}
-                  </span>
-                </div>
-              )}
+          <div className="rounded-lg bg-slate-50 p-3">
+            <div className="flex items-center gap-2 text-slate-600 text-sm">
+              <CalendarDays className="h-4 w-4" /> Validity
+            </div>
+            <div className="mt-1 font-medium text-slate-900">
+              {fmtDate(costCenterData?.valid_from)} <span className="text-slate-400">→</span>{" "}
+              {fmtDate(costCenterData?.valid_to)}
             </div>
           </div>
         </div>
-
-        <DialogFooter className="px-6 pb-6 pt-4 border-t border-gray-200 ">
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              disabled={isLoading}
-              type="button"
-              className="min-w-[100px]"
-            >
-              {mode === "view" ? "Close" : "Cancel"}
-            </Button>
-            {mode !== "view" && (
-              <Button
-                onClick={handleSubmit}
-                disabled={isLoading || isLoadingAny || !isFormValid()}
-                type="button"
-                className="min-w-[140px] bg-[#1E1B4B] hover:bg-[#2D2A6E]"
-              >
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {mode === "create" ? "Create Cost Center" : "Save Changes"}
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
-}
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={modalTitle}>
+      {isView ? (
+        <div className="space-y-4">
+          <SexyView />
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={onClose}>Close</Button>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Name */}
+          <div>
+            <label className="text-sm text-slate-600">Name</label>
+            <Input placeholder="e.g. Research & Development" {...register("name", { required: true })} />
+          </div>
+
+          {/* Code */}
+          <div>
+            <label className="text-sm text-slate-600">Code</label>
+            <Input placeholder="e.g. CC-1002" {...register("code")} />
+          </div>
+
+          {/* Department + Location */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-slate-600">Department</label>
+              <Controller
+                name="department_id"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    className="w-full border rounded-md h-10 px-3 bg-white"
+                    disabled={departmentsLoading}
+                    value={field.value == null ? "" : String(field.value)}
+                    onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
+                  >
+                    <option value="">{departmentsLoading ? "Loading..." : "Select Department (optional)"}</option>
+                    {departmentOptions.map((o) => (
+                      <option key={o.id} value={String(o.id)}>{o.label}</option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-slate-600">Location</label>
+              <Controller
+                name="location_id"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    className="w-full border rounded-md h-10 px-3 bg-white"
+                    disabled={locationsLoading}
+                    value={field.value == null ? "" : String(field.value)}
+                    onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
+                  >
+                    <option value="">{locationsLoading ? "Loading..." : "Select Location (optional)"}</option>
+                    {locationOptions.map((o) => (
+                      <option key={o.id} value={String(o.id)}>{o.label}</option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Valid From + Valid To */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-slate-600">Valid From</label>
+              <Controller
+                name="valid_from"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="date"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value || null)}
+                  />
+                )}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-slate-600">Valid To</label>
+              <Controller
+                name="valid_to"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="date"
+                    value={field.value ?? ""}
+                    onChange={(e) => field.onChange(e.target.value || null)}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Active Switch */}
+          <div className="rounded-lg border bg-slate-50 p-3 flex items-center justify-between">
+            <div>
+              <div className="font-medium text-slate-900">Status</div>
+              <div className="text-xs text-slate-500">Enable/disable this cost centre</div>
+            </div>
+
+            <Controller
+              name="active"
+              control={control}
+              render={({ field }) => (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-600">{field.value ? "Active" : "Inactive"}</span>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                </div>
+              )}
+            />
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={saving}>
+              {isCreate ? "Create Cost Centre" : "Update Cost Centre"}
+            </Button>
+          </div>
+        </form>
+      )}
+    </Modal>
+  );
+};
+
+export default CostCenterModal;
