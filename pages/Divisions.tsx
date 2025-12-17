@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { api } from "@/components/api/client";
-import { Button } from "@/components/ui/button";
+import { button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { DataTable, DataTableQuery } from "@/components/ui/CustomDatatable"; 
 import {
@@ -315,36 +315,33 @@ React.useEffect(() => {
           <div className="flex justify-center">
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
+                <button
+               
                   className="h-8 w-8 rounded-full"
                 >
                   <MoreVertical className="h-4 w-4" />
-                </Button>
+                </button>
               </PopoverTrigger>
 
               <PopoverContent
                 align="end"
                 className="w-40 p-2 bg-white flex flex-col gap-1"
               >
-                <Button
-                  size="sm"
-                  variant="ghost"
+                <button
+                
                   className="w-full justify-start gap-2 text-sm"
                   onClick={(event) => handleView(division, event)}
                 >
                   <Eye className="h-3 w-3" /> View
-                </Button>
+                </button>
 
-                <Button
-                  size="sm"
-                  variant="ghost"
+                <button
+               
                   className="w-full justify-start gap-2 text-sm"
                   onClick={(event) => handleEdit(division, event)}
                 >
                   <Pencil className="h-3 w-3" /> Edit
-                </Button>
+                </button>
               </PopoverContent>
             </Popover>
           </div>
@@ -382,25 +379,25 @@ React.useEffect(() => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="my-0" onClick={handleExport}>
+            <button  className="my-0" onClick={handleExport}>
               <Download size={16} className="mr-2" /> Export
-            </Button>
-            <Button
-              variant="outline"
+            </button>
+            <button
+            
               className="my-0"
               onClick={() => setIsImportOpen(true)}
             >
               <Upload size={16} className="mr-2" /> Import
-            </Button>
+            </button>
 
-            <Button
-              variant="outline"
+            <button
+              
               onClick={handleCreate}
               className="my-0 transition-all duration-500 hover:bg-[#1E1B4B] hover:text-white "
             >
               <Plus size={18} className="mr-2" />
               Add Division
-            </Button>
+            </button>
           </div>
         </div>
       </div>
