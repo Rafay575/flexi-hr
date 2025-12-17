@@ -13,7 +13,7 @@ import {
 
 import { PageHeader } from "../components/ui/PageHeader";
 import { DataTable, Column } from "../components/ui/DataTable";
-import { Button } from "../components/ui/button";
+// import { Button } from "../components/ui/button";
 
 // ✅ Use your real axios client (same one you use in other pages)
 import { api } from "@/components/api/client";
@@ -244,10 +244,10 @@ const rows: AuditRowUI[] = useMemo(() => {
         description="Comprehensive system-wide event history, security logs, and data changes."
         breadcrumbs={[{ label: "Flexi HQ", href: "/" }, { label: "Audit Log" }]}
         actions={
-          <Button variant="outline" onClick={() => refetch()} disabled={isRefetching}>
+          <button  onClick={() => refetch()} disabled={isRefetching}>
             <RefreshCw size={16} className={`mr-2 ${isRefetching ? "animate-spin" : ""}`} />
             Refresh Log
-          </Button>
+          </button>
         }
       />
 
@@ -409,21 +409,21 @@ const rows: AuditRowUI[] = useMemo(() => {
           </div>
 
           <div className="flex gap-2">
-            <Button
-              variant="outline"
+            <button
+             
               disabled={meta.current_page <= 1 || isLoading}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
               Prev
-            </Button>
+            </button>
 
-            <Button
-              variant="outline"
+            <button
+              
               disabled={meta.current_page >= meta.last_page || isLoading}
               onClick={() => setPage((p) => p + 1)}
             >
               Next
-            </Button>
+            </button>
           </div>
         </div>
       )}
