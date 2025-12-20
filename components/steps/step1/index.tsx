@@ -153,10 +153,11 @@ useEffect(() => {
           <FormField
             control={form.control}
             name="legal_name"
+
             render={({ field }) => (
-              <FormItem className="sm:col-span-2">
+              <FormItem className="relative sm:col-span-2" >
                 <FormLabel>Legal name *</FormLabel>
-                <FormControl>
+                <FormControl >
                   <Input
                     {...field}
                     placeholder="e.g. Flexi Global Inc."
@@ -169,23 +170,26 @@ useEffect(() => {
           />
 
           {/* Short code */}
-          <FormField
-            control={form.control}
-            name="short_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Short code</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="e.g. FLEXI-US"
-                    disabled={isSaving}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+         <FormField
+  control={form.control}
+  name="short_code"
+  render={({ field }) => (
+    <FormItem className="relative">
+      <FormLabel>Short code</FormLabel>
+      <FormControl>
+        <Input
+          {...field}
+          placeholder="e.g. FLEXI-US"
+          disabled={isSaving}
+        />
+      </FormControl>
+      <FormMessage
+       // Absolute positioning and red color
+      />
+    </FormItem>
+  )}
+/>
+
 
           {/* Website */}
           <FormField
@@ -278,24 +282,21 @@ useEffect(() => {
         />
 
         {/* Dropzone + preview */}
-        <FormField
+       <FormField
           control={form.control}
           name="logo_path"
           render={() => (
-            <FormItem>
+            <FormItem className="relative">
               <FormLabel>Logo</FormLabel>
               <FormControl>
                 {previewUrl ? (
                   <div className="mt-1 flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed px-4 py-6 text-center text-xs sm:text-sm transition-colors">
                     <div className="relative h-20 w-20 rounded-md border bg-muted">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={buildLogoSrc(previewUrl)}
                         alt="Logo preview"
                         className="h-full w-full object-contain"
                       />
-
-                      {/* close / remove button */}
                       <button
                         type="button"
                         onClick={() => {
@@ -338,7 +339,7 @@ useEffect(() => {
                   </div>
                 )}
               </FormControl>
-              <FormMessage />
+              <FormMessage   />
             </FormItem>
           )}
         />

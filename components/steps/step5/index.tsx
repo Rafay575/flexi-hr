@@ -162,7 +162,7 @@ const Step5: React.FC<props> = ({ next, prev, isLast }) => {
   // You can customise how you build logo URL
   const logoUrl =
     summary?.company.logo_path &&
-    `${process.env.API_BASE_URL_IMAGE ?? ""}/${
+    `${process.env.API_BASE_URL_IMAGE ?? "https://app.myflexihr.com/storage/"}/${
       summary.company.logo_path
     }`;
   const entityTag = summary?.org.meta.entity_type?.name;

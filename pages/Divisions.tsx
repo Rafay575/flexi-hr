@@ -1,44 +1,33 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
+import { Link, useNavigate } from "react-router-dom";
 import {
-  Plus,
-  Layers,
-  Pencil,
-  Download,
-  Upload,
-  MoreVertical,
-  Eye,
-} from "lucide-react";
-
-import { api } from "@/components/api/client";
-
+  Card,
+  CardContent,
+} from "@/components/ui/Card";
+import { Plus, Layers, Pencil, Download, Upload, MoreVertical, Eye, Search } from "lucide-react";
+import { DataTable, DataTableQuery } from "@/components/ui/CustomDatatable";
+import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Input } from "@/components/ui/Input";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { DataTable, DataTableQuery } from "@/components/ui/CustomDatatable"; 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { downloadCSV } from "@/services/csvUtils";
 import { DivisionModal } from "@/components/DivisionModal";
-import { DivisionViewModal } from "@/components/DivisionViewModal"; 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Division } from "@/types"; 
-
+import { DivisionViewModal } from "@/components/DivisionViewModal";
+import { api } from "@/components/api/client";
+import { Division } from "../types";
 // ------------ Types -------------
 export type DivisionStatus = "active" | "inactive";
 type StatusFilter = "all" | "active" | "inactive";
+type ViewMode = "table" | "card"; // Removed tree view
 
 type DivisionForUI = Division & {
   status: DivisionStatus;
   regionName: string | null;
+  departments?: number | null;
+  employees?: number | null;
 };
 
 type DivisionApi = {
@@ -50,19 +39,27 @@ type DivisionApi = {
   active: boolean;
   description: string | null;
   head_employee_id: number | null;
-  is_draft: number; 
+  is_draft: number;
   draft_batch_id: string | null;
   superseded_at: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
   company_name: string;
-  region_name: string | null; 
+  region_name: string | null;
+  departments_count?: number;
+  employees_count?: number;
 };
 
 type DivisionsApiResponse = {
   data: DivisionApi[];
-  pagination: {
+  meta?: {
+    total: number;
+    current_page: number;
+    last_page: number;
+    per_page: number;
+  };
+  pagination?: {
     current_page: number;
     per_page: number;
     total: number;
@@ -70,6 +67,12 @@ type DivisionsApiResponse = {
     from: number;
     to: number;
   };
+};
+
+type TableQuery = {
+  pageIndex: number;
+  pageSize: number;
+  search: string;
 };
 
 function mapDivisionApiToDivision(d: DivisionApi): DivisionForUI {
@@ -80,283 +83,242 @@ function mapDivisionApiToDivision(d: DivisionApi): DivisionForUI {
     company_id: String(d.company_id),
     companyName: d.company_name,
     region_id: d.region_id !== null ? String(d.region_id) : null,
-    regionName: d.region_name, 
+    regionName: d.region_name,
     active: d.active,
     status: d.active ? "active" : "inactive",
     description: d.description,
     headOfDivisionId: d.head_employee_id,
     createdAt: d.created_at,
     updatedAt: d.updated_at,
+    departments: d.departments_count || 0,
+    employees: d.employees_count || 0,
   } as DivisionForUI;
 }
 
-// ------------ API with URL parameters -------------
-async function fetchDivisions(
-  companyId: number,
-  page: number = 1,
-  perPage: number = 10,
-  searchQuery: string = "",
-  statusFilter: StatusFilter = "all"
+// ------------ API -------------
+async function fetchDivisionsTable(
+  query: TableQuery,
+  status: StatusFilter,
+  companyId: number = 1
 ): Promise<DivisionsApiResponse> {
-  const params = new URLSearchParams();
-  params.append("page", String(page));
-  params.append("per_page", String(perPage));
-  
-  if (searchQuery) {
-    params.append("q", searchQuery);
-  }
-  
-  if (statusFilter !== "all") {
-    params.append("status", statusFilter);
-  }
+  const page = query.pageIndex + 1;
+  const queryParams = new URLSearchParams({
+    page: String(page),
+    per_page: String(query.pageSize),
+  });
 
-  const res = await api.post<DivisionsApiResponse>(
-    `/company-divisions/company_index?${params.toString()}`,
-    {
-      company_id: companyId
+  if (query.search.trim()) queryParams.append('q', query.search.trim());
+  if (status !== "all") queryParams.append('status', status);
+
+  const url = `/company-divisions/company_index?${queryParams.toString()}`;
+  
+  const res = await api.post<DivisionsApiResponse>(url, {
+    company_id: companyId,
+  }, {
+    headers: {
+      Accept: "application/json",
+      'Content-Type': 'application/json',
     },
-    {
-      headers: {
-        Accept: "application/json",
-      },
-    }
-  );
+  });
 
+  if (!res.data) throw new Error("Failed to fetch divisions");
   return res.data;
 }
 
-// ------------ Professional Implementation -------------
-export const Divisions: React.FC = () => {
-  const companyId = 1; 
-
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [isViewOpen, setIsViewOpen] = React.useState(false);
-  const [isImportOpen, setIsImportOpen] = React.useState(false);
-  const [editingDivision, setEditingDivision] = React.useState<Division | null>(null);
-  const [viewingDivision, setViewingDivision] = React.useState<DivisionForUI | null>(null);
-  
-  // Main table state
-  const [tableQuery, setTableQuery] = React.useState<DataTableQuery>({
+// -------------------- Page --------------------
+function DivisionsPage() {
+  const [viewMode, setViewMode] = React.useState<ViewMode>("table");
+  const [tableQuery, setTableQuery] = React.useState<TableQuery>({
     pageIndex: 0,
     pageSize: 10,
     search: "",
   });
-  
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
-  
-  // Track previous values to detect changes
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isViewOpen, setIsViewOpen] = React.useState(false);
+  const [editingDivision, setEditingDivision] = React.useState<Division | null>(null);
+  const [viewingDivision, setViewingDivision] = React.useState<DivisionForUI | null>(null);
+  const [totalItems, setTotalItems] = React.useState(0);
+  const navigate = useNavigate();
+
+  const companyId = 1;
+
+  // Track previous values for page reset logic
   const prevSearchRef = React.useRef("");
   const prevStatusRef = React.useRef<StatusFilter>("all");
-  const prevPageSizeRef = React.useRef(10);
 
-  // Convert to API parameters
-  const apiPage = tableQuery.pageIndex + 1;
-  const apiPerPage = tableQuery.pageSize;
-  const apiSearch = tableQuery.search;
-
-  // Professional logic: Reset page only on search/filter changes, NOT on pageSize changes
+  // Reset page when search or filter changes
   React.useEffect(() => {
-    const hasSearchChanged = apiSearch !== prevSearchRef.current;
+    const hasSearchChanged = tableQuery.search !== prevSearchRef.current;
     const hasStatusChanged = statusFilter !== prevStatusRef.current;
-    const hasPageSizeChanged = apiPerPage !== prevPageSizeRef.current;
 
-    // Update refs
-    if (hasSearchChanged) prevSearchRef.current = apiSearch;
+    if (hasSearchChanged) prevSearchRef.current = tableQuery.search;
     if (hasStatusChanged) prevStatusRef.current = statusFilter;
-    if (hasPageSizeChanged) prevPageSizeRef.current = apiPerPage;
 
-    // Reset to page 1 only when search or filter changes
     if (hasSearchChanged || hasStatusChanged) {
-      setTableQuery(prev => ({ 
-        ...prev, 
-        pageIndex: 0 
+      setTableQuery(prev => ({
+        ...prev,
+        pageIndex: 0,
       }));
     }
-    
-    // When pageSize changes, keep current page but adjust if needed
-    if (hasPageSizeChanged) {
-      // If we're on a page that might not exist with new pageSize,
-      // we'll let the backend handle it or adjust in the query
-      // Most backends handle this gracefully
-    }
-  }, [apiSearch, statusFilter, apiPerPage]);
+  }, [tableQuery.search, statusFilter]);
 
   // Fetch data
-  const { data, isLoading } = useQuery({
-    queryKey: ["divisions", companyId, apiPage, apiPerPage, apiSearch, statusFilter],
-    queryFn: () => fetchDivisions(companyId, apiPage, apiPerPage, apiSearch, statusFilter),
-  });
+const divisionsQuery = useQuery({
+  queryKey: ["divisions-table", tableQuery, statusFilter, companyId],
+  queryFn: () => fetchDivisionsTable(tableQuery, statusFilter, companyId),
+  enabled: true,
+  // If using React Query v5 with full callback options
+  ...("5" === "5" && {
+    callbacks: {
+      onSuccess: (data) => {
+        console.log('data', data);
+        setTotalItems(data.pagination?.total || data.meta?.total || 0);
+      }
+    }
+  })
+});
 
-  // Map data
-  const divisions: DivisionForUI[] = React.useMemo(() => {
-    return data?.data?.map(mapDivisionApiToDivision) ?? [];
-  }, [data]);
+const tableData = divisionsQuery.data?.data?.map(mapDivisionApiToDivision) ?? [];
+  // const totalItems = divisionsQuery.data?.pagination?.total || 0;
+  const isFetching = divisionsQuery.isFetching;
 
-  const totalItems = data?.pagination?.total || 0;
+  // Handle page overflow
+  React.useEffect(() => {
+    if (totalItems > 0) {
+      const totalPages = Math.ceil(totalItems / tableQuery.pageSize);
+      const currentPage = tableQuery.pageIndex + 1;
 
-  // Handle query changes from DataTable
-  const handleQueryChange = (query: DataTableQuery) => {
-    setTableQuery(query);
-  };
+      if (currentPage > totalPages) {
+        setTableQuery(prev => ({
+          ...prev,
+          pageIndex: Math.max(0, totalPages - 1),
+        }));
+      }
+    }
+  }, [totalItems, tableQuery.pageSize]);
 
-  // Handle status filter change
-  const handleStatusChange = (value: StatusFilter) => {
-    setStatusFilter(value);
-  };
-
-  // --- HANDLERS ---
-  const handleEdit = (div: DivisionForUI, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const { status, regionName, ...baseDivision } = div; 
-    setEditingDivision(baseDivision);
-    setIsModalOpen(true);
-  };
-  
-  const handleView = (div: DivisionForUI, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setViewingDivision(div);
-    setIsViewOpen(true);
-  };
-  
-  const handleCloseView = () => {
-    setIsViewOpen(false);
-    setViewingDivision(null);
-  };
-
+  // Handlers
   const handleCreate = () => {
     setEditingDivision(null);
     setIsModalOpen(true);
   };
-// Add this effect in your Divisions component
-React.useEffect(() => {
-  if (totalItems > 0) {
-    const totalPages = Math.ceil(totalItems / apiPerPage);
-    const currentPage = apiPage; // 1-based
-    
-    // If current page is beyond available pages, reset to last page
-    if (currentPage > totalPages) {
-      setTableQuery(prev => ({ 
-        ...prev, 
-        pageIndex: Math.max(0, totalPages - 1) // Convert to 0-based
-      }));
-    }
-  }
-}, [totalItems, apiPerPage, apiPage]);
+
   const handleExport = () => {
-    if (!divisions.length) return;
-    const exportData = divisions.map((d, index) => ({
+    if (!tableData.length) return;
+    const exportData = tableData.map((d, index) => ({
       'Sr No': (tableQuery.pageIndex * tableQuery.pageSize) + index + 1,
-      Name: d.name,
-      Code: d.code,
-      Company: d.companyName, 
-      Region: d.regionName || d.region_id || '', 
-      Status: d.active ? 'Active' : 'Inactive', 
-      Description: d.description || '',
+      'Name': d.name,
+      'Code': d.code,
+      'Company': d.companyName,
+      'Region': d.regionName || d.region_id || '',
+      'Departments': d.departments || 0,
+      'Employees': d.employees || 0,
+      'Status': d.active ? 'Active' : 'Inactive',
+      'Description': d.description || '',
     }));
-    downloadCSV(
-      exportData,
-      `divisions_export_${new Date().toISOString().slice(0, 10)}.csv`
-    );
+    downloadCSV(exportData, `divisions_export_${new Date().toISOString().slice(0, 10)}.csv`);
   };
 
   // Columns definition
-  const columns: ColumnDef<DivisionForUI>[] = [
-    {
-      id: "name",
-      header: "Division Name",
-      cell: ({ row }) => {
-        const d = row.original;
-        return (
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-              <Layers size={16} />
-            </div>
-            <div>
-              <div className="font-medium text-slate-900">{d.name}</div>
-              <div className="text-xs text-slate-500">
-                {d.companyName ?? "—"}
+  const columns = React.useMemo<ColumnDef<DivisionForUI>[]>(() => {
+    return [
+      {
+        accessorKey: "name",
+        header: "Division Name",
+        meta: { headerClassName: "text-left pl-2" },
+        cell: ({ row }) => {
+          const division = row.original;
+          return (
+            <div className="flex gap-1 justify-start">
+              <div className="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <Layers className="h-5 w-5" />
+              </div>
+              <div className="ml-2 flex flex-col">
+                <span className="font-medium text-sm">{division.name}</span>
+                <span className="text-xs text-muted-foreground">{division.companyName ?? "—"}</span>
               </div>
             </div>
-          </div>
-        );
+          );
+        },
       },
-      meta: { headerClassName: "text-left pl-2" },
-    },
-    {
-      id: "code",
-      header: "Code",
-      cell: ({ row }) => (
-        <span className="font-mono text-slate-600">{row.original.code}</span>
-      ),
-      meta: { headerClassName: "text-left pl-2" },
-    },
-    {
-      id: "region",
-      header: "Region",
-      cell: ({ row }) => (
-        <span className="text-slate-600">
-          {row.original.regionName ?? row.original.region_id ?? "—"}
-        </span>
-      ),
-      meta: { headerClassName: "text-left pl-2" },
-    },
-    {
-      id: "status",
-      header: "Status",
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
-      meta: { headerClassName: "text-left" },
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const division = row.original;
-        return (
-          <div className="flex justify-center">
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-               
-                  className="h-8 w-8 rounded-full"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </button>
-              </PopoverTrigger>
-
-              <PopoverContent
-                align="end"
-                className="w-40 p-2 bg-white flex flex-col gap-1"
-              >
-                <button
-                
-                  className="w-full justify-start gap-2 text-sm"
-                  onClick={(event) => handleView(division, event)}
-                >
-                  <Eye className="h-3 w-3" /> View
-                </button>
-
-                <button
-               
-                  className="w-full justify-start gap-2 text-sm"
-                  onClick={(event) => handleEdit(division, event)}
-                >
-                  <Pencil className="h-3 w-3" /> Edit
-                </button>
-              </PopoverContent>
-            </Popover>
-          </div>
-        );
+      {
+        accessorKey: "code",
+        header: "Code",
+        meta: { headerClassName: "text-left pl-2" },
+        cell: ({ row }) => (
+          <span className="font-mono text-sm text-muted-foreground">
+            {row.original.code || "—"}
+          </span>
+        ),
       },
-    },
-  ];
+      {
+        accessorKey: "regionName",
+        header: "Region",
+        meta: { headerClassName: "text-left pl-2" },
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">
+            {row.original.regionName || row.original.region_id || "—"}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      },
+      {
+        accessorKey: "departments",
+        header: "Departments",
+        meta: { headerClassName: "text-center" },
+        cell: ({ row }) => (
+          <div className="flex h-7 px-4 w-fit items-center justify-center rounded-md mx-auto bg-muted text-xs font-medium">
+            {row.original.departments ?? 0}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "employees",
+        header: "Employees",
+        meta: { headerClassName: "text-center" },
+        cell: ({ row }) => (
+          <div className="flex h-7 px-4 w-fit items-center justify-center rounded-md mx-auto bg-muted text-xs font-medium">
+            {row.original.employees ?? 0}
+          </div>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => {
+          const division = row.original;
+          return (
+            <div className="flex justify-center">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-40 p-2 bg-white flex flex-col gap-1">
+                  <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-sm" onClick={() => setViewingDivision(division)}>
+                    <Eye className="h-3 w-3" /> View
+                  </Button>
+                  <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-sm" onClick={() => setEditingDivision(division)}>
+                    <Pencil className="h-3 w-3" /> Edit
+                  </Button>
+                </PopoverContent>
+              </Popover>
+            </div>
+          );
+        },
+      },
+    ];
+  }, []);
 
-  // Status Filter component
-  const StatusFilterComponent = () => (
-    <Select
-      value={statusFilter}
-      onValueChange={handleStatusChange}
-    >
-      <SelectTrigger className="h-9 w-[130px]">
+  const statusFilterUI = (
+    <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+      <SelectTrigger className="h-9 w-[130px] bg-white">
         <SelectValue placeholder="All Status" />
       </SelectTrigger>
       <SelectContent className="bg-white">
@@ -367,60 +329,109 @@ React.useEffect(() => {
     </Select>
   );
 
-  return (
-    <div>
-      <div className="p-2">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-2xl font-semibold">Divisions & Groups</h1>
-            <p className="text-sm">
-              Manage top-level business units, regional groups, and functional
-              divisions.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <button  className="my-0" onClick={handleExport}>
-              <Download size={16} className="mr-2" /> Export
-            </button>
-            <button
-            
-              className="my-0"
-              onClick={() => setIsImportOpen(true)}
-            >
-              <Upload size={16} className="mr-2" /> Import
-            </button>
+  const perPageOptions = [10, 20, 50, 100];
+  const perPageDropdown = (
+    <Select
+      value={String(tableQuery.pageSize)}
+      onValueChange={(value) => {
+        setTableQuery((prev) => ({
+          ...prev,
+          pageSize: Number(value),
+          pageIndex: 0,
+        }));
+      }}
+    >
+      <SelectTrigger className="h-9 w-[100px] bg-white">
+        <SelectValue placeholder="Per page" />
+      </SelectTrigger>
+      <SelectContent className="bg-white">
+        {perPageOptions.map((size) => (
+          <SelectItem key={size} value={String(size)}>
+            {size}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 
-            <button
-              
-              onClick={handleCreate}
-              className="my-0 transition-all duration-500 hover:bg-[#1E1B4B] hover:text-white "
-            >
-              <Plus size={18} className="mr-2" />
-              Add Division
-            </button>
-          </div>
+  return (
+    <div className="p-4 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Divisions & Groups</h1>
+          <p className="text-sm">
+            Manage top-level business units, regional groups, and functional divisions.
+          </p>
+        </div>
+        <div className="flex gap-2 items-center">
+          <Button variant="outline" className="my-0" >
+            <Upload className="h-4 w-4 mr-2" /> Import
+          </Button>
+          <Button variant="outline" className="my-0" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" /> Export
+          </Button>
+          <Button
+            variant="outline"
+            className="my-0 transition-all duration-500 hover:bg-[#1E1B4B] hover:text-white"
+            onClick={handleCreate}
+          >
+            <Plus className="h-4 w-4 mr-2" /> Add Division
+          </Button>
         </div>
       </div>
 
-      {/* DataTable */}
-      <DataTable<DivisionForUI, unknown>
-        columns={columns}
-        data={divisions}
-        totalItems={totalItems}
-        serverSide={true}
-        onQueryChange={handleQueryChange}
-        filtersSlot={<StatusFilterComponent />}
-        isLoading={isLoading}
-        emptyMessage="No divisions found."
-        initialPageSize={10}
-        showSrColumn={true}
-        className="mb-6"
-      />
+      {/* Filters Card */}
+      <Card className="shadow-sm border-border/40">
+        <CardContent className="p-4">
+          <div className="flex flex-col md:items-center justify-between gap-4">
+            {viewMode === "table" && (
+              <div className="w-full">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" />
+                  <Input
+                    placeholder="Search divisions by name, code, or region..."
+                    value={tableQuery.search}
+                    onChange={(e) => setTableQuery((prev) => ({ ...prev, search: e.target.value, pageIndex: 0 }))}
+                    className="pl-9 w-full bg-white"
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex flex-col md:flex-row md:items-center gap-4 w-full">
+              {viewMode === "table" && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Show</span>
+                  {perPageDropdown}
+                  <span className="text-sm text-muted-foreground">entries</span>
+                </div>
+              )}
+              {statusFilterUI}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* RENDER MODALS */}
+      {/* Content Area */}
+    
+          <DataTable<DivisionForUI, unknown>
+            columns={columns}
+            data={tableData}
+            totalItems={totalItems}
+            serverSide
+            onQueryChange={(q) => setTableQuery(q)}
+            isLoading={isFetching}
+            filtersSlot={null}
+            initialPageSize={tableQuery.pageSize}
+            showSrColumn={true}
+            emptyMessage="No divisions found. Create your first division to get started."
+            className="border-0"
+          />
+      
+      {/* Modals */}
       <DivisionViewModal
         isOpen={isViewOpen}
-        onClose={handleCloseView}
+        onClose={() => setIsViewOpen(false)}
         division={viewingDivision}
       />
 
@@ -431,4 +442,6 @@ React.useEffect(() => {
       />
     </div>
   );
-};
+}
+
+export default DivisionsPage;

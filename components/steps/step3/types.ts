@@ -20,6 +20,7 @@ export const TIMEZONE_OPTIONS = [
 ] as const;
 export type TimezoneValue = (typeof TIMEZONE_OPTIONS)[number]["value"];
 
+
 export const companyStep3Schema = z.object({
   registered_email: z.string().email("Please enter a valid registered email"),
   main_phone: z.string().min(5, "Main phone is required"),
@@ -36,29 +37,38 @@ export const companyStep3Schema = z.object({
     .string()
     .min(3, "Address line 1 is required")
     .max(100, "Address line 1 is too long"),
- address_line_2: z
-  .string()
-  .min(3, "Address line 2 must be at least 2 characters")
-  .max(100, "Address line 2 is too long")
-  .optional()
-  .or(z.literal("")),
-
-  established_on: z
+  address_line_2: z
     .string()
-    .min(4, "Established date is required")
+    .min(3, "Address line 2 must be at least 2 characters")
+    .max(100, "Address line 2 is too long")
     .optional()
     .or(z.literal("")),
 
-  registration_no: z.string().or(z.literal("")),
-  tax_vat_id: z.string().or(z.literal("")),
+  established_on: z
+    .string()
+    .min(1, "Established date is required")
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/, 
+      "Please enter a valid date in YYYY-MM-DD format"
+    ), // Added date validation
+
+  registration_no: z
+    .string()
+    .min(1, "Registration number is required")
+    .regex(/^[A-Z0-9-]+$/, "Please enter a valid registration number"),
+  
+  tax_vat_id: z
+    .string()
+    .min(1, "Tax / VAT ID is required")
+    .regex(/^[A-Z0-9-]+$/, "Please enter a valid Tax / VAT ID"),
 
   currency_id: z.string().min(1, "Currency is required"),
 
-  // we don't strictly validate file with zod; RHF will still carry a File
   letterhead: z.any().nullable().optional(),
 });
 
 export type CompanyStep3Form = z.infer<typeof companyStep3Schema>;
+
 
 /**
  * Shape we expect from GET /step-3.

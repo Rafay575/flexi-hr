@@ -34,31 +34,28 @@ import {
 } from "./types";
 import { useDigitalPresence } from "./hooks";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
-
-const Step2: React.FC<props> = ({ next, prev }) => {
+const Step2: React.FC<props> = ({ next, prev, isLast }) => {
   const { socials, isLoading, updateDigitalPresence, isPending } =
     useDigitalPresence();
 
   // RHF v8 generics: <TFieldValues, TContext, TTransformedValues>
-  const form = useForm<DigitalPresenceForm, any, DigitalPresenceForm>({
-    resolver: zodResolver(digitalPresenceSchema as any),
+  const form = useForm<DigitalPresenceForm>({
+    resolver: zodResolver(digitalPresenceSchema),
     defaultValues: {
       support_email: "",
-      links: [],
+      links: [{ platform: "linkedin", handle: "", url: "" }], // Always start with one link
     },
   });
 
-  const { control, handleSubmit, reset, watch } = form;
+  const { control, handleSubmit, reset, watch, formState: { errors } } = form;
 
-  const { fields, append, remove } = useFieldArray<DigitalPresenceForm, "links">(
-    {
-      control,
-      name: "links",
-    }
-  );
+  const { fields, append, remove } = useFieldArray<DigitalPresenceForm, "links">({
+    control,
+    name: "links",
+  });
 
-  // Prefill from API (socials.links_json -> form.links)
   useEffect(() => {
     if (!socials) return;
 
@@ -71,12 +68,11 @@ const Step2: React.FC<props> = ({ next, prev }) => {
             handle: link.handle ?? "",
             url: link.url ?? "",
           }))
-        : [],
+        : [{ platform: "linkedin", handle: "", url: "" }], // Ensure at least one link
     });
   }, [socials, reset]);
 
   const onSubmit = async (values: DigitalPresenceForm) => {
-    // values already in { support_email, links: [...] } shape
     await updateDigitalPresence(values);
     next();
   };
@@ -96,17 +92,13 @@ const Step2: React.FC<props> = ({ next, prev }) => {
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="space-y-6"
-        noValidate
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
         {/* Support email */}
         <FormField
           control={control}
           name="support_email"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="relative">
               <FormLabel>Support email</FormLabel>
               <FormControl>
                 <Input
@@ -169,7 +161,7 @@ const Step2: React.FC<props> = ({ next, prev }) => {
                   control={control}
                   name={`links.${index}.platform`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="relative">
                       <FormLabel className="text-[11px]">
                         Platform
                       </FormLabel>
@@ -252,12 +244,17 @@ const Step2: React.FC<props> = ({ next, prev }) => {
                 />
 
                 {/* Remove button */}
-                <div className="flex items-center justify-end">
+                <div className="flex items-end justify-end">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={() => remove(index)}
+                    onClick={() => {
+                      // Prevent deleting the first row (index 0)
+                      if (index > 0) {
+                        remove(index);
+                      }
+                    }}
                     disabled={isPending}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />

@@ -70,7 +70,7 @@ export type DataTableProps<TData, TValue> = {
 
   /** Extra className to style wrapper */
   className?: string;
-
+  isCard?: boolean;
   /** Show Sr # column as first column */
   showSrColumn?: boolean;
 };
@@ -98,6 +98,7 @@ export function DataTable<TData, TValue>({
   onQueryChange,
   filtersSlot,
   isLoading,
+  isCard = false,
   emptyMessage = "No records found.",
   initialPageSize = 10,
   className,
@@ -107,7 +108,7 @@ export function DataTable<TData, TValue>({
     pageIndex: 0,
     pageSize: initialPageSize,
   });
-
+  console.log(totalItems)
   const [globalFilter, setGlobalFilter] = React.useState("");
   const debouncedSearch = useDebouncedValue(globalFilter, 500);
 
@@ -164,29 +165,29 @@ export function DataTable<TData, TValue>({
   const pageIndex = pagination.pageIndex;
   const pageSize = pagination.pageSize;
 
-// Calculate start and end with boundary checks
-let start = total === 0 ? 0 : pageIndex * pageSize + 1;
-let end = total === 0 ? 0 : Math.min(total, (pageIndex + 1) * pageSize);
+  // Calculate start and end with boundary checks
+  let start = total === 0 ? 0 : pageIndex * pageSize + 1;
+  let end = total === 0 ? 0 : Math.min(total, (pageIndex + 1) * pageSize);
 
-// Fix: If start > end, it means we're on a page that doesn't exist
-// This happens when filtered results have fewer items
-if (start > end && total > 0) {
-  // Reset to first page
-  start = 1;
-  end = Math.min(total, pageSize);
-}
-// Adjust pageIndex if it's beyond available pages
-let adjustedPageIndex = pageIndex;
-if (total > 0 && pageIndex >= Math.ceil(total / pageSize)) {
-  adjustedPageIndex = Math.max(0, Math.ceil(total / pageSize) - 1);
-  
-  // Update the table's pagination state
-  if (adjustedPageIndex !== pageIndex) {
-    setTimeout(() => {
-      table.setPageIndex(adjustedPageIndex);
-    }, 0);
+  // Fix: If start > end, it means we're on a page that doesn't exist
+  // This happens when filtered results have fewer items
+  if (start > end && total > 0) {
+    // Reset to first page
+    start = 1;
+    end = Math.min(total, pageSize);
   }
-}
+  // Adjust pageIndex if it's beyond available pages
+  let adjustedPageIndex = pageIndex;
+  if (total > 0 && pageIndex >= Math.ceil(total / pageSize)) {
+    adjustedPageIndex = Math.max(0, Math.ceil(total / pageSize) - 1);
+
+    // Update the table's pagination state
+    if (adjustedPageIndex !== pageIndex) {
+      setTimeout(() => {
+        table.setPageIndex(adjustedPageIndex);
+      }, 0);
+    }
+  }
   const rowOffset = pageIndex * pageSize; // used for Sr #
   const currentRows = serverSide
     ? table.getCoreRowModel().rows
@@ -222,62 +223,65 @@ if (total > 0 && pageIndex >= Math.ceil(total / pageSize)) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
       className={cn(
-        "flex flex-col gap-4 rounded-xl border bg-card p-4 shadow-sm",
+        ` flex flex-col gap-4   ${
+          isCard ? "rounded-xl border bg-card p-4 shadow-sm" : ""
+        } `,
+
         className
       )}
     >
       {/* TOP BAR: Search + Filters + PerPage */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* Search */}
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" />
-          <Input
-            placeholder="Search..."
-            value={globalFilter ?? ""}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+      {isCard ?? (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" />
+            <Input
+              placeholder="Search..."
+              value={globalFilter ?? ""}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="pl-9"
+            />
+          </div>
 
-        {/* Right side: custom filters & per-page */}
-        <div className="flex flex-wrap items-center gap-3">
-          {filtersSlot && (
-            <div className="flex flex-wrap items-center gap-2">
-              {filtersSlot}
+          {/* Right side: custom filters & per-page */}
+          <div className="flex flex-wrap items-center gap-3">
+            {filtersSlot && (
+              <div className="flex flex-wrap items-center gap-2">
+                {filtersSlot}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">Per page</span>
+              <Select
+                value={String(pageSize)}
+                onValueChange={(value) =>
+                  setPagination((prev) => ({
+                    ...prev,
+                    pageSize: Number(value),
+                    pageIndex: 0, // reset to first page
+                  }))
+                }
+              >
+                <SelectTrigger className="h-8 w-[90px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {[10, 20, 50, 100].map((size) => (
+                    <SelectItem key={size} value={String(size)}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          )}
-
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Per page</span>
-            <Select
-              value={String(pageSize)}
-              onValueChange={(value) =>
-                setPagination((prev) => ({
-                  ...prev,
-                  pageSize: Number(value),
-                  pageIndex: 0, // reset to first page
-                }))
-              }
-            >
-              <SelectTrigger className="h-8 w-[90px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {[10, 20, 50, 100].map((size) => (
-                  <SelectItem key={size} value={String(size)}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
-      </div>
-
+      )}
       {/* TABLE */}
       <div className="overflow-hidden rounded-lg border bg-background">
         <Table>
-          <TableHeader className="bg-muted/60">
+          <TableHeader className="bg-[#F9FBFD]">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-muted/60">
                 {showSrColumn && (

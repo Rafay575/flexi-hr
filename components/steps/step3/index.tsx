@@ -45,12 +45,13 @@ const buildFileSrc = (path: string | null | undefined) => {
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
-  const base = process.env.API_BASE_URL_IMAGE ?? "";
+  const base =
+    process.env.API_BASE_URL_IMAGE ?? "https://app.myflexihr.com/storage/";
   return base + path;
 };
 
 const Step3: React.FC<props> = ({ next, prev }) => {
-  const { data, isLoading } = useGetCompanyStep3();
+  const { data, isLoading, refetch } = useGetCompanyStep3();
   const { mutateAsync, isPending } = useUpdateCompanyStep3();
 
   const [letterheadPreview, setLetterheadPreview] = useState<string | null>(
@@ -63,7 +64,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
     defaultValues: {
       registered_email: "",
       main_phone: "",
-      timezone: "Asia/Karachi", // default only for brand-new
+      timezone: "Asia/Karachi", // default timezone
       country_id: "",
       state_id: "",
       city_id: "",
@@ -71,9 +72,9 @@ const Step3: React.FC<props> = ({ next, prev }) => {
       address_line_2: "",
       street: "",
       zip: "",
-      established_on: "",
-      registration_no: "",
-      tax_vat_id: "",
+      established_on: "", // default value for date
+      registration_no: "", // default value
+      tax_vat_id: "", // default value
       currency_id: "",
       letterhead: null,
     },
@@ -97,6 +98,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
 
   // ------------- Prefill from API -------------
   useEffect(() => {
+    refetch();
     if (!data) return;
 
     // Backend sends e.g. "Asia/Dubai" or "Asia\/Dubai"
@@ -106,7 +108,8 @@ const Step3: React.FC<props> = ({ next, prev }) => {
       .trim();
 
     const match = TIMEZONE_OPTIONS.find((tz) => tz.value === apiTzRaw);
-    const safeTimezone: TimezoneValue = (match?.value ?? "Asia/Karachi") as TimezoneValue;
+    const safeTimezone: TimezoneValue = (match?.value ??
+      "Asia/Karachi") as TimezoneValue;
 
     reset({
       registered_email: data.registered_email ?? "",
@@ -169,7 +172,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="registered_email"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Registered email</FormLabel>
                   <FormControl>
                     <Input
@@ -188,7 +191,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="main_phone"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Main phone</FormLabel>
                   <FormControl>
                     <Input
@@ -208,7 +211,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
             control={control}
             name="timezone"
             render={({ field }) => (
-              <FormItem className="max-w-sm">
+              <FormItem className="relative max-w-sm">
                 <FormLabel>Timezone</FormLabel>
                 <FormControl>
                   <select
@@ -245,7 +248,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="country_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Country</FormLabel>
                   <FormControl>
                     <SearchableSelect
@@ -274,7 +277,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="state_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>State / Province</FormLabel>
                   <FormControl>
                     <SearchableSelect
@@ -304,7 +307,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="city_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>City</FormLabel>
                   <FormControl>
                     <SearchableSelect
@@ -328,78 +331,81 @@ const Step3: React.FC<props> = ({ next, prev }) => {
           </div>
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-
-          <FormField
-            control={control}
-            name="address_line_1"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Address line 1</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder="Building, street, block..."
-                    disabled={isPending}
-                   className="max-h-[96px] min-h-[96px] overflow-y-auto resize-none"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            <FormField
+              control={control}
+              name="address_line_1"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>Address line 1</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Building, street, block..."
+                      disabled={isPending}
+                      className="max-h-[96px] min-h-[96px] overflow-y-auto resize-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-          <FormField
-            control={control}
-            name="address_line_2"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Address line 2</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder="Apartment, floor, landmark (optional)"
-                    disabled={isPending}
-                   className="max-h-[96px] min-h-[96px] overflow-y-auto resize-none"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            <FormField
+              control={control}
+              name="address_line_2"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>Address line 2</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Apartment, floor, landmark (optional)"
+                      disabled={isPending}
+                      className="max-h-[96px] min-h-[96px] overflow-y-auto resize-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            </div>
+            <FormField
+              control={control}
+              name="street"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>Street</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Main Boulevard"
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="zip"
+              render={({ field }) => (
+                <FormItem className="relative">
+                  <FormLabel>ZIP / Postal code</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="54000"
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           {/* Existing street + zip */}
-          <FormField
-            control={control}
-            name="street"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Street</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="Main Boulevard"
-                    disabled={isPending}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="zip"
-            render={({ field }) => (
-              <FormItem className="max-w-xs">
-                <FormLabel>ZIP / Postal code</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="54000" disabled={isPending} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         {/* Legal & Finance */}
@@ -414,12 +420,14 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="established_on"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Established on</FormLabel>
                   <FormControl>
                     <Input {...field} type="date" disabled={isPending} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>
+                    {form.formState.errors.established_on?.message}
+                  </FormMessage>
                 </FormItem>
               )}
             />
@@ -428,7 +436,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="registration_no"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Registration no.</FormLabel>
                   <FormControl>
                     <Input
@@ -437,7 +445,9 @@ const Step3: React.FC<props> = ({ next, prev }) => {
                       disabled={isPending}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>
+                    {form.formState.errors.registration_no?.message}
+                  </FormMessage>
                 </FormItem>
               )}
             />
@@ -446,7 +456,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="tax_vat_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Tax / VAT ID</FormLabel>
                   <FormControl>
                     <Input
@@ -455,7 +465,9 @@ const Step3: React.FC<props> = ({ next, prev }) => {
                       disabled={isPending}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage>
+                    {form.formState.errors.tax_vat_id?.message}
+                  </FormMessage>
                 </FormItem>
               )}
             />
@@ -467,7 +479,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="currency_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Billing currency</FormLabel>
                   <FormControl>
                     <SearchableSelect
@@ -491,7 +503,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
               control={control}
               name="letterhead"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="relative">
                   <FormLabel>Letterhead</FormLabel>
                   <FormControl>
                     <div className="space-y-2">

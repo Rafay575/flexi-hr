@@ -9,7 +9,10 @@ import { z } from "zod";
 
 export const companyStep1Schema = z.object({
   legal_name: z.string().min(2, "Legal name is required"),
-  short_code: z.string().max(20).or(z.literal("")),
+  short_code: z
+    .string()
+    .min(2, "Short code must be between 2 and 8 characters")
+    .max(8, "Short code must be between 2 and 8 characters"),
   website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   description: z.string().max(500).optional().or(z.literal("")),
 

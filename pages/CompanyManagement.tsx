@@ -2,7 +2,10 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Link, useNavigate } from "react-router-dom";
-
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/Card";
 import dagre from "dagre";
 import {
   ReactFlow,
@@ -43,10 +46,12 @@ import {
   Upload,
   GitBranch,
   List,
+  Search,
 } from "lucide-react";
 
 import { api } from "@/components/api/client";
-import { CompanyProvider, useCompanyContext } from "@/context/CompanyContext";
+import { useCompanyContext } from "@/context/CompanyContext";
+import { Input } from "@/components/ui/Input";
 
 // -------------------- Types (Table) --------------------
 type Company = {
@@ -54,7 +59,7 @@ type Company = {
   legal_name: string;
   registration_no: string;
   entity_type: string | null;
-  status: string | null; // "active" | "inactive" | "draft" etc
+  status: string | null;
   divisions: number | null;
   departments: number | null;
   employees: number | null;
@@ -73,7 +78,7 @@ type CompaniesResponse = {
 };
 
 type TableQuery = {
-  pageIndex: number; // 0-based for DataTable
+  pageIndex: number;
   pageSize: number;
   search: string;
 };
@@ -159,10 +164,9 @@ async function fetchCompaniesTree(
   status: StatusFilter
 ): Promise<CompaniesTreeResponse> {
   const params: Record<string, string> = {
-    mode: "tree", // ✅ as you requested
+    mode: "tree",
   };
 
-  // optional filters (if backend supports them)
   if (query.search.trim()) params.q = query.search.trim();
   if (status !== "all") params.status = status;
 
@@ -185,7 +189,6 @@ type OrgNodeData = {
 const OrgNodeCard: React.FC<NodeProps<Node<OrgNodeData>>> = ({ data }) => {
   return (
     <div className="relative rounded-xl border bg-white px-3 py-2 shadow-sm min-w-[220px]">
-      {/* ✅ REQUIRED so edges/arrows connect properly */}
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <Handle type="source" position={Position.Bottom} style={{ opacity: 0 }} />
 
@@ -222,7 +225,7 @@ function layoutWithDagre(nodes: Node[], edges: Edge[]) {
   g.setDefaultEdgeLabel(() => ({}));
 
   g.setGraph({
-    rankdir: "TB", // TB = top->bottom, LR = left->right
+    rankdir: "TB",
     ranksep: 70,
     nodesep: 30,
   });
@@ -246,7 +249,10 @@ function layoutWithDagre(nodes: Node[], edges: Edge[]) {
   return { nodes: layoutedNodes, edges };
 }
 
-function buildCompanyTreeGraph(company: TreeCompany): { nodes: Node[]; edges: Edge[] } {
+function buildCompanyTreeGraph(company: TreeCompany): {
+  nodes: Node[];
+  edges: Edge[];
+} {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
@@ -290,8 +296,11 @@ function buildCompanyTreeGraph(company: TreeCompany): { nodes: Node[]; edges: Ed
         position: { x: 0, y: 0 },
         data: {
           title: dept.name,
-          subtitle: `${dept.unit_type ?? "Department"}${dept.code ? ` • ${dept.code}` : ""}`,
-          badge: dept.total_employees != null ? `${dept.total_employees}` : null,
+          subtitle: `${dept.unit_type ?? "Department"}${
+            dept.code ? ` • ${dept.code}` : ""
+          }`,
+          badge:
+            dept.total_employees != null ? `${dept.total_employees}` : null,
         },
       });
 
@@ -309,8 +318,11 @@ function buildCompanyTreeGraph(company: TreeCompany): { nodes: Node[]; edges: Ed
           position: { x: 0, y: 0 },
           data: {
             title: des.title,
-            subtitle: `${des.code ?? "—"}${des.job_level != null ? ` • JL ${des.job_level}` : ""}`,
-            badge: des.total_employees != null ? `${des.total_employees}` : null,
+            subtitle: `${des.code ?? "—"}${
+              des.job_level != null ? ` • JL ${des.job_level}` : ""
+            }`,
+            badge:
+              des.total_employees != null ? `${des.total_employees}` : null,
           },
         });
 
@@ -327,22 +339,17 @@ function buildCompanyTreeGraph(company: TreeCompany): { nodes: Node[]; edges: Ed
 }
 
 // -------------------- Page --------------------
-function CompaniesPageInner() {
+function CompaniesPage() {
   const [viewMode, setViewMode] = React.useState<ViewMode>("table");
-
   const [tableQuery, setTableQuery] = React.useState<TableQuery>({
     pageIndex: 0,
     pageSize: 10,
     search: "",
   });
-
+  const { setEditCompany, setCreateMode, startCompanyDraft } = useCompanyContext();
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
-
-  // ✅ Tree dropdown selection
   const [selectedCompanyId, setSelectedCompanyId] = React.useState<number | null>(null);
-
   const navigate = useNavigate();
-  const { setCompanyData } = useCompanyContext();
 
   const companiesTableQuery = useQuery({
     queryKey: ["companies-table", tableQuery, statusFilter],
@@ -351,24 +358,24 @@ function CompaniesPageInner() {
   });
 
   const companiesTreeQuery = useQuery({
-    queryKey: ["companies-tree", tableQuery.search, statusFilter], // tree doesn't really need pagination
+    queryKey: ["companies-tree", tableQuery.search, statusFilter],
     queryFn: () => fetchCompaniesTree(tableQuery, statusFilter),
     enabled: viewMode === "tree",
   });
 
   const tableData = companiesTableQuery.data?.data ?? [];
   const totalItems = companiesTableQuery.data?.meta.total ?? 0;
-
   const treeCompanies = companiesTreeQuery.data?.data ?? [];
 
-  // set default selected company when tree loads
   React.useEffect(() => {
     if (viewMode !== "tree") return;
     if (!treeCompanies.length) return;
     setSelectedCompanyId((prev) => (prev == null ? treeCompanies[0].id : prev));
   }, [viewMode, treeCompanies.length]);
 
-  const isFetching = viewMode === "table" ? companiesTableQuery.isFetching : companiesTreeQuery.isFetching;
+  const isFetching = viewMode === "table"
+    ? companiesTableQuery.isFetching
+    : companiesTreeQuery.isFetching;
 
   const columns = React.useMemo<ColumnDef<Company>[]>(() => {
     return [
@@ -418,11 +425,9 @@ function CompaniesPageInner() {
         header: "Status",
         cell: ({ row }) => {
           const rawStatus = (row.original.status ?? "").toLowerCase();
-
           let label = "DRAFT";
           let className =
             "bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-center w-fit mx-auto text-[11px] font-semibold";
-
           if (rawStatus === "active") {
             label = "ACTIVE";
             className =
@@ -432,7 +437,6 @@ function CompaniesPageInner() {
             className =
               "bg-rose-50 text-rose-700 border border-rose-200 px-3 py-1 rounded-full text-center w-fit mx-auto text-[11px] font-semibold";
           }
-
           return <div className={className}>{label}</div>;
         },
       },
@@ -479,7 +483,6 @@ function CompaniesPageInner() {
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-
                 <PopoverContent align="end" className="w-40 p-2 bg-white flex flex-col gap-1">
                   <Button asChild size="sm" variant="ghost" className="w-full justify-start gap-2 text-sm">
                     <Link to={`/companies/${company.id}/summary`}>
@@ -487,16 +490,11 @@ function CompaniesPageInner() {
                       View
                     </Link>
                   </Button>
-
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="w-full justify-start gap-2 text-sm"
-                    onClick={() => {
-                      setCompanyData(company.id, "");
-                      navigate("/flexi-hq/hr-groundzero/companies/create");
-                    }}
-                  >
+                  <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-sm" onClick={() => {
+                    setEditCompany(company.id);
+                    startCompanyDraft(company.id);
+                    navigate("/company-create");
+                  }}>
                     <Pencil className="h-3 w-3" />
                     Edit
                   </Button>
@@ -507,11 +505,11 @@ function CompaniesPageInner() {
         },
       },
     ];
-  }, [navigate, setCompanyData]);
+  }, [navigate, setEditCompany, startCompanyDraft]);
 
   const statusFilterUI = (
     <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-      <SelectTrigger className="h-9 w-[130px]">
+      <SelectTrigger className="h-9 w-[130px] bg-white">
         <SelectValue placeholder="All Status" />
       </SelectTrigger>
       <SelectContent className="bg-white">
@@ -522,54 +520,69 @@ function CompaniesPageInner() {
     </Select>
   );
 
-  const headerRight = (
-    <div className="flex gap-2 items-center">
-      {/* ✅ View toggle */}
-      <div className="flex rounded-lg border overflow-hidden">
-        <Button
-          type="button"
-          variant={viewMode === "table" ? "default" : "ghost"}
-          className="rounded-none h-9"
-          onClick={() => setViewMode("table")}
-        >
-          <List className="h-4 w-4 mr-2" />
-          Table
-        </Button>
-        <Button
-          type="button"
-          variant={viewMode === "tree" ? "default" : "ghost"}
-          className="rounded-none h-9"
-          onClick={() => setViewMode("tree")}
-        >
-          <GitBranch className="h-4 w-4 mr-2" />
-          Tree
-        </Button>
-      </div>
-
-      {viewMode === "tree" ? (
-        <Select
-          value={selectedCompanyId ? String(selectedCompanyId) : ""}
-          onValueChange={(v) => setSelectedCompanyId(Number(v))}
-        >
-          <SelectTrigger className="h-9 w-[280px]">
-            <SelectValue placeholder="Select company" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            {treeCompanies.map((c) => (
-              <SelectItem key={c.id} value={String(c.id)}>
-                {c.legal_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ) : null}
-
-      {statusFilterUI}
+  const viewModeToggle = (
+    <div className="flex rounded-lg border overflow-hidden bg-white">
+      <Button type="button" variant={viewMode === "table" ? "default" : "ghost"} className="rounded-none h-9" onClick={() => setViewMode("table")}>
+        <List className="h-4 w-4 mr-2" />
+        Table
+      </Button>
+      <Button type="button" variant={viewMode === "tree" ? "default" : "ghost"} className="rounded-none h-9" onClick={() => setViewMode("tree")}>
+        <GitBranch className="h-4 w-4 mr-2" />
+        Tree
+      </Button>
     </div>
   );
 
+  const companySelector = viewMode === "tree" && (
+    <Select 
+  value={selectedCompanyId ? String(selectedCompanyId) : ""} 
+  onValueChange={(v) => setSelectedCompanyId(Number(v))}
+>
+  <SelectTrigger className="h-9 w-full bg-white">
+    <div className="flex items-center gap-2">
+   
+      <SelectValue placeholder="Select company to view tree" />
+    </div>
+  </SelectTrigger>
+  <SelectContent className="bg-white">
+    {treeCompanies.map((c) => (
+      <SelectItem key={c.id} value={String(c.id)}>
+        <div className="flex items-center gap-2">
+          <Building2 className="h-4 w-4 text-gray-500" />
+          <span>{c.legal_name}</span>
+        </div>
+      </SelectItem>
+    ))}
+  </SelectContent>
+</Select>
+  );
+
+  // Add per-page dropdown
+  const perPageOptions = [10, 20, 50, 100];
+  const perPageDropdown = (
+    <Select value={String(tableQuery.pageSize)} onValueChange={(value) => {
+      setTableQuery(prev => ({
+        ...prev,
+        pageSize: Number(value),
+        pageIndex: 0,
+      }));
+    }}>
+      <SelectTrigger className="h-9 w-[100px] bg-white">
+        <SelectValue placeholder="Per page" />
+      </SelectTrigger>
+      <SelectContent className="bg-white">
+        {perPageOptions.map((size) => (
+          <SelectItem key={size} value={String(size)}>
+            {size}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+
   return (
-    <div className="p-2">
+    <div className="p-4 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-semibold">Companies</h1>
@@ -577,98 +590,164 @@ function CompaniesPageInner() {
             Manage your legal entities, subsidiaries, and registration details.
           </p>
         </div>
-
         <div className="flex gap-2 items-center">
-          {headerRight}
-
           <Button variant="outline" className="my-0">
-            <Download />
-            Import
+            <Download /> Import
           </Button>
           <Button variant="outline" className="my-0">
-            <Upload />
-            Export
+            <Upload /> Export
           </Button>
-          <Link to="/company-create">
-            <Button
-              variant="outline"
-              className="my-0 transition-all duration-500 hover:bg-[#1E1B4B] hover:text-white"
-            >
-              <PlusIcon />
-              Add Company
+          <Link to="/company-create" onClick={() => setCreateMode()}>
+            <Button variant="outline" className="my-0 transition-all duration-500 hover:bg-[#1E1B4B] hover:text-white">
+              <PlusIcon /> Add Company
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* -------------------- TABLE MODE -------------------- */}
-      {viewMode === "table" ? (
-        <DataTable<Company, unknown>
-          columns={columns}
-          data={tableData}
-          totalItems={totalItems}
-          serverSide
-          onQueryChange={(q) => setTableQuery(q)}
-          isLoading={isFetching}
-          filtersSlot={null}
-        />
-      ) : (
-        /* -------------------- TREE MODE -------------------- */
-        <div className="rounded-xl border bg-white">
-          <div className="p-4 border-b">
-            <div className="font-semibold text-sm">Org Tree</div>
-            <div className="text-xs text-muted-foreground">
-              Select a company from the dropdown to view its divisions → departments → designations.
+      {/* Filters Card */}
+      <Card className="shadow-sm border-border/40">
+        <CardContent className="p-4">
+          <div className="flex flex-col md:items-center justify-between gap-4">
+            {/* First row: Full width search for table mode */}
+            {viewMode === "table" ? (
+              <div className="w-full flex-grow-1 ">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" />
+                  <Input
+                    placeholder="Search companies by name, registration number, or website..."
+                    value={tableQuery.search}
+                    onChange={(e) => setTableQuery(prev => ({
+                      ...prev,
+                      search: e.target.value,
+                      pageIndex: 0,
+                    }))}
+                    className="pl-9 w-full bg-white"
+                  />
+                </div>
+              </div>
+            ):
+             ( <div className="w-full flex-grow-1 ">
+
+              {companySelector}
+             </div>
+            )
+            }
+            
+            {/* Second row: Filters and controls */}
+            <div className="flex flex-col md:flex-row md:items-center gap-4 w-full">
+              <div className="flex flex-wrap items-center gap-3">
+                {viewModeToggle}
+               
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-3 ml-auto">
+                {viewMode === "table" && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Show</span>
+                      {perPageDropdown}
+                      <span className="text-sm text-muted-foreground">entries</span>
+                    </div>
+                    {statusFilterUI}
+                  </>
+                )}
+              </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          <div className="p-4">
+      {/* Content Area Card */}
+        {viewMode === "table" ? (
+          
+            <DataTable<Company, unknown>
+              columns={columns}
+              data={tableData}
+              totalItems={totalItems}
+              serverSide
+              onQueryChange={(q) => setTableQuery(q)}
+              isLoading={isFetching}
+              filtersSlot={null}
+              className="border-0 shadow-none"
+              initialPageSize={tableQuery.pageSize}
+              />
+          
+        ) : (
+          <Card className="">
+          <CardContent className="p-6">
             {!treeCompanies.length ? (
-              <div className="rounded-lg border p-6 text-sm text-muted-foreground">
-                No tree data found.
+              <div className="rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+                <GitBranch className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No companies found</h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  Create your first company to view the organization tree
+                </p>
+                <Link to="/company-create" onClick={() => setCreateMode()}>
+                  <Button className="gap-2">
+                    <PlusIcon className="h-4 w-4" />
+                    Add Company
+                  </Button>
+                </Link>
               </div>
             ) : (
-              (() => {
-                const company = treeCompanies.find((c) => c.id === selectedCompanyId) ?? treeCompanies[0];
-                if (!company) return null;
+              <div className="space-y-4">
+                {/* Tree Visualization Area */}
+                <div className="rounded-xl border bg-gray-50/50 p-4">
+                  <div className="h-[600px] rounded-lg border bg-white">
+                    {(() => {
+                      const company = treeCompanies.find((c) => c.id === selectedCompanyId) ?? treeCompanies[0];
+                      if (!company) return null;
 
-                const { nodes, edges } = buildCompanyTreeGraph(company);
+                      const { nodes, edges } = buildCompanyTreeGraph(company);
 
-                return (
-                  <div className="h-[680px] rounded-xl border">
-                    <ReactFlow
-                      nodes={nodes}
-                      edges={edges}
-                      nodeTypes={nodeTypes}
-                      fitView
-                      defaultEdgeOptions={{
-                        type: "smoothstep",
-                        markerEnd: { type: MarkerType.ArrowClosed },
-                        style: { strokeWidth: 2 },
-                      }}
-                    >
-                      <Background />
-                      <MiniMap />
-                      <Controls />
-                    </ReactFlow>
+                      return (
+                        <ReactFlow
+                          nodes={nodes}
+                          edges={edges}
+                          nodeTypes={nodeTypes}
+                          fitView
+                          defaultEdgeOptions={{
+                            type: "smoothstep",
+                            markerEnd: { type: MarkerType.ArrowClosed },
+                            style: { strokeWidth: 2 },
+                          }}
+                        >
+                          <Background gap={12} size={1} />
+                          <MiniMap />
+                          <Controls />
+                        </ReactFlow>
+                      );
+                    })()}
                   </div>
-                );
-              })()
+                </div>
+
+                {/* Tree Legend */}
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                    <span className="text-muted-foreground">Company</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                    <span className="text-muted-foreground">Division</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-purple-500"></div>
+                    <span className="text-muted-foreground">Department</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-amber-500"></div>
+                    <span className="text-muted-foreground">Designation</span>
+                  </div>
+                </div>
+              </div>
             )}
-          </div>
-        </div>
-      )}
+          </CardContent>
+      </Card>
+        )}
     </div>
   );
 }
-
-// -------------------- Wrapper --------------------
-const CompaniesPage: React.FC = () => {
-  return (
-    <CompanyProvider>
-      <CompaniesPageInner />
-    </CompanyProvider>
-  );
-};
 
 export default CompaniesPage;

@@ -1,6 +1,3 @@
-
-"use client";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/components/api/client";
 import { useCompanyContext } from "@/context/CompanyContext";
@@ -145,9 +142,15 @@ export function useUpdateCompanyStep4() {
       }
     },
 
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Error saving step 4:", error);
-      toast.error("Something went wrong while saving. Please try again.");
+      if (error?.response?.data?.message) {
+        // Show the error message from the API response
+        toast.error(error?.response?.data?.message || "Something went wrong while saving. Please try again.");
+      } else {
+        // Fallback if the error doesn't have a response message
+        toast.error("Something went wrong while saving. Please try again.");
+      }
     },
   });
 }

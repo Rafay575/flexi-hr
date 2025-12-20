@@ -1,6 +1,6 @@
 // hooks/useCompanyStep1.ts
 "use client";
-
+import { AxiosError } from "axios";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/components/api/client";
 import { toast } from "sonner";
@@ -46,21 +46,29 @@ export const useCompanyStep1Query = () => {
 
   return { ...query, hasCompany };
 };
+function isAxiosError(error: unknown): error is AxiosError {
+  return (error as AxiosError).response !== undefined;
+}
 
-// Create/update step-1
+
+interface ErrorResponse {
+  errors: Record<string, string[]>;
+  message: string;
+}
+
 export const useCompanyStep1Mutation = () => {
   const { companyId, draftBatchId, setCompanyData } = useCompanyContext();
 
   const mutation = useMutation<
     ApiResponse<CompanyStep1Data>,
-    unknown,
+    AxiosError<ErrorResponse>, // Explicitly typing error
     CompanyFormValues
   >({
     mutationFn: async (payload) => {
       const formData = buildFormData(payload);
 
-      // UPDATE path
-      if (companyId && draftBatchId) {
+      if (companyId && draftBatchId) { 
+       
         const { data } = await api.post<ApiResponse<CompanyStep1Data>>(
           `/v1/companies/${companyId}/setup/step-1`,
           formData,
@@ -68,20 +76,19 @@ export const useCompanyStep1Mutation = () => {
             headers: {
               Accept: "application/json",
               "draft-batch-id": draftBatchId,
-              // don't set Content-Type, browser will set proper multipart boundary
             },
           }
         );
         return data;
       }
 
-      // CREATE path
       const { data } = await api.post<ApiResponse<CompanyStep1Data>>(
         "/v1/companies/store",
         formData,
         {
           headers: {
             Accept: "application/json",
+              "draft-batch-id": draftBatchId,
           },
         }
       );
@@ -104,15 +111,22 @@ export const useCompanyStep1Mutation = () => {
     },
     onError: (error) => {
       console.error("Error saving company step 1:", error);
-      toast.error(
-        "Network error or server issue. Please try again later."
-      );
+
+      // Access error.response.data.errors directly because we typed AxiosError
+      if (error.response?.data?.errors) {
+        const errorMessages = Object.values(error.response.data.errors)
+          .flat()
+          .join("\n");
+
+        toast.error(errorMessages || "Network error or server issue. Please try again later.");
+      } else {
+        toast.error("Network error or server issue. Please try again later.");
+      }
     },
   });
 
   return mutation;
 };
-
 // Nice combined hook for Step1
 // Nice combined hook for Step1
 export const useCompanyStep1 = () => {

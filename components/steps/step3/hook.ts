@@ -1,5 +1,3 @@
-// hooks/useCompanyStep3.ts
-"use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/components/api/client";
@@ -11,7 +9,7 @@ import type {
   CompanyStep3GetResponse,
   CompanyStep3SaveResponse,
 } from "./types";
-
+import { AxiosError } from "axios";
 // ---------- GET: /v1/companies/{id}/setup/step-3 ----------
 export function useGetCompanyStep3() {
   const { companyId, draftBatchId } = useCompanyContext();
@@ -37,13 +35,19 @@ export function useGetCompanyStep3() {
   });
 }
 
+// types.ts or wherever you define types
 
-// ---------- POST (PATCH override): /v1/companies/{id}/setup/step-3 ----------
+export interface ErrorResponse {
+  message?: string; // General error message
+  errors?: Record<string, string[]>; // Field-specific errors
+}
+
 export function useUpdateCompanyStep3() {
   const { companyId, draftBatchId } = useCompanyContext();
+ 
   const queryClient = useQueryClient();
 
-  return useMutation<CompanyStep3SaveResponse, unknown, CompanyStep3Form>({
+  return useMutation<CompanyStep3SaveResponse, AxiosError<ErrorResponse>, CompanyStep3Form>({
     mutationFn: async (values) => {
       if (!companyId || !draftBatchId) {
         throw new Error("Missing companyId or draftBatchId");
@@ -54,15 +58,13 @@ export function useUpdateCompanyStep3() {
       formData.append("registered_email", values.registered_email);
       formData.append("main_phone", values.main_phone);
       formData.append("timezone", values.timezone);
-
       formData.append("address_line_1", values.address_line_1);
-       if (values.address_line_2) {
-      formData.append("address_line_2", values.address_line_2);
-       }
+      if (values.address_line_2) {
+        formData.append("address_line_2", values.address_line_2);
+      }
       formData.append("country_id", values.country_id);
       formData.append("state_id", values.state_id);
       formData.append("city_id", values.city_id);
-
       formData.append("street", values.street);
       formData.append("zip", values.zip);
 
@@ -78,7 +80,7 @@ export function useUpdateCompanyStep3() {
 
       formData.append("currency_id", values.currency_id);
 
-      // file upload
+      // File upload
       const file = values.letterhead as File | null | undefined;
       if (file instanceof File) {
         formData.append("letterhead", file);
@@ -103,23 +105,38 @@ export function useUpdateCompanyStep3() {
 
     onSuccess: (res) => {
       if (res?.success) {
-        toast("Your registered details have been updated.");
-
+        toast.success("Your registered details have been updated.");
         queryClient.invalidateQueries({
           queryKey: ["company-step-3", companyId, draftBatchId],
         });
       } else {
-        toast("Please review the form and try again.");
+        toast.error("Please review the form and try again.");
       }
     },
 
-    onError: (error) => {
+    onError: (error: AxiosError<ErrorResponse>) => {
       console.error("Error saving step 3:", error);
-      toast("Something went wrong while saving. Please try again.");
+
+      // Handle AxiosError and display API response errors in the toast
+      if (error.response) {
+        const { message, errors } = error.response.data;
+
+        if (message) {
+          toast.error(message); // Display general message
+        }
+
+        // If there are field-specific errors, show them in the toast
+        if (errors) {
+          Object.values(errors).forEach((err: string[]) => {
+            toast.error(err[0]); // Show the first error for each field
+          });
+        }
+      } else {
+        toast.error("Something went wrong while saving. Please try again.");
+      }
     },
   });
 }
-
 
 
 type ApiItem = { id: number; name: string };

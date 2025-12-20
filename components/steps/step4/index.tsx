@@ -357,7 +357,7 @@ const OrgStructureBuilder: React.FC<OrgBuilderProps> = ({
 // Main Step 4 component
 // ----------------------
 const Step4: React.FC<props> = ({ next, prev }) => {
-  const { data, isLoading } = useGetCompanyStep4();
+  const { data, isLoading, refetch } = useGetCompanyStep4();
   const { mutateAsync, isPending } = useUpdateCompanyStep4();
 
   const entityTypeQuery = useEntityTypeOptions();
@@ -378,6 +378,7 @@ const Step4: React.FC<props> = ({ next, prev }) => {
 
   // Prefill from API
   useEffect(() => {
+    refetch();  
     if (!data) return;
 
     const api: Step4ApiData = data;
@@ -436,7 +437,7 @@ const Step4: React.FC<props> = ({ next, prev }) => {
             control={control}
             name="entity_type_id"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="relative">
                 <FormLabel>Entity type</FormLabel>
                 <FormControl>
                   <SearchableSelect
@@ -460,7 +461,7 @@ const Step4: React.FC<props> = ({ next, prev }) => {
             control={control}
             name="business_line_id"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="relative">
                 <FormLabel>Business line</FormLabel>
                 <FormControl>
                   <SearchableSelect
@@ -484,7 +485,7 @@ const Step4: React.FC<props> = ({ next, prev }) => {
             control={control}
             name="location_type_id"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="relative">
                 <FormLabel>Location type</FormLabel>
                 <FormControl>
                   <SearchableSelect

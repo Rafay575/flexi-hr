@@ -17,7 +17,7 @@ import  CompaniesPage  from "./pages/CompanyManagement";
 
 import DepartmentTree  from "./pages/DepartmentTree";
 import  DesignationDirectory  from "./pages/DesignationDirectory";
-import { Divisions } from "./pages/Divisions";
+import DivisionsPage  from "./pages/Divisions";
 import Grades from "./pages/Grades";
 import Locations  from "./pages/Locations";
 import CostCenters  from "./pages/CostCenters";
@@ -55,6 +55,7 @@ import {
 import LoginPage from "./pages/Login";
 import CompanyStepper from "./pages/Create";
 import CompanySummaryPage from "./pages/CompanySummaryPage";
+import { CompanyProvider } from "./context/CompanyContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -259,6 +260,8 @@ const App: React.FC = () => {
   };
 
   return (
+     <CompanyProvider>
+
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
@@ -277,7 +280,7 @@ const App: React.FC = () => {
             <Route path="/companies/:id/summary"  element={<CompanySummaryPage />} />
             <Route path="/company-create" element={<CompanyStepper />} />
             {/* <Route path="/companies/:id" element={<CompanyDetails />} /> */}
-            <Route path="/divisions" element={<Divisions />} />
+            <Route path="/divisions" element={<DivisionsPage />} />
             <Route path="/departments" element={<DepartmentTree />} />
             <Route path="/designations" element={<DesignationDirectory />} />
             <Route path="/grades" element={<Grades />} />
@@ -329,6 +332,7 @@ const App: React.FC = () => {
         </Routes>
       </Router>
     </QueryClientProvider>
+     </CompanyProvider>
   );
 };
 

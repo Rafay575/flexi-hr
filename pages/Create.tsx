@@ -4,18 +4,16 @@ import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Check,
   Building2,
   Globe2,
   FileText,
   Network,
-  SlidersHorizontal,
-  Users,
+
   type LucideIcon,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/badge";
+
 import { Skeleton } from "@/components/ui/Skeleton";
 
 import Step1 from "@/components/steps/step1";
@@ -145,7 +143,7 @@ const SimpleStepper: React.FC<SimpleStepperProps> = ({
               <button
                 key={step.key}
                 type="button"
-                onClick={() => onChange(i)}
+              
                 className="flex flex-col items-center gap-2 text-center"
               >
                 {/* circle sitting on the line */}
@@ -352,8 +350,8 @@ function CompanyStepperInner({ isLoading = false }: CompanyStepperProps) {
 
 export default function CompanyStepper(props: CompanyStepperProps) {
   return (
-    <CompanyProvider>
+   
       <CompanyStepperInner {...props} />
-    </CompanyProvider>
+  
   );
 }

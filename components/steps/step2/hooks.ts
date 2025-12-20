@@ -56,7 +56,7 @@ export const useDigitalPresenceQuery = () => {
   });
 
   return query;
-};
+}
 
 /* ---------------------- Mutation: update step-2 --------------------- */
 
@@ -100,9 +100,19 @@ export const useDigitalPresenceMutation = () => {
 
       queryClient.invalidateQueries({ queryKey: ["company-step-2", companyId] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      // Handle error in toast
       console.error("Error updating digital presence:", error);
-      toast.error("Error updating digital presence");
+      
+      // Show error message in toast
+      if (error?.response?.data?.errors) {
+        const errorMessages = error.response.data.errors;
+        Object.values(errorMessages).forEach((messages: string[]) => {
+          messages.forEach((message) => toast.error(message));
+        });
+      } else {
+        toast.error("An error occurred while updating digital presence.");
+      }
     },
   });
 
