@@ -13,14 +13,14 @@ import { Sidebar } from "./components/Sidebar";
 
 // ---------- Flexi HQ pages ----------
 import { Dashboard } from "./pages/Dashboard";
-import  CompaniesPage  from "./pages/CompanyManagement";
+import CompaniesPage from "./pages/CompanyManagement";
 
-import DepartmentTree  from "./pages/DepartmentTree";
-import  DesignationDirectory  from "./pages/DesignationDirectory";
-import DivisionsPage  from "./pages/Divisions";
+import DepartmentTree from "./pages/DepartmentTree";
+import DesignationDirectory from "./pages/DesignationDirectory";
+import DivisionsPage from "./pages/Divisions";
 import Grades from "./pages/Grades";
-import Locations  from "./pages/Locations";
-import CostCenters  from "./pages/CostCenters";
+import Locations from "./pages/Locations";
+import CostCenters from "./pages/CostCenters";
 import { AuditLog } from "./pages/AuditLog";
 
 import DashboardHeader from "./components/DashboardHeader";
@@ -30,7 +30,7 @@ import RecentActivity from "./components/RecentActivity";
 import UpcomingEvents from "./components/UpcomingEvents";
 import Directory from "./components/Directory";
 import Employee360 from "./components/Employee360";
-import OnboardX from "./components/OnboardX";
+import OnboardX from "./components/employee";
 import Transfers from "./components/Transfers";
 import ExitHorizon from "./components/ExitHorizon";
 import Documents from "./components/Documents";
@@ -56,6 +56,7 @@ import LoginPage from "./pages/Login";
 import CompanyStepper from "./pages/Create";
 import CompanySummaryPage from "./pages/CompanySummaryPage";
 import { CompanyProvider } from "./context/CompanyContext";
+import { EnrollmentProvider } from "./context/EnrollmentContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -260,79 +261,86 @@ const App: React.FC = () => {
   };
 
   return (
-     <CompanyProvider>
+    <CompanyProvider>
+      <EnrollmentProvider>
+        <QueryClientProvider client={queryClient}>
+          <Router>
+            <Routes>
+              {/* Auth routes (no main layout) */}
+              <Route path="/auth/login" element={<LoginPage />} />
+              {/* You can later add /auth/forgot, /auth/reset, etc. */}
 
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Routes>
-          {/* Auth routes (no main layout) */}
-          <Route path="/auth/login" element={<LoginPage />} />
-          {/* You can later add /auth/forgot, /auth/reset, etc. */}
+              {/* Protected / main app routes with Layout */}
+              <Route element={<Layout />}>
+                {/* Dashboard: both / and /dashboard work */}
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
 
-          {/* Protected / main app routes with Layout */}
-          <Route element={<Layout />}>
-            {/* Dashboard: both / and /dashboard work */}
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-
-            {/* Flexi HQ routes */}
-            <Route path="/companies" element={<CompaniesPage />} />
-            <Route path="/companies/:id/summary"  element={<CompanySummaryPage />} />
-            <Route path="/company-create" element={<CompanyStepper />} />
-            {/* <Route path="/companies/:id" element={<CompanyDetails />} /> */}
-            <Route path="/divisions" element={<DivisionsPage />} />
-            <Route path="/departments" element={<DepartmentTree />} />
-            <Route path="/designations" element={<DesignationDirectory />} />
-            <Route path="/grades" element={<Grades />} />
-            <Route path="/locations" element={<Locations />} />
-            <Route path="/cost-centers" element={<CostCenters />} />
-            <Route path="/audit" element={<AuditLog />} />
-
-            {/* PeopleHub routes */}
-            <Route
-              path="/peoplehub"
-              element={
-                <PeopleHubDashboard stats={stats} activities={activities} />
-              }
-            />
-            <Route
-              path="/peoplehub/directory"
-              element={<Directory employees={employees} />}
-            />
-            <Route path="/peoplehub/employee360" element={<Employee360 />} />
-            <Route
-              path="/peoplehub/onboardx"
-              element={<OnboardX onOnboardComplete={handleOnboardComplete} />}
-            />
-            <Route
-              path="/peoplehub/transfers"
-              element={
-                <Transfers
-                  transfers={transfers}
-                  employees={employees}
-                  onTransferCreate={handleTransferCreate}
+                {/* Flexi HQ routes */}
+                <Route path="/companies" element={<CompaniesPage />} />
+                <Route
+                  path="/companies/:id/summary"
+                  element={<CompanySummaryPage />}
                 />
-              }
-            />
-            <Route
-              path="/peoplehub/exit"
-              element={
-                <ExitHorizon
-                  employees={employees}
-                  onExitCreate={handleExitCreate}
+                <Route path="/company-create" element={<CompanyStepper />} />
+                {/* <Route path="/companies/:id" element={<CompanyDetails />} /> */}
+                <Route path="/divisions" element={<DivisionsPage />} />
+                <Route path="/departments" element={<DepartmentTree />} />
+                <Route
+                  path="/designations"
+                  element={<DesignationDirectory />}
                 />
-              }
-            />
-            <Route path="/peoplehub/docs" element={<Documents />} />
-            <Route path="/peoplehub/import" element={<BulkImport />} />
+                <Route path="/grades" element={<Grades />} />
+                <Route path="/locations" element={<Locations />} />
+                <Route path="/cost-centers" element={<CostCenters />} />
+                <Route path="/audit" element={<AuditLog />} />
 
-            {/* Fallback (inside layout) */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </Router>
-    </QueryClientProvider>
-     </CompanyProvider>
+                {/* PeopleHub routes */}
+                <Route
+                  path="/peoplehub"
+                  element={
+                    <PeopleHubDashboard stats={stats} activities={activities} />
+                  }
+                />
+                <Route
+                  path="/peoplehub/directory"
+                  element={<Directory employees={employees} />}
+                />
+                <Route
+                  path="/peoplehub/employee360"
+                  element={<Employee360 />}
+                />
+                <Route path="/peoplehub/onboardx" element={<OnboardX />} />
+                <Route
+                  path="/peoplehub/transfers"
+                  element={
+                    <Transfers
+                      transfers={transfers}
+                      employees={employees}
+                      onTransferCreate={handleTransferCreate}
+                    />
+                  }
+                />
+                <Route
+                  path="/peoplehub/exit"
+                  element={
+                    <ExitHorizon
+                      employees={employees}
+                      onExitCreate={handleExitCreate}
+                    />
+                  }
+                />
+                <Route path="/peoplehub/docs" element={<Documents />} />
+                <Route path="/peoplehub/import" element={<BulkImport />} />
+
+                {/* Fallback (inside layout) */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </Router>
+        </QueryClientProvider>
+      </EnrollmentProvider>
+    </CompanyProvider>
   );
 };
 
