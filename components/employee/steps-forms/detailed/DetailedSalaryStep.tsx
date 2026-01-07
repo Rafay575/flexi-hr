@@ -8,9 +8,6 @@ import type { StepComponentProps, StepHandle } from "../../stepComponents";
 
 const colors = { primary: "#3D3A5C", coral: "#E8A99A" } as const;
 
-type Option = { id: number; name: string; active?: boolean };
-type ApiListResponse = { data: Option[] };
-
 const inputClass =
   "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-200 disabled:bg-gray-50";
 
@@ -26,8 +23,52 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
 }
 
 // ─────────────────────────────────────────────────────────────
-// Schema (matches your screenshot body)
-// NOTE: API shows ids as strings "1" => we accept input as number-ish and send as string.
+// API shapes
+// ─────────────────────────────────────────────────────────────
+type Currency = { id: number; name: string; iso_code?: string; symbol?: string; active?: boolean };
+type Bank = { id: number; bank_name: string; active?: number | boolean };
+
+type CurrencyListResponse = { data: Currency[] };
+type BankListResponse = { data: Bank[] };
+
+type SalarySectionGet = {
+  success: boolean;
+  data?: {
+    id: number;
+    section: "salary";
+    values?: Partial<{
+      basic_salary: number;
+      gross_salary: number;
+      currency_id: string | number;
+      pay_frequency: string;
+      pay_cutoff_day: number;
+      salary_mode: string;
+      bank_id: number | string;
+      bank_name: string; // sometimes not returned; we’ll derive from bank list
+      iban: string;
+      account_title: string;
+      account_number: string;
+      ntn: string;
+      filer_status: string;
+      eobi_uan: string;
+      eobi_reg_date: string;
+      ss_number: string;
+      ss_province: string;
+      ss_reg_date: string;
+    }>;
+  };
+};
+
+const asNumOr0 = (v: any) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const isActive = (v: any) => v === true || v === 1 || v === "1";
+
+// ─────────────────────────────────────────────────────────────
+// Schema (matches your payload)
+// NOTE: keep currency_id as number in form; send as string if your backend expects "1"
 // ─────────────────────────────────────────────────────────────
 const schema = z.object({
   basic_salary: z.coerce.number().int().positive("Basic salary is required"),
@@ -38,11 +79,11 @@ const schema = z.object({
   pay_cutoff_day: z.coerce.number().int().min(1).max(31),
 
   salary_mode: z.enum(["BANK", "CASH", "CHEQUE", "MOBILE_WALLET"]).or(z.string().min(1)),
+
   bank_id: z.coerce.number().int().positive("Bank is required"),
-
   bank_name: z.string().min(1, "Bank name is required"),
-  iban: z.string().min(5, "IBAN is required"),
 
+  iban: z.string().min(5, "IBAN is required"),
   account_title: z.string().min(1, "Account title is required"),
   account_number: z.string().min(4, "Account number is required"),
 
@@ -58,17 +99,7 @@ const schema = z.object({
 });
 
 type Values = z.infer<typeof schema>;
-
-// ✅ avoid RHF resolver generic mismatch issues
 const resolver = zodResolver(schema) as unknown as Resolver<Values>;
-
-async function fetchOptions(url: string) {
-  const res = await api.get<ApiListResponse>(url, {
-    headers: { Accept: "application/json", "X-Company-Id": "1" },
-  });
-  const list = Array.isArray(res.data?.data) ? res.data.data : [];
-  return list.filter((x) => (typeof x.active === "boolean" ? x.active : true));
-}
 
 const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function DetailedSalaryStep(
   { enrollmentId, disabled },
@@ -76,10 +107,10 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
 ) {
   const [saving, setSaving] = useState(false);
   const [loadingMeta, setLoadingMeta] = useState(false);
+  const [loadingPrefill, setLoadingPrefill] = useState(false);
 
-  // dropdowns
-  const [currencies, setCurrencies] = useState<Option[]>([]);
-  const [banks, setBanks] = useState<Option[]>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [banks, setBanks] = useState<Bank[]>([]);
 
   const form = useForm<Values>({
     resolver,
@@ -97,7 +128,7 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
       account_title: "",
       account_number: "",
       ntn: "",
-      filer_status: "Filer",
+      filer_status: "FBR",
       eobi_uan: "",
       eobi_reg_date: "",
       ss_number: "",
@@ -107,10 +138,10 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
   });
 
   const e = form.formState.errors;
-  const isBusy = !!disabled || saving || loadingMeta;
+  const isBusy = !!disabled || saving || loadingMeta || loadingPrefill;
 
   // ─────────────────────────────────────────────────────────────
-  // Load meta dropdowns (replace URLs with your actual ones)
+  // Load meta dropdowns (your exact endpoints)
   // ─────────────────────────────────────────────────────────────
   useEffect(() => {
     let mounted = true;
@@ -119,23 +150,22 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
       try {
         setLoadingMeta(true);
 
-        const [curList, bankList] = await Promise.all([
-          fetchOptions("/meta/finance/currencies?per_page=all"),
-          fetchOptions("/meta/finance/banks?per_page=all"),
+        const [curRes, bankRes] = await Promise.all([
+          api.get<CurrencyListResponse>("/meta/companies/finance/currencies?per_page=all", {
+            headers: { Accept: "application/json", "X-Company-Id": "1" },
+          }),
+          api.get<BankListResponse>("/meta/companies/finance/bank?per_page=all", {
+            headers: { Accept: "application/json", "X-Company-Id": "1" },
+          }),
         ]);
 
         if (!mounted) return;
 
-        setCurrencies(curList);
-        setBanks(bankList);
+        const curList = Array.isArray(curRes.data?.data) ? curRes.data.data : [];
+        const bankList = Array.isArray(bankRes.data?.data) ? bankRes.data.data : [];
 
-        if (curList[0] && !form.getValues("currency_id")) form.setValue("currency_id", curList[0].id as any);
-
-        // bank: if first exists, set bank_id and also bank_name from option name (handy)
-        if (bankList[0] && !form.getValues("bank_id")) {
-          form.setValue("bank_id", bankList[0].id as any);
-          form.setValue("bank_name", bankList[0].name);
-        }
+        setCurrencies(curList.filter((c) => (typeof c.active === "boolean" ? c.active : true)));
+        setBanks(bankList.filter((b) => (b.active === undefined ? true : isActive(b.active))));
       } catch (err: any) {
         alert(err?.response?.data?.message || err?.message || "Failed to load Salary dropdowns");
       } finally {
@@ -147,17 +177,90 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
     return () => {
       mounted = false;
     };
-  }, [form]);
+  }, []);
 
-  // when bank_id changes, auto-fill bank_name from selected option (keeps your payload clean)
+  // ─────────────────────────────────────────────────────────────
+  // Prefill from section API (your exact endpoint)
+  // ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    let mounted = true;
+
+    const run = async () => {
+      if (!enrollmentId) return;
+
+      try {
+        setLoadingPrefill(true);
+
+        const res = await api.get<SalarySectionGet>(`/v1/enrollments/${enrollmentId}/sections/salary`, {
+          headers: { Accept: "application/json", "X-Company-Id": "1" },
+        });
+
+        if (!mounted) return;
+
+        const v = res.data?.data?.values || {};
+
+        // reset only if values exist (but safe to always reset)
+        form.reset({
+          basic_salary: typeof v.basic_salary === "number" ? v.basic_salary : 37000,
+          gross_salary: typeof v.gross_salary === "number" ? v.gross_salary : 45000,
+          currency_id: v.currency_id ? asNumOr0(v.currency_id) : 0,
+          pay_frequency: v.pay_frequency || "Monthly",
+          pay_cutoff_day: typeof v.pay_cutoff_day === "number" ? v.pay_cutoff_day : 28,
+          salary_mode: (v.salary_mode as any) || "BANK",
+          bank_id: v.bank_id ? asNumOr0(v.bank_id) : 0,
+          bank_name: v.bank_name || "",
+
+          iban: v.iban || "",
+          account_title: v.account_title || "",
+          account_number: v.account_number || "",
+
+          ntn: v.ntn || "",
+          filer_status: v.filer_status || "FBR",
+
+          eobi_uan: v.eobi_uan || "",
+          eobi_reg_date: v.eobi_reg_date || "",
+
+          ss_number: v.ss_number || "",
+          ss_province: v.ss_province || "Punjab",
+          ss_reg_date: v.ss_reg_date || "",
+        });
+      } catch (err: any) {
+        alert(err?.response?.data?.message || err?.message || "Failed to prefill Salary section");
+      } finally {
+        if (mounted) setLoadingPrefill(false);
+      }
+    };
+
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, [enrollmentId, form]);
+
+  // When bank_id changes (or banks load), auto-fill bank_name from selected bank
   const bankId = form.watch("bank_id");
   useEffect(() => {
     const found = banks.find((b) => b.id === Number(bankId));
-    if (found) form.setValue("bank_name", found.name);
+    if (found) form.setValue("bank_name", found.bank_name, { shouldDirty: true });
   }, [bankId, banks, form]);
 
+  // When currency list loads: if currency_id is 0, pick first active currency
+  useEffect(() => {
+    const curId = form.getValues("currency_id");
+    if (!curId && currencies[0]) form.setValue("currency_id", currencies[0].id as any);
+  }, [currencies, form]);
+
+  // When banks list loads: if bank_id is 0, pick first active bank and set name
+  useEffect(() => {
+    const id = form.getValues("bank_id");
+    if (!id && banks[0]) {
+      form.setValue("bank_id", banks[0].id as any);
+      form.setValue("bank_name", banks[0].bank_name);
+    }
+  }, [banks, form]);
+
   // ─────────────────────────────────────────────────────────────
-  // Submit (PATCH /sections/salary)
+  // Submit
   // ─────────────────────────────────────────────────────────────
   const submit = async () => {
     const ok = await form.trigger();
@@ -175,19 +278,24 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
       const payload = {
         basic_salary: Number(v.basic_salary),
         gross_salary: Number(v.gross_salary),
-        currency_id: String(Number(v.currency_id)),
+        currency_id: String(Number(v.currency_id)), // keeping like your example
         pay_frequency: v.pay_frequency,
         pay_cutoff_day: Number(v.pay_cutoff_day),
         salary_mode: v.salary_mode,
+
         bank_id: Number(v.bank_id),
         bank_name: v.bank_name,
+
         iban: v.iban,
         account_title: v.account_title,
         account_number: v.account_number,
+
         ntn: v.ntn,
         filer_status: v.filer_status,
+
         eobi_uan: v.eobi_uan,
         eobi_reg_date: v.eobi_reg_date,
+
         ss_number: v.ss_number,
         ss_province: v.ss_province,
         ss_reg_date: v.ss_reg_date,
@@ -210,35 +318,31 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-      {/* Basic salary */}
       <div>
         <Label required>Basic Salary</Label>
         <input className={inputClass} type="number" disabled={isBusy} {...form.register("basic_salary")} />
         {e.basic_salary && <p className="mt-1 text-[11px] text-red-600">{e.basic_salary.message}</p>}
       </div>
 
-      {/* Gross salary */}
       <div>
         <Label required>Gross Salary</Label>
         <input className={inputClass} type="number" disabled={isBusy} {...form.register("gross_salary")} />
         {e.gross_salary && <p className="mt-1 text-[11px] text-red-600">{e.gross_salary.message}</p>}
       </div>
 
-      {/* Currency */}
       <div>
         <Label required>Currency</Label>
         <select className={inputClass} disabled={isBusy} {...form.register("currency_id")}>
           {currencies.length === 0 ? <option value="">No currencies</option> : null}
-          {currencies.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.name}
+          {currencies.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name} {c.iso_code ? `(${c.iso_code})` : ""}
             </option>
           ))}
         </select>
         {e.currency_id && <p className="mt-1 text-[11px] text-red-600">{e.currency_id.message}</p>}
       </div>
 
-      {/* Pay frequency */}
       <div>
         <Label required>Pay Frequency</Label>
         <select className={inputClass} disabled={isBusy} {...form.register("pay_frequency")}>
@@ -251,14 +355,12 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
         {e.pay_frequency && <p className="mt-1 text-[11px] text-red-600">{e.pay_frequency.message}</p>}
       </div>
 
-      {/* Pay cutoff day */}
       <div>
         <Label required>Pay Cutoff Day</Label>
         <input className={inputClass} type="number" disabled={isBusy} {...form.register("pay_cutoff_day")} />
         {e.pay_cutoff_day && <p className="mt-1 text-[11px] text-red-600">{e.pay_cutoff_day.message}</p>}
       </div>
 
-      {/* Salary mode */}
       <div>
         <Label required>Salary Mode</Label>
         <select className={inputClass} disabled={isBusy} {...form.register("salary_mode")}>
@@ -270,88 +372,78 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
         {e.salary_mode && <p className="mt-1 text-[11px] text-red-600">{e.salary_mode.message}</p>}
       </div>
 
-      {/* Bank */}
       <div>
         <Label required>Bank</Label>
         <select className={inputClass} disabled={isBusy} {...form.register("bank_id")}>
           {banks.length === 0 ? <option value="">No banks</option> : null}
-          {banks.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.name}
+          {banks.map((b) => (
+            <option key={b.id} value={b.id}>
+              {b.bank_name}
             </option>
           ))}
         </select>
         {e.bank_id && <p className="mt-1 text-[11px] text-red-600">{e.bank_id.message}</p>}
       </div>
 
-      {/* Bank name (auto-filled) */}
       <div>
         <Label required>Bank Name</Label>
         <input className={inputClass} disabled={isBusy} {...form.register("bank_name")} placeholder="Auto-filled" />
         {e.bank_name && <p className="mt-1 text-[11px] text-red-600">{e.bank_name.message}</p>}
       </div>
 
-      {/* IBAN */}
       <div>
         <Label required>IBAN</Label>
         <input className={inputClass} disabled={isBusy} {...form.register("iban")} placeholder="PK..." />
         {e.iban && <p className="mt-1 text-[11px] text-red-600">{e.iban.message}</p>}
       </div>
 
-      {/* Account title */}
       <div>
         <Label required>Account Title</Label>
         <input className={inputClass} disabled={isBusy} {...form.register("account_title")} />
         {e.account_title && <p className="mt-1 text-[11px] text-red-600">{e.account_title.message}</p>}
       </div>
 
-      {/* Account number */}
       <div>
         <Label required>Account Number</Label>
         <input className={inputClass} disabled={isBusy} {...form.register("account_number")} />
         {e.account_number && <p className="mt-1 text-[11px] text-red-600">{e.account_number.message}</p>}
       </div>
 
-      {/* NTN */}
       <div>
         <Label required>NTN</Label>
         <input className={inputClass} disabled={isBusy} {...form.register("ntn")} />
         {e.ntn && <p className="mt-1 text-[11px] text-red-600">{e.ntn.message}</p>}
       </div>
 
-      {/* Filer status */}
       <div>
         <Label required>Filer Status</Label>
         <select className={inputClass} disabled={isBusy} {...form.register("filer_status")}>
-          <option value="Filer">Filer</option>
-          <option value="Non-Filer">Non-Filer</option>
-          <option value="Late Filer">Late Filer</option>
+          <option value="FBR">FBR</option>
+          <option value="NON_FBR">NON_FBR</option>
+          <option value="FILER">FILER</option>
+          <option value="NON_FILER">NON_FILER</option>
         </select>
         {e.filer_status && <p className="mt-1 text-[11px] text-red-600">{e.filer_status.message}</p>}
       </div>
 
-      {/* EOBI UAN */}
       <div>
         <Label required>EOBI UAN</Label>
         <input className={inputClass} disabled={isBusy} {...form.register("eobi_uan")} />
         {e.eobi_uan && <p className="mt-1 text-[11px] text-red-600">{e.eobi_uan.message}</p>}
       </div>
 
-      {/* EOBI reg date */}
       <div>
         <Label required>EOBI Reg Date</Label>
         <input className={inputClass} type="date" disabled={isBusy} {...form.register("eobi_reg_date")} />
         {e.eobi_reg_date && <p className="mt-1 text-[11px] text-red-600">{e.eobi_reg_date.message}</p>}
       </div>
 
-      {/* SS number */}
       <div>
         <Label required>SS Number</Label>
         <input className={inputClass} disabled={isBusy} {...form.register("ss_number")} />
         {e.ss_number && <p className="mt-1 text-[11px] text-red-600">{e.ss_number.message}</p>}
       </div>
 
-      {/* SS province */}
       <div>
         <Label required>SS Province</Label>
         <select className={inputClass} disabled={isBusy} {...form.register("ss_province")}>
@@ -364,15 +456,16 @@ const DetailedSalaryStep = forwardRef<StepHandle, StepComponentProps>(function D
         {e.ss_province && <p className="mt-1 text-[11px] text-red-600">{e.ss_province.message}</p>}
       </div>
 
-      {/* SS reg date */}
       <div>
         <Label required>SS Reg Date</Label>
         <input className={inputClass} type="date" disabled={isBusy} {...form.register("ss_reg_date")} />
         {e.ss_reg_date && <p className="mt-1 text-[11px] text-red-600">{e.ss_reg_date.message}</p>}
       </div>
 
-      {(saving || loadingMeta) && (
-        <div className="lg:col-span-3 text-[11px] text-gray-500">{loadingMeta ? "Loading dropdowns..." : "Saving..."}</div>
+      {(loadingMeta || loadingPrefill || saving) && (
+        <div className="lg:col-span-3 text-[11px] text-gray-500">
+          {loadingMeta ? "Loading dropdowns..." : loadingPrefill ? "Prefilling..." : "Saving..."}
+        </div>
       )}
     </div>
   );

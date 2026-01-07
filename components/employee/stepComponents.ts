@@ -9,14 +9,18 @@ import QuickEmploymentStep from "./steps-forms/quick/QuickEmploymentStep";
 import QuickDocumentsStep from "./steps-forms/quick/QuickDocumentsStep";
 import QuickAttendanceStep from "./steps-forms/quick/QuickAttendanceStep";
 import QuickSalaryStep from "./steps-forms/quick/QuickSalaryStep";
+import QuickPreviewStep from "./steps-forms/quick/QuickPreviewStep";
 
 // DETAILED steps
 import DetailedOverviewStep from "./steps-forms/detailed/DetailedOverviewStep";
 import DetailedAddressStep from "./steps-forms/detailed/DetailedAddressStep";
 import DetailedAttendanceStep from "./steps-forms/detailed/DetailedAttendanceStep";
 import DetailedSalaryStep from "./steps-forms/detailed/DetailedSalaryStep";
-import QuickPreviewStep from "./steps-forms/quick/QuickPreviewStep";
-
+import DetailedAssetsStep from "./steps-forms/detailed/DetailedAssetsStep";
+import DetailedDocumentsConsentsStep from "./steps-forms/detailed/DetailedDocumentsConsentsStep";
+import DetailedProfileStep from "./steps-forms/detailed/DetailedProfileStep";
+import DetailedPersonalStep from "./steps-forms/detailed/DetailedPersonalStep";
+import DetailedPreviewStep from "./steps-forms/detailed/DetailedPreviewStep";
 export type StepHandle = {
   submit: () => Promise<boolean>; // returns true if ok & saved
 };
@@ -44,6 +48,11 @@ export const stepComponents: Record<Mode, React.ForwardRefExoticComponent<
     DetailedAddressStep,
     DetailedAttendanceStep,
     DetailedSalaryStep,
+    DetailedPersonalStep,
+    DetailedProfileStep,
+    DetailedAssetsStep,
+    DetailedDocumentsConsentsStep,
+    DetailedPreviewStep,
    
   ],
 };

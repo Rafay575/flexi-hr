@@ -8,131 +8,131 @@ import type { StepComponentProps, StepHandle } from "../../stepComponents";
 
 const colors = { primary: "#3D3A5C", coral: "#E8A99A" } as const;
 
-type Option = { id: number; name: string; active?: boolean };
-type ApiListResponse = { data: Option[] };
-
 const inputClass =
   "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-200 disabled:bg-gray-50";
 
-function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
+function Label({ children }: { children: React.ReactNode }) {
   return (
     <label className="text-[11px] font-semibold mb-1 block" style={{ color: colors.primary }}>
-      {children}{" "}
-      {required && (
-        <span className="inline-block w-1 h-1 rounded-full align-middle" style={{ background: colors.coral }} />
-      )}
+      {children}
     </label>
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Values + schema (matches your Postman body)
-// Note: ids in screenshot are strings like "1" => we coerce to number then send as string if your API expects "1"
-// ─────────────────────────────────────────────────────────────
+const FIXED_ID = 1;
+
+type SectionGetResponse = {
+  success: boolean;
+  data?: {
+    id: number;
+    section: "attendance";
+    values?: {
+      default_shift_id?: string | number | null;
+      weekly_off_pattern_id?: string | number | null;
+      leave_policy_id?: string | number | null;
+      holiday_list_id?: string | number | null;
+      biometric_device_id?: string | number | null;
+      biometric_enrollment_date?: string | null;
+      leave_approver_id?: string | number | null;
+
+      overtime_eligible?: boolean | number | string | null;
+      permitted_remote_work?: boolean | number | string | null;
+      flexible_arrival_departure?: boolean | number | string | null;
+    };
+  };
+};
+
+const toIntOrNull = (v: any) => {
+  if (v === null || v === undefined || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+const toBool = (v: any) => {
+  if (v === true || v === "true" || v === 1 || v === "1") return true;
+  return false;
+};
+
+// Only your fields
 const schema = z.object({
-  branch_location: z.string().min(1, "Branch location is required"),
-  default_shift_id: z.coerce.number().int().positive("Default shift is required"),
-  shift_end_time: z.string().min(1, "Shift end time is required"),
-  break_duration: z.coerce.number().int().min(0, "Break duration must be 0+"),
-  weekly_off_pattern: z.string().min(1, "Weekly off pattern is required"),
-  leave_policy_id: z.coerce.number().int().positive("Leave policy is required"),
-  holiday_list_id: z.coerce.number().int().positive("Holiday list is required"),
-  leave_approver_id: z.union([z.coerce.number().int().positive(), z.literal("")]),
-  attendance_approver_id: z.union([z.coerce.number().int().positive(), z.literal("")]),
-  biometric_device_id: z.string().optional().or(z.literal("")),
-  biometric_enrollment_date: z.string().optional().or(z.literal("")),
-  eligible_for_overtime: z.boolean(),
-  flexible_arrival: z.boolean(),
-  remote_work_permitted: z.boolean(),
+  default_shift_id: z.coerce.number().int().nullable().optional(),
+  weekly_off_pattern_id: z.coerce.number().int().nullable().optional(),
+  leave_policy_id: z.coerce.number().int().nullable().optional(),
+  holiday_list_id: z.coerce.number().int().nullable().optional(),
+  biometric_device_id: z.coerce.number().int().nullable().optional(),
+  biometric_enrollment_date: z.string().nullable().optional(),
+  leave_approver_id: z.coerce.number().int().nullable().optional(),
+
+  overtime_eligible: z.boolean().nullable().optional(),
+  permitted_remote_work: z.boolean().nullable().optional(),
+  flexible_arrival_departure: z.boolean().nullable().optional(),
 });
 
 type Values = z.infer<typeof schema>;
-
-// ✅ avoid RHF resolver generic mismatch issues
 const resolver = zodResolver(schema) as unknown as Resolver<Values>;
-
-async function fetchOptions(url: string) {
-  const res = await api.get<ApiListResponse>(url, {
-    headers: { Accept: "application/json", "X-Company-Id": "1" },
-  });
-  const list = Array.isArray(res.data?.data) ? res.data.data : [];
-  return list.filter((x) => (typeof x.active === "boolean" ? x.active : true));
-}
 
 const DetailedAttendanceStep = forwardRef<StepHandle, StepComponentProps>(function DetailedAttendanceStep(
   { enrollmentId, disabled },
   ref
 ) {
   const [saving, setSaving] = useState(false);
-  const [loadingMeta, setLoadingMeta] = useState(false);
-
-  // dropdowns (replace endpoints with your real meta endpoints)
-  const [shifts, setShifts] = useState<Option[]>([]);
-  const [leavePolicies, setLeavePolicies] = useState<Option[]>([]);
-  const [holidayLists, setHolidayLists] = useState<Option[]>([]);
-  const [leaveApprovers, setLeaveApprovers] = useState<Option[]>([]);
-  const [attendanceApprovers, setAttendanceApprovers] = useState<Option[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<Values>({
     resolver,
     mode: "onTouched",
     defaultValues: {
-      branch_location: "Main Office",
-      default_shift_id: 0,
-      shift_end_time: "06:00 PM",
-      break_duration: 60,
-      weekly_off_pattern: "Sunday",
-      leave_policy_id: 0,
-      holiday_list_id: 0,
-      leave_approver_id: "",
-      attendance_approver_id: "",
-      biometric_device_id: "",
-      biometric_enrollment_date: "",
-      eligible_for_overtime: true,
-      flexible_arrival: true,
-      remote_work_permitted: true,
+      // ids default to null; we will prefill from API; and submit will fallback to 1
+      default_shift_id: null,
+      weekly_off_pattern_id: null,
+      leave_policy_id: null,
+      holiday_list_id: null,
+      biometric_device_id: null,
+      leave_approver_id: null,
+
+      biometric_enrollment_date: null,
+
+      overtime_eligible: false,
+      permitted_remote_work: false,
+      flexible_arrival_departure: false,
     },
   });
 
-  const e = form.formState.errors;
-  const isBusy = !!disabled || saving || loadingMeta;
+  const isBusy = !!disabled || saving || loading;
 
-  // ─────────────────────────────────────────────────────────────
-  // Load meta dropdowns
-  // ⚠️ Replace URLs below with your actual meta endpoints.
-  // Keep the pattern same as gender endpoint you already have.
-  // ─────────────────────────────────────────────────────────────
+  // Prefill from GET section API
   useEffect(() => {
     let mounted = true;
-
     const run = async () => {
+      if (!enrollmentId) return;
       try {
-        setLoadingMeta(true);
+        setLoading(true);
 
-        const [shiftList, leaveList, holidayList, leaveAppr, attAppr] = await Promise.all([
-          fetchOptions("/meta/attendance/shifts?per_page=all"),
-          fetchOptions("/meta/attendance/leave-policies?per_page=all"),
-          fetchOptions("/meta/attendance/holiday-lists?per_page=all"),
-          fetchOptions("/meta/attendance/leave-approvers?per_page=all"),
-          fetchOptions("/meta/attendance/attendance-approvers?per_page=all"),
-        ]);
+        const res = await api.get<SectionGetResponse>(`/v1/enrollments/${enrollmentId}/sections/attendance`, {
+          headers: { Accept: "application/json", "X-Company-Id": "1" },
+        });
 
         if (!mounted) return;
 
-        setShifts(shiftList);
-        setLeavePolicies(leaveList);
-        setHolidayLists(holidayList);
-        setLeaveApprovers(leaveAppr);
-        setAttendanceApprovers(attAppr);
+        const vals = res.data?.data?.values || {};
 
-        // auto-select first options if empty
-        if (shiftList[0] && !form.getValues("default_shift_id")) form.setValue("default_shift_id", shiftList[0].id as any);
-        if (leaveList[0] && !form.getValues("leave_policy_id")) form.setValue("leave_policy_id", leaveList[0].id as any);
-        if (holidayList[0] && !form.getValues("holiday_list_id")) form.setValue("holiday_list_id", holidayList[0].id as any);
+        form.reset({
+          default_shift_id: toIntOrNull(vals.default_shift_id),
+          weekly_off_pattern_id: toIntOrNull(vals.weekly_off_pattern_id),
+          leave_policy_id: toIntOrNull(vals.leave_policy_id),
+          holiday_list_id: toIntOrNull(vals.holiday_list_id),
+          biometric_device_id: toIntOrNull(vals.biometric_device_id),
+          leave_approver_id: toIntOrNull(vals.leave_approver_id),
+          biometric_enrollment_date: vals.biometric_enrollment_date ?? null,
+
+          overtime_eligible: toBool(vals.overtime_eligible),
+          permitted_remote_work: toBool(vals.permitted_remote_work),
+          flexible_arrival_departure: toBool(vals.flexible_arrival_departure),
+        });
       } catch (err: any) {
-        alert(err?.response?.data?.message || err?.message || "Failed to load Attendance dropdowns");
+        alert(err?.response?.data?.message || err?.message || "Failed to load Attendance section");
       } finally {
-        if (mounted) setLoadingMeta(false);
+        if (mounted) setLoading(false);
       }
     };
 
@@ -140,11 +140,8 @@ const DetailedAttendanceStep = forwardRef<StepHandle, StepComponentProps>(functi
     return () => {
       mounted = false;
     };
-  }, [form]);
+  }, [enrollmentId, form]);
 
-  // ─────────────────────────────────────────────────────────────
-  // Submit (PATCH /sections/attendance)
-  // ─────────────────────────────────────────────────────────────
   const submit = async () => {
     const ok = await form.trigger();
     if (!ok) return false;
@@ -158,21 +155,20 @@ const DetailedAttendanceStep = forwardRef<StepHandle, StepComponentProps>(functi
       setSaving(true);
       const v = form.getValues();
 
+      // All *_id fields: disabled in UI, but on submit fallback to 1 if null
       const payload = {
-        branch_location: v.branch_location,
-        default_shift_id: String(Number(v.default_shift_id)),
-        shift_end_time: v.shift_end_time,
-        break_duration: Number(v.break_duration),
-        weekly_off_pattern: v.weekly_off_pattern,
-        leave_policy_id: String(Number(v.leave_policy_id)),
-        holiday_list_id: String(Number(v.holiday_list_id)),
-        leave_approver_id: v.leave_approver_id === "" ? "" : String(Number(v.leave_approver_id)),
-        attendance_approver_id: v.attendance_approver_id === "" ? "" : String(Number(v.attendance_approver_id)),
-        biometric_device_id: v.biometric_device_id || "",
-        biometric_enrollment_date: v.biometric_enrollment_date || "",
-        eligible_for_overtime: !!v.eligible_for_overtime,
-        flexible_arrival: !!v.flexible_arrival,
-        remote_work_permitted: !!v.remote_work_permitted,
+        default_shift_id: (v.default_shift_id ?? FIXED_ID),
+        weekly_off_pattern_id: (v.weekly_off_pattern_id ?? FIXED_ID),
+        leave_policy_id: (v.leave_policy_id ?? FIXED_ID),
+        holiday_list_id: (v.holiday_list_id ?? FIXED_ID),
+        biometric_device_id: (v.biometric_device_id ?? FIXED_ID),
+        leave_approver_id: (v.leave_approver_id ?? ""),
+
+        biometric_enrollment_date: v.biometric_enrollment_date || null,
+
+        overtime_eligible: !!v.overtime_eligible,
+        permitted_remote_work: !!v.permitted_remote_work,
+        flexible_arrival_departure: !!v.flexible_arrival_departure,
       };
 
       await api.patch(`/v1/enrollments/${enrollmentId}/sections/attendance`, payload, {
@@ -181,7 +177,7 @@ const DetailedAttendanceStep = forwardRef<StepHandle, StepComponentProps>(functi
 
       return true;
     } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || "Failed to save Attendance");
+      alert(err?.response?.data?.message || err?.message || "Failed to save Attendance section");
       return false;
     } finally {
       setSaving(false);
@@ -190,152 +186,64 @@ const DetailedAttendanceStep = forwardRef<StepHandle, StepComponentProps>(functi
 
   useImperativeHandle(ref, () => ({ submit }));
 
+  // helper to show disabled id field value
+  const DisabledId = ({ label, value }: { label: string; value: number | null | undefined }) => (
+    <div>
+      <Label>{label}</Label>
+      <input className={inputClass} disabled value={value ?? FIXED_ID} readOnly />
+      <p className="mt-1 text-[11px] text-gray-500">Locked for now (will submit {value ?? FIXED_ID}).</p>
+    </div>
+  );
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-      {/* Branch Location */}
-      <div>
-        <Label required>Branch Location</Label>
-        <input className={inputClass} disabled={isBusy} {...form.register("branch_location")} placeholder="Main Office" />
-        {e.branch_location && <p className="mt-1 text-[11px] text-red-600">{e.branch_location.message}</p>}
-      </div>
+      <DisabledId label="Default Shift ID" value={form.watch("default_shift_id")} />
+      <DisabledId label="Weekly Off Pattern ID" value={form.watch("weekly_off_pattern_id")} />
+      <DisabledId label="Leave Policy ID" value={form.watch("leave_policy_id")} />
+      <DisabledId label="Holiday List ID" value={form.watch("holiday_list_id")} />
+      <DisabledId label="Biometric Device ID" value={form.watch("biometric_device_id")} />
+      <DisabledId label="Leave Approver ID" value={form.watch("leave_approver_id")} />
 
-      {/* Default Shift */}
-      <div>
-        <Label required>Default Shift</Label>
-        <select className={inputClass} disabled={isBusy} {...form.register("default_shift_id")}>
-          {shifts.length === 0 ? <option value="">No shifts</option> : null}
-          {shifts.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.name}
-            </option>
-          ))}
-        </select>
-        {e.default_shift_id && <p className="mt-1 text-[11px] text-red-600">{e.default_shift_id.message}</p>}
-      </div>
-
-      {/* Shift End Time */}
-      <div>
-        <Label required>Shift End Time</Label>
-        <input className={inputClass} disabled={isBusy} {...form.register("shift_end_time")} placeholder="06:00 PM" />
-        {e.shift_end_time && <p className="mt-1 text-[11px] text-red-600">{e.shift_end_time.message}</p>}
-      </div>
-
-      {/* Break Duration */}
-      <div>
-        <Label required>Break Duration (mins)</Label>
-        <input className={inputClass} type="number" disabled={isBusy} {...form.register("break_duration")} />
-        {e.break_duration && <p className="mt-1 text-[11px] text-red-600">{e.break_duration.message}</p>}
-      </div>
-
-      {/* Weekly Off Pattern */}
-      <div>
-        <Label required>Weekly Off Pattern</Label>
-        <input className={inputClass} disabled={isBusy} {...form.register("weekly_off_pattern")} placeholder="Sunday" />
-        {e.weekly_off_pattern && <p className="mt-1 text-[11px] text-red-600">{e.weekly_off_pattern.message}</p>}
-      </div>
-
-      {/* Leave Policy */}
-      <div>
-        <Label required>Leave Policy</Label>
-        <select className={inputClass} disabled={isBusy} {...form.register("leave_policy_id")}>
-          {leavePolicies.length === 0 ? <option value="">No leave policies</option> : null}
-          {leavePolicies.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.name}
-            </option>
-          ))}
-        </select>
-        {e.leave_policy_id && <p className="mt-1 text-[11px] text-red-600">{e.leave_policy_id.message}</p>}
-      </div>
-
-      {/* Holiday List */}
-      <div>
-        <Label required>Holiday List</Label>
-        <select className={inputClass} disabled={isBusy} {...form.register("holiday_list_id")}>
-          {holidayLists.length === 0 ? <option value="">No holiday lists</option> : null}
-          {holidayLists.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.name}
-            </option>
-          ))}
-        </select>
-        {e.holiday_list_id && <p className="mt-1 text-[11px] text-red-600">{e.holiday_list_id.message}</p>}
-      </div>
-
-      {/* Leave Approver */}
-      <div>
-        <Label>Leave Approver</Label>
-        <select className={inputClass} disabled={isBusy} {...form.register("leave_approver_id")}>
-          <option value="">—</option>
-          {leaveApprovers.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.name}
-            </option>
-          ))}
-        </select>
-        {e.leave_approver_id && <p className="mt-1 text-[11px] text-red-600">{String(e.leave_approver_id.message)}</p>}
-      </div>
-
-      {/* Attendance Approver */}
-      <div>
-        <Label>Attendance Approver</Label>
-        <select className={inputClass} disabled={isBusy} {...form.register("attendance_approver_id")}>
-          <option value="">—</option>
-          {attendanceApprovers.map((x) => (
-            <option key={x.id} value={x.id}>
-              {x.name}
-            </option>
-          ))}
-        </select>
-        {e.attendance_approver_id && (
-          <p className="mt-1 text-[11px] text-red-600">{String(e.attendance_approver_id.message)}</p>
-        )}
-      </div>
-
-      {/* Biometric Device */}
-      <div>
-        <Label>Biometric Device ID</Label>
-        <input className={inputClass} disabled={isBusy} {...form.register("biometric_device_id")} placeholder="Optional" />
-        {e.biometric_device_id && <p className="mt-1 text-[11px] text-red-600">{e.biometric_device_id.message}</p>}
-      </div>
-
-      {/* Biometric Enrollment Date */}
+      {/* Date (editable) */}
       <div>
         <Label>Biometric Enrollment Date</Label>
-        <input className={inputClass} type="date" disabled={isBusy} {...form.register("biometric_enrollment_date")} />
-        {e.biometric_enrollment_date && (
-          <p className="mt-1 text-[11px] text-red-600">{e.biometric_enrollment_date.message}</p>
-        )}
+        <input
+          className={inputClass}
+          type="date"
+          disabled={isBusy}
+          value={(form.watch("biometric_enrollment_date") ?? "") as any}
+          onChange={(e) => form.setValue("biometric_enrollment_date", e.target.value || null, { shouldDirty: true })}
+        />
       </div>
 
       {/* Checkboxes */}
       <div className="md:col-span-2 lg:col-span-3">
         <div className="rounded-xl border border-gray-200 p-3 flex flex-col gap-2">
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" disabled={isBusy} {...form.register("eligible_for_overtime")} />
+            <input type="checkbox" disabled={isBusy} {...form.register("overtime_eligible")} />
             <span className="text-[12px]" style={{ color: colors.primary }}>
-              Eligible for overtime
+              Overtime eligible
             </span>
           </label>
 
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" disabled={isBusy} {...form.register("flexible_arrival")} />
+            <input type="checkbox" disabled={isBusy} {...form.register("permitted_remote_work")} />
             <span className="text-[12px]" style={{ color: colors.primary }}>
-              Flexible arrival
+              Permitted remote work
             </span>
           </label>
 
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" disabled={isBusy} {...form.register("remote_work_permitted")} />
+            <input type="checkbox" disabled={isBusy} {...form.register("flexible_arrival_departure")} />
             <span className="text-[12px]" style={{ color: colors.primary }}>
-              Remote work permitted
+              Flexible arrival/departure
             </span>
           </label>
         </div>
       </div>
 
-      {(saving || loadingMeta) && (
-        <div className="lg:col-span-3 text-[11px] text-gray-500">{loadingMeta ? "Loading dropdowns..." : "Saving..."}</div>
+      {(loading || saving) && (
+        <div className="lg:col-span-3 text-[11px] text-gray-500">{loading ? "Loading..." : "Saving..."}</div>
       )}
     </div>
   );

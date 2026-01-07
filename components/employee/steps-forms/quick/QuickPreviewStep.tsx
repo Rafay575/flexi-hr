@@ -1,121 +1,132 @@
 // src/features/enrollment/steps/QuickPreviewStep.tsx
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+"use client";
+
+import React, { forwardRef, useImperativeHandle, useState } from "react";
+import { ShieldCheck, Send, AlertTriangle } from "lucide-react";
 import { api } from "@/components/api/client";
 import type { StepComponentProps, StepHandle } from "../../stepComponents";
+import { toast } from "sonner";
+import Loader from "@/components/common/Loader";
+import { useNavigate } from "react-router-dom";
+import { useEnrollmentContext } from "@/context/EnrollmentContext";
 
-const colors = { primary: "#3D3A5C" } as const;
+const colors = {
+  primary: "#3D3A5C",
+  secondary: "#8B85A8",
+  beige: "#E5C9A0",
+} as const;
 
-function Row({ k, v }: { k: string; v: any }) {
-  return (
-    <div className="flex items-start justify-between gap-4 py-2 border-b border-gray-100">
-      <div className="text-[12px] font-semibold" style={{ color: colors.primary }}>{k}</div>
-      <div className="text-[12px] text-gray-700 text-right break-all">
-        {v === null || v === undefined || v === "" ? "—" : String(v)}
-      </div>
-    </div>
-  );
-}
+const QuickPreviewStep = forwardRef<StepHandle, StepComponentProps>(
+  function QuickPreviewStep({ enrollmentId, disabled }, ref) {
+    const [submitting, setSubmitting] = useState(false);
+    const [confirm, setConfirm] = useState(false);
+    const navigate = useNavigate();
+    const isBusy = !!disabled || submitting;
+    const { clearEnrollment } = useEnrollmentContext();
+    const submit = async () => {
+      if (isBusy) return false;
 
-const QuickPreviewStep = forwardRef<StepHandle, StepComponentProps>(function QuickPreviewStep(
-  { enrollmentId, disabled },
-  ref
-) {
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<any>(null);
+      if (!enrollmentId) {
+        toast("Enrollment draft not ready yet.");
+        return false;
+      }
 
-  useEffect(() => {
-    let mounted = true;
-    const run = async () => {
-      if (!enrollmentId) return;
+      if (!confirm) {
+        toast("Please confirm before submitting.");
+        return false;
+      }
+
       try {
-        setLoading(true);
+        setSubmitting(true);
 
-        // ✅ fetch sections you have (add more if needed)
-        const [employment, salary, attendance, documents] = await Promise.all([
-          api.get(`/v1/enrollments/${enrollmentId}/sections/employment`, { headers: { Accept: "application/json", "X-Company-Id": "1" } }),
-          api.get(`/v1/enrollments/${enrollmentId}/sections/salary`, { headers: { Accept: "application/json", "X-Company-Id": "1" } }),
-          api.get(`/v1/enrollments/${enrollmentId}/sections/attendance`, { headers: { Accept: "application/json", "X-Company-Id": "1" } }),
-          api.get(`/v1/enrollments/${enrollmentId}/sections/documents`, { headers: { Accept: "application/json", "X-Company-Id": "1" } }),
-        ]);
-
-        if (!mounted) return;
-
-        setData({
-          employment: employment?.data?.data?.values || {},
-          salary: salary?.data?.data?.values || {},
-          attendance: attendance?.data?.data?.values || {},
-          documents: documents?.data?.data?.values || {},
+        // ✅ Final submit: NO BODY
+        await api.post(`/v1/enrollments/${enrollmentId}/submit`, null, {
+          headers: { Accept: "application/json", "X-Company-Id": "1" },
         });
-      } catch (e) {
-        console.warn("Preview load failed", e);
+        clearEnrollment();
+        navigate(`/peoplehub/directory`);
+        return true;
+      } catch (err: any) {
+        toast(err?.response?.data?.message || err?.message || "Submit failed");
+        return false;
       } finally {
-        if (mounted) setLoading(false);
+        setSubmitting(false);
       }
     };
 
-    run();
-    return () => {
-      mounted = false;
-    };
-  }, [enrollmentId]);
+    useImperativeHandle(ref, () => ({ submit }), [submit]);
 
-  // ✅ Preview has NO save call. Always allow Next/Submit.
-  const submit = async () => true;
-  useImperativeHandle(ref, () => ({ submit }), []);
-
-  if (loading) return <div className="text-sm text-gray-500">Loading preview...</div>;
-  if (!data) return <div className="text-sm text-gray-500">No data to preview.</div>;
-
-  const docsItems = Array.isArray(data.documents?.items) ? data.documents.items : [];
-
-  return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-gray-200 p-3">
-        <div className="text-sm font-bold mb-2" style={{ color: colors.primary }}>Employment</div>
-        {Object.entries(data.employment).map(([k, v]) => <Row key={k} k={k} v={v} />)}
-      </div>
-
-      <div className="rounded-xl border border-gray-200 p-3">
-        <div className="text-sm font-bold mb-2" style={{ color: colors.primary }}>Salary</div>
-        {Object.entries(data.salary).map(([k, v]) => <Row key={k} k={k} v={v} />)}
-      </div>
-
-      <div className="rounded-xl border border-gray-200 p-3">
-        <div className="text-sm font-bold mb-2" style={{ color: colors.primary }}>Attendance</div>
-        {Object.entries(data.attendance).map(([k, v]) => <Row key={k} k={k} v={v} />)}
-      </div>
-
-      <div className="rounded-xl border border-gray-200 p-3">
-        <div className="text-sm font-bold mb-2" style={{ color: colors.primary }}>Documents</div>
-
-        {/* show required types */}
-        <Row k="required_types" v={(data.documents.required_types || []).join(", ")} />
-
-        {/* show uploaded file names */}
-        <div className="mt-2">
-          <div className="text-[12px] font-semibold mb-1" style={{ color: colors.primary }}>Uploaded Files</div>
-          {docsItems.length === 0 ? (
-            <div className="text-[12px] text-gray-600">—</div>
-          ) : (
-            <div className="space-y-1">
-              {docsItems.map((it: any, idx: number) => (
-                <div key={idx} className="text-[12px] text-gray-700 flex justify-between border-b border-gray-100 py-1">
-                  <span className="font-semibold">{it.type}</span>
-                  <span className="text-right">{it.original_name || it.path || "—"}</span>
-                </div>
-              ))}
+    return (
+      <div className="space-y-4">
+        {/* Sexy confirmation card */}
+        <div
+          className="rounded-2xl border border-gray-200 p-4 text-white shadow-sm"
+          style={{
+            background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`,
+          }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-[11px] opacity-90">Final Step</div>
+              <div className="text-xl font-extrabold leading-tight">
+                Confirm & Submit
+              </div>
+              <div className="text-[12px] opacity-90 mt-1">
+                Enrollment #{enrollmentId ?? "—"}
+              </div>
             </div>
-          )}
+
+            <div className="rounded-xl bg-white/10 border border-white/15 p-2">
+              <div className="flex items-center gap-2">
+                <ShieldCheck
+                  className="w-4 h-4"
+                  style={{ color: colors.beige }}
+                />
+                <div className="text-[12px] font-semibold">Secure Submit</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-xl bg-white/10 border border-white/15 p-3">
+            <div className="flex items-start gap-2">
+              <AlertTriangle
+                className="w-4 h-4 mt-0.5"
+                style={{ color: colors.beige }}
+              />
+              <div className="text-[12px] leading-relaxed opacity-95">
+                Once you submit, this enrollment will be <b>finalized</b>. If
+                anything is wrong, go back and fix it before submitting.
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* show consents */}
-        <div className="mt-3">
-          <div className="text-[12px] font-semibold mb-1" style={{ color: colors.primary }}>Consents</div>
-          {Object.entries(data.documents.consents || {}).map(([k, v]) => <Row key={k} k={k} v={v} />)}
-        </div>
+        {/* Checkbox */}
+        <label className="flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-3 bg-white">
+          <input
+            type="checkbox"
+            disabled={isBusy}
+            checked={confirm}
+            onChange={(e) => setConfirm(e.target.checked)}
+          />
+          <span className="text-[12px]" style={{ color: colors.primary }}>
+            I confirm everything is correct and I want to submit.
+          </span>
+        </label>
+
+        {/* small helper text */}
+
+        {submitting ? (
+          <div className="text-[12px] text-gray-600 text-center">
+            <Loader message="Submitting…" />
+          </div>
+        ) : null}
+
+        {/* hidden button for safety (not required) */}
+        <button type="button" className="hidden" aria-hidden="true" />
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 export default QuickPreviewStep;

@@ -19,6 +19,10 @@ type Dept = { id: number; name: string; status?: string };
 type Designation = { id: number; title: string; active?: number | boolean };
 type Role = { id: number; name: string; deleted_at?: string | null };
 
+// ✅ NEW
+type Grade = { id: number; name?: string; title?: string; active?: number | boolean };
+type LocationType = { id: number; name?: string; title?: string; active?: number | boolean };
+
 type EmploymentSectionResponse = {
   success: boolean;
   data: {
@@ -28,6 +32,11 @@ type EmploymentSectionResponse = {
       date_of_joining: string | null;
       department_id: number | null;
       designation_id: number | null;
+
+      // ✅ NEW
+      grade_id: number | null;
+      location_type_id: number | null;
+
       employment_class: string | null;
       employment_type: string | null;
       reporting_manager_id: number | null;
@@ -45,6 +54,10 @@ type Values = {
   department_id: number;
   designation_id: number;
   role_id: number;
+
+  // ✅ NEW
+  grade_id: number;
+  location_type_id: number;
 
   employment_class: string;
   employment_type: string;
@@ -64,6 +77,10 @@ const schema = z.object({
   designation_id: z.coerce.number().int().positive("Designation is required"),
   role_id: z.coerce.number().int().positive("Role is required"),
 
+  // ✅ NEW
+  grade_id: z.coerce.number().int().positive("Grade is required"),
+  location_type_id: z.coerce.number().int().positive("Location type is required"),
+
   employment_class: z.string().min(1, "Employment class is required"),
   employment_type: z.string().min(1, "Employment type is required"),
 
@@ -78,6 +95,11 @@ const DEFAULTS: Values = {
   department_id: 0,
   designation_id: 0,
   role_id: 0,
+
+  // ✅ NEW
+  grade_id: 0,
+  location_type_id: 0,
+
   employment_class: "White Collar",
   employment_type: "Permanent",
   probation_months: 6,
@@ -93,11 +115,16 @@ function Label({ children, required }: { children: React.ReactNode; required?: b
     <label className="text-[11px] font-semibold mb-1 block" style={{ color: colors.primary }}>
       {children}{" "}
       {required && (
-        <span className="inline-block w-1 h-1 rounded-full align-middle" style={{ background: colors.coral }} />
+        <span
+          className="inline-block w-1 h-1 rounded-full align-middle"
+          style={{ background: colors.coral }}
+        />
       )}
     </label>
   );
 }
+
+const pickLabel = (x: { name?: string; title?: string }) => x.name ?? x.title ?? `#${String((x as any).id)}`;
 
 // ---------------- API helpers ----------------
 async function fetchDepartments() {
@@ -108,7 +135,6 @@ async function fetchDepartments() {
   );
 
   const list = Array.isArray(res.data?.data) ? res.data.data : [];
-  // optional: only Active
   return list.filter((d) => (d.status ? d.status.toLowerCase() === "active" : true));
 }
 
@@ -120,16 +146,53 @@ async function fetchDesignations() {
   );
 
   const list = Array.isArray(res.data?.data) ? res.data.data : [];
-  // active: 1/0 or true/false
-  return list.filter((x) => (typeof x.active === "boolean" ? x.active : x.active === 1 || x.active == null));
+  return list.filter((x) =>
+    typeof x.active === "boolean" ? x.active : x.active === 1 || x.active == null
+  );
 }
 
 async function fetchRoles() {
-  const res = await api.get<Role[]>("/roles" );
-
+  const res = await api.get<Role[]>("/roles");
   const list = Array.isArray(res.data) ? res.data : [];
-  // remove soft-deleted
   return list.filter((r) => r.deleted_at == null);
+}
+
+// ✅ NEW: Grades
+async function fetchGrades() {
+  const res = await api.get<any>("/meta/employee/grade?per_page=all", {
+    headers: { Accept: "application/json", "X-Company-Id": "1" },
+  });
+
+  const list: Grade[] = Array.isArray(res.data?.data)
+    ? res.data.data
+    : Array.isArray(res.data?.data?.data)
+    ? res.data.data.data
+    : Array.isArray(res.data)
+    ? res.data
+    : [];
+
+  return list.filter((x) =>
+    typeof x.active === "boolean" ? x.active : x.active === 1 || x.active == null
+  );
+}
+
+// ✅ NEW: Location types
+async function fetchLocationTypes() {
+  const res = await api.get<any>("/meta/companies/locations?per_page=all", {
+    headers: { Accept: "application/json", "X-Company-Id": "1" },
+  });
+
+  const list: LocationType[] = Array.isArray(res.data?.data)
+    ? res.data.data
+    : Array.isArray(res.data?.data?.data)
+    ? res.data.data.data
+    : Array.isArray(res.data)
+    ? res.data
+    : [];
+
+  return list.filter((x) =>
+    typeof x.active === "boolean" ? x.active : x.active === 1 || x.active == null
+  );
 }
 
 // ---------------- Component ----------------
@@ -145,6 +208,10 @@ const QuickEmploymentStep = forwardRef<StepHandle, StepComponentProps>(function 
   const [designations, setDesignations] = useState<Designation[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
 
+  // ✅ NEW
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [locationTypes, setLocationTypes] = useState<LocationType[]>([]);
+
   // ✅ resolver cast (fixes the "unknown" TS issue)
   const resolver: Resolver<Values> = zodResolver(schema) as unknown as Resolver<Values>;
 
@@ -157,7 +224,7 @@ const QuickEmploymentStep = forwardRef<StepHandle, StepComponentProps>(function 
   const e = form.formState.errors;
   const isBusy = !!disabled || saving || loadingMeta;
 
-  // ✅ Load dropdowns (no branches)
+  // ✅ Load dropdowns
   useEffect(() => {
     let mounted = true;
 
@@ -165,13 +232,21 @@ const QuickEmploymentStep = forwardRef<StepHandle, StepComponentProps>(function 
       try {
         setLoadingMeta(true);
 
-        const [d, des, r] = await Promise.all([fetchDepartments(), fetchDesignations(), fetchRoles()]);
+        const [d, des, r, g, loc] = await Promise.all([
+          fetchDepartments(),
+          fetchDesignations(),
+          fetchRoles(),
+          fetchGrades(),
+          fetchLocationTypes(),
+        ]);
 
         if (!mounted) return;
 
         setDepartments(d);
         setDesignations(des);
         setRoles(r);
+        setGrades(g);
+        setLocationTypes(loc);
       } catch (err: any) {
         toast(err?.response?.data?.message || err?.message || "Failed to load Employment dropdowns");
       } finally {
@@ -195,9 +270,12 @@ const QuickEmploymentStep = forwardRef<StepHandle, StepComponentProps>(function 
       try {
         setPrefillLoading(true);
 
-        const res = await api.get<EmploymentSectionResponse>(`/v1/enrollments/${enrollmentId}/sections/employment`, {
-          headers: { Accept: "application/json", "X-Company-Id": "1" },
-        });
+        const res = await api.get<EmploymentSectionResponse>(
+          `/v1/enrollments/${enrollmentId}/sections/employment`,
+          {
+            headers: { Accept: "application/json", "X-Company-Id": "1" },
+          }
+        );
 
         const values = res?.data?.data?.values ?? {};
         if (!values || Object.keys(values).length === 0) return;
@@ -210,13 +288,16 @@ const QuickEmploymentStep = forwardRef<StepHandle, StepComponentProps>(function 
           designation_id: values.designation_id ?? 0,
           role_id: values.role_id ? Number(values.role_id) : 0,
 
+          // ✅ NEW
+          grade_id: values.grade_id ?? 0,
+          location_type_id: values.location_type_id ?? 0,
+
           employment_class: values.employment_class ?? "White Collar",
           employment_type: values.employment_type ?? "Permanent",
 
           probation_months: values.probation_months ?? 6,
           notice_period_days: values.notice_period_days ?? 30,
 
-          // disabled
           reporting_manager_id: "",
         };
 
@@ -241,12 +322,17 @@ const QuickEmploymentStep = forwardRef<StepHandle, StepComponentProps>(function 
     date_of_joining: v.date_of_joining,
     department_id: Number(v.department_id),
     designation_id: Number(v.designation_id),
+
+    // ✅ NEW
+    grade_id: Number(v.grade_id),
+    location_type_id: Number(v.location_type_id),
+
     employment_class: v.employment_class,
     employment_type: v.employment_type,
     probation_months: Number(v.probation_months),
     notice_period_days: Number(v.notice_period_days),
 
-    // ✅ forced null + disabled
+    branch_id: 1,
     reporting_manager_id: null,
 
     // backend wants string
@@ -321,6 +407,34 @@ const QuickEmploymentStep = forwardRef<StepHandle, StepComponentProps>(function 
           ))}
         </select>
         {e.designation_id && <p className="mt-1 text-[11px] text-red-600">{e.designation_id.message}</p>}
+      </div>
+
+      {/* ✅ NEW: Grade */}
+      <div>
+        <Label required>Grade</Label>
+        <select className={inputClass} disabled={isBusy} {...form.register("grade_id")}>
+          <option value={0}>Select grade...</option>
+          {grades.map((x) => (
+            <option key={x.id} value={x.id}>
+              {pickLabel(x)}
+            </option>
+          ))}
+        </select>
+        {e.grade_id && <p className="mt-1 text-[11px] text-red-600">{e.grade_id.message}</p>}
+      </div>
+
+      {/* ✅ NEW: Location Type */}
+      <div>
+        <Label required>Location Type</Label>
+        <select className={inputClass} disabled={isBusy} {...form.register("location_type_id")}>
+          <option value={0}>Select location type...</option>
+          {locationTypes.map((x) => (
+            <option key={x.id} value={x.id}>
+              {pickLabel(x)}
+            </option>
+          ))}
+        </select>
+        {e.location_type_id && <p className="mt-1 text-[11px] text-red-600">{e.location_type_id.message}</p>}
       </div>
 
       {/* Role */}

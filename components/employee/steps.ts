@@ -1688,4 +1688,11 @@ export const detailedFormSteps: StepDef[] = [
       },
     ],
   },
+   {
+    id: "submit",
+    title: "Submit",
+    subtitle: "Review everything before final submit",
+    icon: Eye,
+    fields: [], // IMPORTANT: keep empty
+  },
 ];

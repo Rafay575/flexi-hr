@@ -28,10 +28,10 @@ import StatCard from "./components/StatCard";
 import QuickAction from "./components/QuickAction";
 import RecentActivity from "./components/RecentActivity";
 import UpcomingEvents from "./components/UpcomingEvents";
-import Directory from "./components/Directory";
+import Directory from "./components/employee/listing";
 import Employee360 from "./components/Employee360";
 import OnboardX from "./components/employee";
-import Transfers from "./components/Transfers";
+import Transfers from "./components/employee-transfer/Transfers";
 import ExitHorizon from "./components/ExitHorizon";
 import Documents from "./components/Documents";
 import BulkImport from "./components/BulkImport";
@@ -57,6 +57,8 @@ import CompanyStepper from "./pages/Create";
 import CompanySummaryPage from "./pages/CompanySummaryPage";
 import { CompanyProvider } from "./context/CompanyContext";
 import { EnrollmentProvider } from "./context/EnrollmentContext";
+import TransferWizard from "./components/employee-transfer/TransferWizard";
+import CountryListing from "./components/fleximeta/geography/countries";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -172,69 +174,12 @@ const App: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>(() =>
     generateEmployees(142)
   );
-  const [transfers, setTransfers] = useState<Transfer[]>(() =>
-    generateTransfers(25)
-  );
+ 
   const [activities, setActivities] =
     useState<ActivityItem[]>(INITIAL_ACTIVITIES);
   const [stats, setStats] = useState<StatMetric[]>(INITIAL_STATS);
 
   // Handlers reused from original PeopleHub App:
-  const handleOnboardComplete = (newEmployee: Employee) => {
-    setEmployees((prev) => [newEmployee, ...prev]);
-
-    const newActivity: ActivityItem = {
-      id: `act-${Date.now()}`,
-      user: "Alexandra M.",
-      action: "completed onboarding for",
-      target: newEmployee.name,
-      time: "Just now",
-      avatarUrl:
-        "https://ui-avatars.com/api/?name=Alexandra+M&background=0A3AA9&color=fff",
-      type: "onboard",
-    };
-
-    setActivities((prev) => [newActivity, ...prev]);
-    setStats((prev) =>
-      prev.map((stat) => {
-        if (stat.id === "total") {
-          const val = parseInt(stat.value.toString().replace(/,/g, ""));
-          return { ...stat, value: (val + 1).toLocaleString() };
-        }
-        if (stat.id === "new") {
-          const val = parseInt(stat.value.toString());
-          return { ...stat, value: (val + 1).toString() };
-        }
-        return stat;
-      })
-    );
-  };
-
-  const handleTransferCreate = (newTransfer: Transfer) => {
-    setTransfers((prev) => [newTransfer, ...prev]);
-
-    const newActivity: ActivityItem = {
-      id: `act-tr-${Date.now()}`,
-      user: "Alexandra M.",
-      action: "initiated transfer for",
-      target: newTransfer.name,
-      time: "Just now",
-      avatarUrl:
-        "https://ui-avatars.com/api/?name=Alexandra+M&background=0A3AA9&color=fff",
-      type: "transfer",
-    };
-
-    setActivities((prev) => [newActivity, ...prev]);
-    setStats((prev) =>
-      prev.map((stat) => {
-        if (stat.id === "transfers") {
-          const val = parseInt(stat.value.toString());
-          return { ...stat, value: (val + 1).toString() };
-        }
-        return stat;
-      })
-    );
-  };
 
   const handleExitCreate = (newExit: ExitRequest) => {
     const newActivity: ActivityItem = {
@@ -276,6 +221,7 @@ const App: React.FC = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/dashboard" element={<Dashboard />} />
 
+              <Route path="/countries" element={<CountryListing />} />
                 {/* Flexi HQ routes */}
                 <Route path="/companies" element={<CompaniesPage />} />
                 <Route
@@ -304,23 +250,15 @@ const App: React.FC = () => {
                 />
                 <Route
                   path="/peoplehub/directory"
-                  element={<Directory employees={employees} />}
+                  element={<Directory companyId={1} />}
                 />
                 <Route
                   path="/peoplehub/employee360"
                   element={<Employee360 />}
                 />
                 <Route path="/peoplehub/onboardx" element={<OnboardX />} />
-                <Route
-                  path="/peoplehub/transfers"
-                  element={
-                    <Transfers
-                      transfers={transfers}
-                      employees={employees}
-                      onTransferCreate={handleTransferCreate}
-                    />
-                  }
-                />
+                <Route path="/peoplehub/transfers" element={<Transfers />} />
+                <Route path="/peoplehub/transfers-wizard" element={<TransferWizard />} />
                 <Route
                   path="/peoplehub/exit"
                   element={

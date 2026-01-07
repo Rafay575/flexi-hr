@@ -67,6 +67,7 @@ export const EnrollmentProvider: React.FC<EnrollmentProviderProps> = ({ children
   const [enrollmentId, setEnrollmentId] = useState<number | null>(null);
 
   const clearEnrollment = () => {
+    console.log("Clearing enrollment data");
     setDraft(null);
     setEnrollmentId(null);
   };

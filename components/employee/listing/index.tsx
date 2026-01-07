@@ -24,9 +24,10 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-import { Employee, FilterState, SavedView } from "../types";
+import { Employee, FilterState, SavedView } from "./types";
 import FilterBar from "./FilterBar";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
+import { useEmployeesDirectory } from "./useEmployeesDirectory";
 
 type SortConfig = {
   key: keyof Employee;
@@ -34,10 +35,19 @@ type SortConfig = {
 };
 
 interface DirectoryProps {
-  employees: Employee[];
+  companyId: number; // ✅ now server driven
 }
 
-const Directory: React.FC<DirectoryProps> = ({ employees }) => {
+function useDebounce<T>(value: T, delay = 350) {
+  const [v, setV] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setV(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return v;
+}
+
+const Directory: React.FC<DirectoryProps> = ({ companyId }) => {
   // View States
   const [viewMode, setViewMode] = useState<"list" | "grid" | "mini">("list");
   const [showSettings, setShowSettings] = useState(false);
@@ -46,11 +56,11 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [isInfiniteScroll, setIsInfiniteScroll] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(20);
 
   // Filter & Search States
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 350);
+
   const [filters, setFilters] = useState<FilterState>({
     department: [],
     location: [],
@@ -102,48 +112,33 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
   const observerTarget = useRef<HTMLDivElement>(null);
 
   // ---------------------------
-  // Outside click handling (fixed)
+  // Outside click handling
   // ---------------------------
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
-      // close settings
-      if (
-        showSettings &&
-        settingsRef.current &&
-        !settingsRef.current.contains(target)
-      ) {
+      if (showSettings && settingsRef.current && !settingsRef.current.contains(target)) {
         setShowSettings(false);
       }
 
-      // close action menu (if click isn't inside the menu button/menu)
-      // We'll detect by data attribute markers
       const clickedInsideAction =
-        !!target.closest("[data-action-menu]") ||
-        !!target.closest("[data-action-button]");
+        !!target.closest("[data-action-menu]") || !!target.closest("[data-action-button]");
 
-      if (!clickedInsideAction) {
-        setActiveActionRow(null);
-      }
+      if (!clickedInsideAction) setActiveActionRow(null);
     };
 
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
   }, [showSettings]);
 
-  // Fake loading like your current (kept)
-  useEffect(() => {
-    setIsLoading(true);
-    const t = setTimeout(() => setIsLoading(false), 450);
-    return () => clearTimeout(t);
-  }, [currentPage, itemsPerPage, filters, searchQuery, sortConfig, viewMode]);
-
+  // ---------------------------
+  // Reset pagination on query changes
+  // ---------------------------
   useEffect(() => {
     setCurrentPage(1);
-    setVisibleCount(itemsPerPage);
-    setSelectedIds([]); // UX: reset selection when dataset changes
-  }, [filters, searchQuery, itemsPerPage]);
+    setSelectedIds([]);
+  }, [filters, debouncedSearch, itemsPerPage]);
 
   // ---------------------------
   // Saved Views handlers
@@ -158,9 +153,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
   };
 
   const handleUpdateView = (updatedView: SavedView) => {
-    setSavedViews((prev) =>
-      prev.map((v) => (v.id === updatedView.id ? updatedView : v))
-    );
+    setSavedViews((prev) => prev.map((v) => (v.id === updatedView.id ? updatedView : v)));
   };
 
   const handleDeleteView = (id: string) => {
@@ -172,126 +165,92 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
   };
 
   // ---------------------------
-  // Sort + Filter + Pagination (memoized)
+  // Server filters mapping
+  // ---------------------------
+  const serverFilters = useMemo(() => {
+    // API params shown: status_id + search + paging + sort
+    // Your FilterState stores arrays; we take first value (single-select behavior)
+    const statusRaw = filters.status?.[0]; // could be "1" or "ACTIVE"
+    const status_id = statusRaw && /^\d+$/.test(statusRaw) ? Number(statusRaw) : undefined;
+
+    return {
+      status_id,
+      status: status_id ? undefined : statusRaw || undefined,
+      department: filters.department?.[0] || undefined,
+      designation: filters.designation?.[0] || undefined,
+      location: filters.location?.[0] || undefined,
+      grade: filters.grade?.[0] || undefined,
+      tags: filters.tags || [],
+    };
+  }, [filters]);
+
+  // ---------------------------
+  // Server Query (TanStack)
+  // ---------------------------
+  const {
+    rows: displayedEmployees,
+    meta,
+    isLoading,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+  } = useEmployeesDirectory({
+    companyId,
+    search: debouncedSearch,
+    page: currentPage,
+    perPage: itemsPerPage,
+    sortKey: sortConfig.key as string,
+    sortDir: sortConfig.direction,
+    filters: {
+      status: serverFilters.status,
+      status_id: serverFilters.status_id,
+      department: serverFilters.department,
+      designation: serverFilters.designation,
+    },
+    infinite: isInfiniteScroll,
+  });
+
+  const totalPages = meta?.last_page ?? 1;
+  const totalFound = meta?.total ?? 0;
+  const totalShown = displayedEmployees.length;
+
+  // ---------------------------
+  // Sort handler (server-side)
   // ---------------------------
   const handleSort = (key: keyof Employee) => {
     setSortConfig((current) => ({
       key,
-      direction:
-        current.key === key && current.direction === "asc" ? "desc" : "asc",
+      direction: current.key === key && current.direction === "asc" ? "desc" : "asc",
     }));
   };
 
-  const filteredEmployees = useMemo(() => {
-    return employees.filter((emp) => {
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch =
-          emp.name.toLowerCase().includes(query) ||
-          emp.employeeId.toLowerCase().includes(query) ||
-          emp.role.toLowerCase().includes(query) ||
-          emp.department.toLowerCase().includes(query);
-
-        if (!matchesSearch) return false;
-      }
-      if (
-        filters.department.length &&
-        !filters.department.includes(emp.department)
-      )
-        return false;
-      if (filters.location.length && !filters.location.includes(emp.location))
-        return false;
-      if (filters.grade.length && !filters.grade.includes(emp.grade))
-        return false;
-      if (filters.status.length && !filters.status.includes(emp.status))
-        return false;
-      if (
-        filters.tags.length &&
-        !filters.tags.some((tag) => emp.tags.includes(tag))
-      )
-        return false;
-      // designation filter is present in state; apply if you store it in emp.role or emp.designation
-      if (filters.designation.length && !filters.designation.includes(emp.role))
-        return false;
-
-      return true;
-    });
-  }, [employees, searchQuery, filters]);
-
-  const sortedEmployees = useMemo(() => {
-    const arr = [...filteredEmployees];
-    arr.sort((a, b) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
-      if (aValue === undefined || bValue === undefined) return 0;
-
-      // string compare fallback
-      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
-    return arr;
-  }, [filteredEmployees, sortConfig]);
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedEmployees.length / itemsPerPage)
-  );
-
-  const displayedEmployees = useMemo(() => {
-    if (isInfiniteScroll) return sortedEmployees.slice(0, visibleCount);
-    const start = (currentPage - 1) * itemsPerPage;
-    return sortedEmployees.slice(start, start + itemsPerPage);
-  }, [
-    sortedEmployees,
-    isInfiniteScroll,
-    visibleCount,
-    currentPage,
-    itemsPerPage,
-  ]);
-
   // ---------------------------
-  // Infinite scroll observer
+  // Infinite scroll observer (server-side)
   // ---------------------------
   useEffect(() => {
-    if (!isInfiniteScroll || isLoading) return;
+    if (!isInfiniteScroll) return;
+    if (!observerTarget.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          visibleCount < sortedEmployees.length
-        ) {
-          setIsLoading(true);
-          setTimeout(() => {
-            setVisibleCount((prev) =>
-              Math.min(prev + itemsPerPage, sortedEmployees.length)
-            );
-            setIsLoading(false);
-          }, 350);
+        if (entries[0].isIntersecting && hasNextPage && !isFetching) {
+          fetchNextPage();
         }
       },
       { threshold: 1.0 }
     );
 
-    if (observerTarget.current) observer.observe(observerTarget.current);
+    observer.observe(observerTarget.current);
     return () => observer.disconnect();
-  }, [
-    isInfiniteScroll,
-    isLoading,
-    sortedEmployees.length,
-    visibleCount,
-    itemsPerPage,
-  ]);
+  }, [isInfiniteScroll, hasNextPage, fetchNextPage, isFetching]);
 
   // ---------------------------
   // Selection
   // ---------------------------
   const isAllSelected =
-    displayedEmployees.length > 0 &&
-    selectedIds.length === displayedEmployees.length;
-  const isIndeterminate =
-    selectedIds.length > 0 && selectedIds.length < displayedEmployees.length;
+    displayedEmployees.length > 0 && selectedIds.length === displayedEmployees.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < displayedEmployees.length;
 
   const handleSelectAll = () => {
     if (isAllSelected) setSelectedIds([]);
@@ -299,20 +258,11 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
   };
 
   const handleSelectRow = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const clearAll = () => {
-    setFilters({
-      department: [],
-      location: [],
-      grade: [],
-      status: [],
-      tags: [],
-      designation: [],
-    });
+    setFilters({ department: [], location: [], grade: [], status: [], tags: [], designation: [] });
     setSearchQuery("");
   };
 
@@ -321,12 +271,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
   // ---------------------------
   // Columns
   // ---------------------------
-  const columns: {
-    key: keyof Employee;
-    label: string;
-    sortable: boolean;
-    miniHide?: boolean;
-  }[] = [
+  const columns: { key: keyof Employee; label: string; sortable: boolean; miniHide?: boolean }[] = [
     { key: "name", label: "Employee", sortable: true },
     { key: "employeeId", label: "ID", sortable: true },
     { key: "role", label: "Designation", sortable: true },
@@ -340,10 +285,13 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
   // UI helpers
   // ---------------------------
   const StatusPill = ({ status }: { status: Employee["status"] }) => {
-    const isActive = status === "Active";
-    const isLeave = status === "On Leave";
-    const base =
-      "inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-bold border";
+    // API returns "ACTIVE" — your UI earlier used "Active"
+    const normalized = String(status || "").toUpperCase();
+
+    const isActive = normalized === "ACTIVE";
+    const isLeave = normalized === "ON_LEAVE" || normalized === "ON LEAVE";
+
+    const base = "inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold border";
     const dot = "w-2 h-2 rounded-full";
 
     const cls = isActive
@@ -352,19 +300,15 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
       ? "bg-flexi-gold-light text-flexi-gold border-flexi-gold/30"
       : "bg-flexi-coral-light text-flexi-coral border-flexi-coral/30";
 
-    const dotCls = isActive
-      ? "bg-state-success"
-      : isLeave
-      ? "bg-flexi-gold"
-      : "bg-flexi-coral";
+    const dotCls = isActive ? "bg-state-success" : isLeave ? "bg-flexi-gold" : "bg-flexi-coral";
+
+    const label = status; // keep raw
 
     if (isMini) {
       return (
         <div className="flex items-center gap-2">
           <span className={`${dot} ${dotCls}`} />
-          <span className="text-xs font-semibold text-neutral-primary">
-            {status}
-          </span>
+          <span className="text-xs font-medium text-neutral-primary">{label}</span>
         </div>
       );
     }
@@ -372,7 +316,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
     return (
       <span className={`${base} ${cls}`}>
         <span className={`${dot} ${dotCls}`} />
-        {status}
+        {label}
       </span>
     );
   };
@@ -384,25 +328,24 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="p-2">
-        <div className="px-3 py-2 text-[11px] font-extrabold tracking-wider text-neutral-muted uppercase">
+        <div className="px-3 py-2 text-[11px] font-bold tracking-wider text-neutral-muted uppercase">
           Quick Actions
         </div>
 
         <div className="space-y-1">
-          <button className="w-full text-left px-3 py-2.5 text-sm font-semibold text-neutral-primary hover:bg-neutral-page rounded-xl flex items-center gap-2">
-            <UserCircle className="w-4 h-4 text-neutral-muted" /> View 360
-            Profile
+          <button className="w-full text-left px-3 py-2.5 text-sm font-medium text-neutral-primary hover:bg-neutral-page rounded-xl flex items-center gap-2">
+            <UserCircle className="w-4 h-4 text-neutral-muted" /> View 360 Profile
           </button>
-          <button className="w-full text-left px-3 py-2.5 text-sm font-semibold text-neutral-primary hover:bg-neutral-page rounded-xl flex items-center gap-2">
+          <button className="w-full text-left px-3 py-2.5 text-sm font-medium text-neutral-primary hover:bg-neutral-page rounded-xl flex items-center gap-2">
             <Edit className="w-4 h-4 text-neutral-muted" /> Edit Details
           </button>
 
           <div className="h-px bg-neutral-border my-2" />
 
-          <button className="w-full text-left px-3 py-2.5 text-sm font-semibold text-flexi-primary hover:bg-flexi-gold-light rounded-xl flex items-center gap-2 transition-colors">
+          <button className="w-full text-left px-3 py-2.5 text-sm font-medium text-flexi-primary hover:bg-flexi-gold-light rounded-xl flex items-center gap-2 transition-colors">
             <ArrowRightLeft className="w-4 h-4" /> Start Transfer
           </button>
-          <button className="w-full text-left px-3 py-2.5 text-sm font-semibold text-flexi-coral hover:bg-flexi-coral-light rounded-xl flex items-center gap-2 transition-colors">
+          <button className="w-full text-left px-3 py-2.5 text-sm font-medium text-flexi-coral hover:bg-flexi-coral-light rounded-xl flex items-center gap-2 transition-colors">
             <LogOut className="w-4 h-4" /> Start Exit
           </button>
         </div>
@@ -415,16 +358,13 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
       <div className="w-16 h-16 bg-neutral-page rounded-2xl flex items-center justify-center mb-4 border border-neutral-border shadow-sm">
         <Search className="w-8 h-8 text-neutral-muted" />
       </div>
-      <h3 className="text-lg font-extrabold text-neutral-primary">
-        No employees found
-      </h3>
+      <h3 className="text-lg font-bold text-neutral-primary">No employees found</h3>
       <p className="text-sm mt-1 max-w-md text-center">
-        Try adjusting filters, removing tags, or searching by name / ID /
-        department.
+        Try adjusting filters, removing tags, or searching by name / ID / department.
       </p>
       <button
         onClick={clearAll}
-        className="mt-5 px-4 py-3 text-sm font-extrabold text-white bg-flexi-primary rounded-xl hover:bg-flexi-secondary transition-colors shadow-sm"
+        className="mt-5 px-4 py-3 text-sm font-bold text-white bg-flexi-primary rounded-xl hover:bg-flexi-secondary transition-colors shadow-sm"
       >
         Clear filters & search
       </button>
@@ -440,16 +380,10 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
           </td>
           <td className={isMini ? "px-3 py-2" : "p-4"}>
             <div className="flex items-center gap-3">
-              <div
-                className={`${
-                  isMini ? "w-7 h-7" : "w-10 h-10"
-                } rounded-full bg-flexi-light`}
-              />
+              <div className={`${isMini ? "w-7 h-7" : "w-10 h-10"} rounded-full bg-flexi-light`} />
               <div className="space-y-2">
                 <div className="w-28 h-3 bg-flexi-light rounded" />
-                {!isMini && (
-                  <div className="w-40 h-2 bg-neutral-page rounded" />
-                )}
+                {!isMini && <div className="w-40 h-2 bg-neutral-page rounded" />}
               </div>
             </div>
           </td>
@@ -502,7 +436,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
     </div>
   );
 
-  // Pagination pages (nice UX)
+  // Pagination pages
   const getPageButtons = () => {
     const pages: number[] = [];
     const maxButtons = 5;
@@ -514,19 +448,16 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
     return pages;
   };
 
-  const totalShown = displayedEmployees.length;
-  const totalFound = sortedEmployees.length;
-
   return (
     <div ref={rootRef} className="space-y-6 relative min-h-screen pb-28">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-extrabold text-neutral-primary tracking-tight">
+            <h2 className="text-3xl font-bold text-neutral-primary tracking-tight">
               Employee Directory
             </h2>
-            <span className="text-xs font-extrabold px-2.5 py-1 rounded-full bg-neutral-page border border-neutral-border text-neutral-secondary">
+            <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-neutral-page border border-neutral-border text-neutral-secondary">
               {totalFound} found
             </span>
           </div>
@@ -538,11 +469,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
         <div className="flex flex-wrap items-center gap-2">
           {/* Quick actions */}
           <Button
-            onClick={() => {
-              // Hook your refresh logic here if needed
-              setIsLoading(true);
-              setTimeout(() => setIsLoading(false), 400);
-            }}
+            onClick={() => refetch()}
             variant="outline"
             className="my-0 transition-all duration-500 hover:bg-[#1E1B4B] hover:text-white"
           >
@@ -571,15 +498,13 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
 
             {showSettings && (
               <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-neutral-border z-30 animate-in fade-in zoom-in-95 p-2">
-                <div className="px-3 py-2 text-[11px] font-extrabold text-neutral-muted uppercase tracking-wider">
+                <div className="px-3 py-2 text-[11px] font-bold text-neutral-muted uppercase tracking-wider">
                   Pagination
                 </div>
 
                 <div className="px-2 space-y-2">
                   <div className="flex items-center justify-between p-2 rounded-xl hover:bg-neutral-page">
-                    <span className="text-sm font-semibold text-neutral-primary">
-                      Infinite Scroll
-                    </span>
+                    <span className="text-sm font-medium text-neutral-primary">Infinite Scroll</span>
                     <button
                       onClick={() => setIsInfiniteScroll((v) => !v)}
                       className={`w-10 h-5 rounded-full relative transition-colors ${
@@ -596,7 +521,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
 
                   {!isInfiniteScroll && (
                     <div className="p-2">
-                      <span className="text-sm text-neutral-primary font-semibold block mb-2">
+                      <span className="text-sm text-neutral-primary font-medium block mb-2">
                         Rows per page
                       </span>
                       <div className="flex gap-2">
@@ -604,7 +529,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                           <button
                             key={num}
                             onClick={() => setItemsPerPage(num)}
-                            className={`flex-1 py-2 text-xs font-extrabold rounded-xl border transition-colors ${
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl border transition-colors ${
                               itemsPerPage === num
                                 ? "bg-flexi-primary text-white border-flexi-primary"
                                 : "bg-white text-neutral-secondary border-neutral-border hover:bg-neutral-page"
@@ -622,7 +547,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
           </div>
 
           {/* View segmented control */}
-          <div className="flex h-9  items-center bg-white rounded-md border border-neutral-border shadow-sm p-0 gap-2 px-1">
+          <div className="flex h-9 items-center bg-white rounded-md border border-neutral-border shadow-sm p-0 gap-2 px-1">
             <Button
               type="button"
               variant="ghost"
@@ -672,12 +597,12 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
       {selectedIds.length > 0 && (
         <div className="sticky top-0 z-30 -mx-6 px-6 md:-mx-8 md:px-8 pt-3">
           <div className="bg-white border border-neutral-border rounded-2xl shadow-soft px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-sm font-extrabold text-neutral-primary">
+            <div className="flex items-center gap-2 text-sm font-bold text-neutral-primary">
               <CheckCircle2 className="w-4 h-4 text-flexi-primary" />
               {selectedIds.length} selected
               <button
                 onClick={() => setSelectedIds([])}
-                className="ml-2 inline-flex items-center gap-1 text-xs font-extrabold px-2 py-1 rounded-full bg-neutral-page border border-neutral-border text-neutral-secondary hover:text-neutral-primary"
+                className="ml-2 inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full bg-neutral-page border border-neutral-border text-neutral-secondary hover:text-neutral-primary"
               >
                 <X className="w-3 h-3" />
                 Clear
@@ -685,10 +610,10 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <button className="px-4 py-2 rounded-xl text-sm font-extrabold bg-neutral-page border border-neutral-border hover:bg-white">
+              <button className="px-4 py-2 rounded-xl text-sm font-bold bg-neutral-page border border-neutral-border hover:bg-white">
                 Export Selected
               </button>
-              <button className="px-4 py-2 rounded-xl text-sm font-extrabold bg-flexi-primary text-white hover:bg-flexi-secondary shadow-sm">
+              <button className="px-4 py-2 rounded-xl text-sm font-bold bg-flexi-primary text-white hover:bg-flexi-secondary shadow-sm">
                 Bulk Action
               </button>
             </div>
@@ -697,7 +622,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
       )}
 
       {/* Sticky filters */}
-      <div className="sticky top-0 z-20 bg-neutral-page/85 backdrop-blur-md -mx-6 px-6 md:-mx-8 md:px-8 py-4 border-b border-neutral-border/60">
+      <div className="sticky top-0 bg-white z-20 bg-neutral-page/85 backdrop-blur-md -mx-6 px-6 md:-mx-8 md:px-8 py-4 border-b border-neutral-border/60">
         <div className="bg-white border border-neutral-border rounded-2xl shadow-sm p-3">
           <FilterBar
             filters={filters}
@@ -752,7 +677,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                         onClick={() => col.sortable && handleSort(col.key)}
                         className={[
                           isMini ? "px-3 py-2 text-[10px]" : "p-4 text-xs",
-                          "font-extrabold text-neutral-secondary uppercase tracking-wider",
+                          "font-bold text-neutral-secondary uppercase tracking-wider",
                           col.sortable
                             ? "cursor-pointer hover:bg-neutral-border/40 transition-colors group select-none"
                             : "",
@@ -773,7 +698,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                   <th
                     className={`${
                       isMini ? "px-3 py-2" : "p-4"
-                    } text-xs font-extrabold text-neutral-secondary uppercase tracking-wider text-right`}
+                    } text-xs font-bold text-neutral-secondary uppercase tracking-wider text-right`}
                   >
                     Actions
                   </th>
@@ -781,7 +706,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
               </thead>
 
               <tbody className="divide-y divide-neutral-border">
-                {isLoading && !isInfiniteScroll ? (
+                {isLoading ? (
                   <TableSkeleton />
                 ) : displayedEmployees.length > 0 ? (
                   displayedEmployees.map((emp) => {
@@ -792,9 +717,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                         key={emp.id}
                         className={[
                           "transition-colors group relative",
-                          isSelected
-                            ? "bg-flexi-light/40"
-                            : "hover:bg-[#F5F4FA]",
+                          isSelected ? "bg-flexi-light/40" : "hover:bg-[#F5F4FA]",
                         ].join(" ")}
                       >
                         <td className={isMini ? "px-3 py-2" : "p-4"}>
@@ -820,12 +743,12 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                               <div
                                 className={`${
                                   isMini ? "text-xs" : "text-sm"
-                                } font-extrabold text-neutral-primary truncate`}
+                                } font-bold text-neutral-primary truncate`}
                               >
                                 {emp.name}
                               </div>
                               {!isMini && (
-                                <div className="text-xs text-neutral-muted font-semibold truncate">
+                                <div className="text-xs text-neutral-muted font-medium truncate">
                                   {emp.email}
                                 </div>
                               )}
@@ -849,12 +772,12 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                           <div
                             className={`${
                               isMini ? "text-xs" : "text-sm"
-                            } font-bold text-neutral-primary`}
+                            } font-semibold text-neutral-primary`}
                           >
                             {emp.role}
                           </div>
                           {!isMini && (
-                            <div className="text-xs text-neutral-muted mt-1 font-semibold">
+                            <div className="text-xs text-neutral-muted mt-1 font-medium">
                               {emp.grade}
                             </div>
                           )}
@@ -865,7 +788,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                           <div
                             className={`${
                               isMini ? "text-xs" : "text-sm"
-                            } text-neutral-secondary flex items-center gap-2 font-semibold`}
+                            } text-neutral-secondary flex items-center gap-2 font-medium`}
                           >
                             <Briefcase className="w-4 h-4 text-neutral-muted" />
                             {emp.department}
@@ -877,7 +800,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                           <div
                             className={`${
                               isMini ? "text-xs" : "text-sm"
-                            } text-neutral-secondary flex items-center gap-2 font-semibold`}
+                            } text-neutral-secondary flex items-center gap-2 font-medium`}
                           >
                             <MapPin className="w-4 h-4 text-neutral-muted" />
                             {emp.location}
@@ -887,7 +810,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                         {/* Join date */}
                         {!isMini && (
                           <td className="p-4">
-                            <div className="text-sm font-bold text-neutral-primary">
+                            <div className="text-sm font-semibold text-neutral-primary">
                               {emp.joinDate}
                             </div>
                           </td>
@@ -899,18 +822,12 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                         </td>
 
                         {/* Actions */}
-                        <td
-                          className={`${
-                            isMini ? "px-3 py-2" : "p-4"
-                          } text-right relative`}
-                        >
+                        <td className={`${isMini ? "px-3 py-2" : "p-4"} text-right relative`}>
                           <button
                             data-action-button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setActiveActionRow((cur) =>
-                                cur === emp.id ? null : emp.id
-                              );
+                              setActiveActionRow((cur) => (cur === emp.id ? null : emp.id));
                             }}
                             className={[
                               "p-2 rounded-xl transition-colors",
@@ -922,9 +839,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
 
-                          {activeActionRow === emp.id && (
-                            <ActionMenu empId={emp.id} />
-                          )}
+                          {activeActionRow === emp.id && <ActionMenu empId={emp.id} />}
                         </td>
                       </tr>
                     );
@@ -942,11 +857,8 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
 
           {/* Infinite scroll sentinel */}
           {isInfiniteScroll && (
-            <div
-              ref={observerTarget}
-              className="h-14 flex items-center justify-center p-4"
-            >
-              {isLoading && (
+            <div ref={observerTarget} className="h-14 flex items-center justify-center p-4">
+              {(isFetching || isLoading) && (
                 <Loader className="w-6 h-6 animate-spin text-flexi-primary" />
               )}
             </div>
@@ -955,15 +867,10 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
           {/* Pagination */}
           {!isInfiniteScroll && totalPages > 1 && (
             <div className="p-4 border-t border-neutral-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-page/30">
-              <div className="text-sm font-semibold text-neutral-secondary">
+              <div className="text-sm font-medium text-neutral-secondary">
                 Showing{" "}
-                <span className="font-extrabold text-neutral-primary">
-                  {totalShown}
-                </span>{" "}
-                of{" "}
-                <span className="font-extrabold text-neutral-primary">
-                  {totalFound}
-                </span>
+                <span className="font-bold text-neutral-primary">{totalShown}</span> of{" "}
+                <span className="font-bold text-neutral-primary">{totalFound}</span>
               </div>
 
               <div className="flex items-center gap-2 justify-end">
@@ -980,7 +887,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                     key={p}
                     onClick={() => setCurrentPage(p)}
                     className={[
-                      "min-w-[38px] px-3 py-2 rounded-xl text-sm font-extrabold border transition-colors",
+                      "min-w-[38px] px-3 py-2 rounded-xl text-sm font-bold border transition-colors",
                       p === currentPage
                         ? "bg-flexi-primary text-white border-flexi-primary"
                         : "bg-white text-neutral-secondary border-neutral-border hover:bg-neutral-page",
@@ -992,9 +899,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
 
                 <button
                   disabled={currentPage === totalPages}
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   className="p-2 border border-neutral-border rounded-xl bg-white disabled:opacity-50 hover:bg-neutral-page transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -1006,7 +911,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
       ) : (
         // GRID VIEW
         <div className="space-y-6">
-          {isLoading && !isInfiniteScroll ? (
+          {isLoading ? (
             <CardSkeleton />
           ) : displayedEmployees.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -1020,9 +925,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                       data-action-button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setActiveActionRow((cur) =>
-                          cur === emp.id ? null : emp.id
-                        );
+                        setActiveActionRow((cur) => (cur === emp.id ? null : emp.id));
                       }}
                       className="p-2 text-neutral-muted hover:bg-neutral-page rounded-xl"
                     >
@@ -1043,12 +946,10 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                       className="w-14 h-14 rounded-full border border-neutral-border object-cover shadow-sm"
                     />
                     <div className="min-w-0">
-                      <h3 className="font-extrabold text-neutral-primary text-base truncate">
+                      <h3 className="font-bold text-neutral-primary text-base truncate">
                         {emp.name}
                       </h3>
-                      <p className="text-sm text-flexi-primary font-bold truncate">
-                        {emp.role}
-                      </p>
+                      <p className="text-sm text-flexi-primary font-semibold truncate">{emp.role}</p>
                       <div className="mt-2">
                         <StatusPill status={emp.status} />
                       </div>
@@ -1056,23 +957,17 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                   </div>
 
                   <div className="mt-5 space-y-2 border-t border-neutral-border pt-4">
-                    <div className="flex items-center justify-between text-xs text-neutral-secondary font-semibold">
+                    <div className="flex items-center justify-between text-xs text-neutral-secondary font-medium">
                       <span className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-neutral-muted" />{" "}
-                        Department
+                        <Briefcase className="w-4 h-4 text-neutral-muted" /> Department
                       </span>
-                      <span className="font-extrabold text-neutral-primary">
-                        {emp.department}
-                      </span>
+                      <span className="font-bold text-neutral-primary">{emp.department}</span>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-neutral-secondary font-semibold">
+                    <div className="flex items-center justify-between text-xs text-neutral-secondary font-medium">
                       <span className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-neutral-muted" />{" "}
-                        Location
+                        <MapPin className="w-4 h-4 text-neutral-muted" /> Location
                       </span>
-                      <span className="font-extrabold text-neutral-primary">
-                        {emp.location}
-                      </span>
+                      <span className="font-bold text-neutral-primary">{emp.location}</span>
                     </div>
                   </div>
                 </div>
@@ -1083,11 +978,8 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
           )}
 
           {isInfiniteScroll && (
-            <div
-              ref={observerTarget}
-              className="h-14 flex items-center justify-center p-4"
-            >
-              {isLoading && (
+            <div ref={observerTarget} className="h-14 flex items-center justify-center p-4">
+              {(isFetching || isLoading) && (
                 <Loader className="w-6 h-6 animate-spin text-flexi-primary" />
               )}
             </div>
@@ -1109,7 +1001,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
                     key={p}
                     onClick={() => setCurrentPage(p)}
                     className={[
-                      "min-w-[38px] px-3 py-2 rounded-xl text-sm font-extrabold border transition-colors",
+                      "min-w-[38pxs] px-3 py-2 rounded-xl text-sm font-bold border transition-colors",
                       p === currentPage
                         ? "bg-flexi-primary text-white border-flexi-primary"
                         : "bg-white text-neutral-secondary border-neutral-border hover:bg-neutral-page",
@@ -1121,9 +1013,7 @@ const Directory: React.FC<DirectoryProps> = ({ employees }) => {
 
                 <button
                   disabled={currentPage === totalPages}
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   className="p-2 rounded-xl hover:bg-neutral-page disabled:opacity-50"
                 >
                   <ChevronRight className="w-4 h-4" />

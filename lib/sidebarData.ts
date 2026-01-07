@@ -765,247 +765,97 @@ export const modules: ModuleItem[] = [
     icon: "Zap",
     admin: true,
     Menu: [
-      // 2.1 Geography (replaces single "Country" item with a group)
-      {
-        id: 141,
-        icon: "Zap",
-        title: "Geography",
-        subMenu: [
-          {
-            id: 14101,
-            icon: "Zap",
-            title: "Countries",
-            pathname: "/dashboard/adminsettings/fleximeta/company/country",
-          },
-          {
-            id: 14102,
-            icon: "Zap",
-            title: "States/Provinces",
-            pathname: "/dashboard/adminsettings/fleximeta/company/state",
-          },
-          {
-            id: 14103,
-            icon: "Zap",
-            title: "Cities",
-            pathname: "/dashboard/adminsettings/fleximeta/company/city",
-          },
-        ],
-      },
+    // 2.1 Geography (replaces single "Country" item with a group)
+    {
+      id: 141,
+      icon: 'Zap',
+      title: "Geography",
+      subMenu: [
+        { id: 14101, icon: 'Zap', title: "Countries", pathname: "/countries" },
+        { id: 14102, icon: 'Zap', title: "States/Provinces", pathname: "/dashboard/adminsettings/fleximeta/company/state" },
+        { id: 14103, icon: 'Zap', title: "Cities", pathname: "/dashboard/adminsettings/fleximeta/company/city" },
+      ],
+    },
 
-      // 2.2 Company Dictionaries (moved from old "Company")
-      {
-        id: 143,
-        icon: "Zap",
-        title: "Company Dictionaries",
-        subMenu: [
-          {
-            id: 14301,
-            icon: "Zap",
-            title: "Entity Type",
-            pathname: "/dashboard/adminsettings/fleximeta/company/entitytype",
-          },
-          {
-            id: 14302,
-            icon: "Zap",
-            title: "Location Type",
-            pathname: "/dashboard/adminsettings/fleximeta/company/locationtype",
-          },
-          {
-            id: 14303,
-            icon: "Zap",
-            title: "Business Line",
-            pathname: "/dashboard/adminsettings/fleximeta/company/businessline",
-          },
-        ],
-      },
+    // 2.2 Company Dictionaries (moved from old "Company")
+    {
+      id: 143,
+      icon: 'Zap',
+      title: "Company Dictionaries",
+      subMenu: [
+        { id: 14301, icon: 'Zap', title: "Entity Type", pathname: "/dashboard/adminsettings/fleximeta/company/entitytype" },
+        { id: 14302, icon: 'Zap', title: "Location Type", pathname: "/dashboard/adminsettings/fleximeta/company/locationtype" },
+        { id: 14303, icon: 'Zap', title: "Business Line", pathname: "/dashboard/adminsettings/fleximeta/company/businessline" },
+      ],
+    },
 
-      // Keep your existing Employee block intact
-      {
-        id: 142,
-        icon: "Zap",
-        title: "Employee",
-        subMenu: [
-          {
-            id: 1511,
-            icon: "Zap",
-            title: "Gender",
-            pathname: "/dashboard/adminsettings/fleximeta/employee/gender",
-          },
-          {
-            id: 1512,
-            icon: "Zap",
-            title: "Salutation",
-            pathname: "/dashboard/adminsettings/fleximeta/employee/salutation",
-          },
-          {
-            id: 1513,
-            icon: "Zap",
-            title: "Status",
-            pathname: "/dashboard/adminsettings/fleximeta/employee/status",
-          },
-          {
-            id: 1511,
-            icon: "Zap",
-            title: "Grade",
-            pathname: "/dashboard/adminsettings/fleximeta/employee/grade",
-          },
-          {
-            id: 1512,
-            icon: "Zap",
-            title: "Employee Type",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/employee/employeetype",
-          },
-          {
-            id: 1513,
-            icon: "Zap",
-            title: "Blood group",
-            pathname: "/dashboard/adminsettings/fleximeta/employee/bloodgroup",
-          },
-          {
-            id: 1512,
-            icon: "Zap",
-            title: "Marital Status",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/employee/maritalstatus",
-          },
-          {
-            id: 1513,
-            icon: "Zap",
-            title: "Health",
-            pathname: "/dashboard/adminsettings/fleximeta/employee/health",
-          },
-        ],
-      },
+    // Keep your existing Employee block intact
+    {
+      id: 142,
+      icon: 'Zap',
+      title: "Employee",
+      subMenu: [
+        { id: 1511, icon: 'Zap', title: "Gender", pathname:"/dashboard/adminsettings/fleximeta/employee/gender" },
+        { id: 1512, icon: 'Zap', title: "Salutation", pathname:"/dashboard/adminsettings/fleximeta/employee/salutation" },
+        { id: 1513, icon: 'Zap', title: "Status", pathname:"/dashboard/adminsettings/fleximeta/employee/status" },
+        { id: 1511, icon: 'Zap', title: "Grade", pathname:"/dashboard/adminsettings/fleximeta/employee/grade" },
+        { id: 1512, icon: 'Zap', title: "Employee Type", pathname:"/dashboard/adminsettings/fleximeta/employee/employeetype" },
+        { id: 1513, icon: 'Zap', title: "Blood group", pathname:"/dashboard/adminsettings/fleximeta/employee/bloodgroup" },
+        { id: 1512, icon: 'Zap', title: "Marital Status", pathname:"/dashboard/adminsettings/fleximeta/employee/maritalstatus" },
+        { id: 1513, icon: 'Zap', title: "Health", pathname:"/dashboard/adminsettings/fleximeta/employee/health" },
+      ],
+    },
 
-      // 2.3 Finance (NEW)
-      {
-        id: 144,
-        icon: "Zap",
-        title: "Finance",
-        subMenu: [
-          {
-            id: 14401,
-            icon: "Zap",
-            title: "Currencies",
-            pathname: "/dashboard/adminsettings/fleximeta/Finance/Currencies",
-          },
-          {
-            id: 14402,
-            icon: "Zap",
-            title: "FX Rates",
-            pathname: "/dashboard/adminsettings/fleximeta/Finance/FxRate",
-          },
-          {
-            id: 14403,
-            icon: "Zap",
-            title: "Banks",
-            pathname: "/dashboard/adminsettings/fleximeta/Finance/Bank",
-          },
-          {
-            id: 14404,
-            icon: "Zap",
-            title: "Bank Branches",
-            pathname: "/dashboard/adminsettings/fleximeta/Finance/BankBranch",
-          },
-          {
-            id: 14405,
-            icon: "Zap",
-            title: "IBAN Formats",
-            pathname: "/dashboard/adminsettings/fleximeta/Finance/IbanFormat",
-          },
-        ],
-      },
+    // 2.3 Finance (NEW)
+    {
+      id: 144,
+      icon: 'Zap',
+      title: "Finance",
+      subMenu: [
+        { id: 14401, icon: 'Zap', title: "Currencies", pathname: "/dashboard/adminsettings/fleximeta/Finance/Currencies" },
+        { id: 14402, icon: 'Zap', title: "FX Rates", pathname: "/dashboard/adminsettings/fleximeta/Finance/FxRate" },
+        { id: 14403, icon: 'Zap', title: "Banks", pathname: "/dashboard/adminsettings/fleximeta/Finance/Bank" },
+        { id: 14404, icon: 'Zap', title: "Bank Branches", pathname: "/dashboard/adminsettings/fleximeta/Finance/BankBranch" },
+        { id: 14405, icon: 'Zap', title: "IBAN Formats", pathname: "/dashboard/adminsettings/fleximeta/Finance/IbanFormat" },
+      ],
+    },
 
-      // 2.4 Statutory Framework (NEW)
-      {
-        id: 145,
-        icon: "Zap",
-        title: "Statutory Framework",
-        subMenu: [
-          {
-            id: 14501,
-            icon: "Zap",
-            title: "Minimum Wages",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Statutory/MinimumWage",
-          },
-          {
-            id: 14502,
-            icon: "Zap",
-            title: "Statutory Rates",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Statutory/StatutoryRate",
-          },
-        ],
-      },
+    // 2.4 Statutory Framework (NEW)
+    {
+      id: 145,
+      icon: 'Zap',
+      title: "Statutory Framework",
+      subMenu: [
+        { id: 14501, icon: 'Zap', title: "Minimum Wages", pathname: "/dashboard/adminsettings/fleximeta/Statutory/MinimumWage" },
+        { id: 14502, icon: 'Zap', title: "Statutory Rates", pathname: "/dashboard/adminsettings/fleximeta/Statutory/StatutoryRate" },
+      ],
+    },
 
-      // 2.5 Calendars (NEW)
-      {
-        id: 146,
-        icon: "Zap",
-        title: "Calendars",
-        subMenu: [
-          {
-            id: 14601,
-            icon: "Zap",
-            title: "Public Holiday Templates",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Calendars/PublicHoliday",
-          },
-        ],
-      },
+    // 2.5 Calendars (NEW)
+    {
+      id: 146,
+      icon: 'Zap',
+      title: "Calendars",
+      subMenu: [
+        { id: 14601, icon: 'Zap', title: "Public Holiday Templates", pathname: "/dashboard/adminsettings/fleximeta/Calendars/PublicHoliday" },
+      ],
+    },
 
-      {
-        id: 147,
-        icon: "Zap",
-        title: "Catalogs",
-        subMenu: [
-          {
-            id: 14701,
-            icon: "Zap",
-            title: "Salary Components",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Catalogs/SalaryComponents",
-          },
-          {
-            id: 14702,
-            icon: "Zap",
-            title: "Shift Archetypes",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Catalogs/shiftarchetypes",
-          },
-          {
-            id: 14703,
-            icon: "Zap",
-            title: "Attendance Device Types",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Catalogs/attendancedevicetypes",
-          },
-          {
-            id: 14704,
-            icon: "Zap",
-            title: "Document Types",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Catalogs/documenttypes",
-          },
-          {
-            id: 14705,
-            icon: "Zap",
-            title: "Skills & Trades",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Catalogs/skillsandtrades",
-          },
-          {
-            id: 14706,
-            icon: "Zap",
-            title: "Grade Templates",
-            pathname:
-              "/dashboard/adminsettings/fleximeta/Catalogs/gradetemplates",
-          },
-        ],
-      },
-    ],
+   
+    {
+      id: 147,
+      icon: 'Zap',
+      title: "Catalogs",
+      subMenu: [
+        { id: 14701, icon: 'Zap', title: "Salary Components", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/SalaryComponents" },
+        { id: 14702, icon: 'Zap', title: "Shift Archetypes", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/shiftarchetypes" },
+        { id: 14703, icon: 'Zap', title: "Attendance Device Types", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/attendancedevicetypes" },
+        { id: 14704, icon: 'Zap', title: "Document Types", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/documenttypes" },
+        { id: 14705, icon: 'Zap', title: "Skills & Trades", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/skillsandtrades" },
+        { id: 14706, icon: 'Zap', title: "Grade Templates", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/gradetemplates" },
+      ],
+    },
+  ],
   },
   {
     id: 15,

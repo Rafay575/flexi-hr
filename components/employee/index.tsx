@@ -1,5 +1,11 @@
 // src/features/enrollment/OnboardX.tsx
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Check,
   ChevronLeft,
@@ -20,6 +26,7 @@ import { buildZodSchema } from "./buildSchema";
 import { api } from "@/components/api/client";
 
 import { stepComponents, StepHandle } from "./stepComponents";
+import { toast } from "sonner";
 
 const colors = {
   primary: "#3D3A5C",
@@ -66,8 +73,8 @@ function ConfirmSwitchModal({
 
         <p className="mt-1 text-[12px] text-gray-600 leading-relaxed">
           If you continue, your current{" "}
-          <b>{fromMode === "quick" ? "Quick" : "Detailed"}</b> draft data will be{" "}
-          <b>deleted</b>. You will start a new{" "}
+          <b>{fromMode === "quick" ? "Quick" : "Detailed"}</b> draft data will
+          be <b>deleted</b>. You will start a new{" "}
           <b>{toMode === "quick" ? "Quick" : "Detailed"}</b> draft.
         </p>
 
@@ -169,7 +176,11 @@ export default function OnboardX() {
     [steps]
   );
   const requiredFields = useMemo(
-    () => steps.reduce((s, st) => s + st.fields.filter((f) => f.required).length, 0),
+    () =>
+      steps.reduce(
+        (s, st) => s + st.fields.filter((f) => f.required).length,
+        0
+      ),
     [steps]
   );
 
@@ -224,7 +235,9 @@ export default function OnboardX() {
       setUiMode(pendingMode);
       setStep(0);
     } catch (e: any) {
-      alert(e?.response?.data?.message || e?.message || "Failed to switch form");
+      toast(
+        e?.response?.data?.message || e?.message || "Failed to switch form"
+      );
     } finally {
       setConfirmLoading(false);
       setSwitching(false);
@@ -252,7 +265,7 @@ export default function OnboardX() {
   const onSubmit = async () => {
     // final submit (example)
     console.log("FINAL SUBMIT", { enrollmentId, values: getValues() });
-    alert("Form Submitted!");
+    toast("Form Submitted!");
   };
 
   const Icon = current.icon;
@@ -265,7 +278,10 @@ export default function OnboardX() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-3 h-12 flex items-center justify-between">
-          <div className="flex items-center gap-1 p-0.5 rounded-lg" style={{ background: "#F1F1F3" }}>
+          <div
+            className="flex items-center gap-1 p-0.5 rounded-lg"
+            style={{ background: "#F1F1F3" }}
+          >
             {(["quick", "detailed"] as const).map((m) => (
               <button
                 key={m}
@@ -275,7 +291,8 @@ export default function OnboardX() {
                 style={{
                   background: uiMode === m ? "white" : "transparent",
                   color: uiMode === m ? colors.primary : "#706C7A",
-                  boxShadow: uiMode === m ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
+                  boxShadow:
+                    uiMode === m ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
                 }}
               >
                 {m === "quick" ? (
@@ -298,12 +315,15 @@ export default function OnboardX() {
         <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h1 className="font-bold text-lg" style={{ color: colors.primary }}>
+              <h1
+                className="font-bold text-lg"
+                style={{ color: colors.primary }}
+              >
                 Employee Enrollment
               </h1>
               <p className="text-[11px] text-gray-500">
-                {uiMode === "quick" ? "Quick Form" : "Detailed Form"} • {total} Steps • {totalFields} Fields •{" "}
-                {requiredFields} Required
+                {uiMode === "quick" ? "Quick Form" : "Detailed Form"} • {total}{" "}
+                Steps • {totalFields} Fields • {requiredFields} Required
                 {enrollmentId ? ` • Draft #${enrollmentId}` : ""}
               </p>
             </div>
@@ -314,7 +334,9 @@ export default function OnboardX() {
               <span style={{ color: colors.primary }}>
                 Step {step + 1} of {total}
               </span>
-              <span style={{ color: colors.secondary }}>{Math.round(progress)}%</span>
+              <span style={{ color: colors.secondary }}>
+                {Math.round(progress)}%
+              </span>
             </div>
             <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
               <div
@@ -345,11 +367,21 @@ export default function OnboardX() {
                       : isCompleted
                       ? "#F4E8D4"
                       : "#F1F1F3",
-                    color: isActive ? "white" : isCompleted ? "#A67F45" : "#8A8694",
+                    color: isActive
+                      ? "white"
+                      : isCompleted
+                      ? "#A67F45"
+                      : "#8A8694",
                   }}
                 >
-                  {isCompleted ? <Check className="w-3 h-3" /> : <StepIcon className="w-3 h-3" />}
-                  <span className="hidden sm:inline">{s.title.split(" ")[0]}</span>
+                  {isCompleted ? (
+                    <Check className="w-3 h-3" />
+                  ) : (
+                    <StepIcon className="w-3 h-3" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {s.title.split(" ")[0]}
+                  </span>
                 </button>
               );
             })}
@@ -357,18 +389,29 @@ export default function OnboardX() {
         </div>
 
         {/* Form container (keep your design) */}
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100" style={{ background: "#F8F7FA" }}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+        >
+          <div
+            className="px-4 py-3 border-b border-gray-100"
+            style={{ background: "#F8F7FA" }}
+          >
             <div className="flex items-center gap-3">
               <div
                 className="w-9 h-9 rounded-lg flex items-center justify-center"
-                style={{ background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})` }}
+                style={{
+                  background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`,
+                }}
               >
                 <Icon className="w-4 h-4 text-white" />
               </div>
 
               <div className="flex-1">
-                <h2 className="font-bold text-base" style={{ color: colors.primary }}>
+                <h2
+                  className="font-bold text-base"
+                  style={{ color: colors.primary }}
+                >
                   {current.title}
                 </h2>
                 <p className="text-[11px] text-gray-500">{current.subtitle}</p>
@@ -386,13 +429,17 @@ export default function OnboardX() {
               />
             ) : (
               <div className="text-sm text-gray-500">
-                Missing StepComponent for mode <b>{uiMode}</b> step <b>{step}</b>
+                Missing StepComponent for mode <b>{uiMode}</b> step{" "}
+                <b>{step}</b>
               </div>
             )}
           </div>
 
           {/* Footer Buttons (your design same) */}
-          <div className="px-4 py-3 border-t border-gray-100" style={{ background: "#FAFAFA" }}>
+          <div
+            className="px-4 py-3 border-t border-gray-100"
+            style={{ background: "#FAFAFA" }}
+          >
             <div className="flex items-center justify-between gap-2">
               <button
                 type="button"
@@ -416,10 +463,13 @@ export default function OnboardX() {
 
                 {step === total - 1 ? (
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={goNext}
                     disabled={switching || confirmLoading}
                     className="px-3 py-1.5 rounded-lg font-semibold text-xs text-white flex items-center gap-1 disabled:opacity-60"
-                    style={{ background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})` }}
+                    style={{
+                      background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`,
+                    }}
                   >
                     <Send className="w-3.5 h-3.5" /> Submit
                   </button>
@@ -429,7 +479,9 @@ export default function OnboardX() {
                     onClick={goNext}
                     disabled={switching || confirmLoading}
                     className="px-3 py-1.5 rounded-lg font-semibold text-xs text-white flex items-center gap-1 disabled:opacity-60"
-                    style={{ background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})` }}
+                    style={{
+                      background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`,
+                    }}
                   >
                     Next <ChevronRight className="w-3.5 h-3.5" />
                   </button>
@@ -450,18 +502,30 @@ export default function OnboardX() {
         />
 
         {/* Footer */}
-        <div className="mt-4 rounded-xl p-3 text-white text-center" style={{ background: `linear-gradient(135deg, ${colors.primary}, #232135)` }}>
+        <div
+          className="mt-4 rounded-xl p-3 text-white text-center"
+          style={{
+            background: `linear-gradient(135deg, ${colors.primary}, #232135)`,
+          }}
+        >
           <div className="flex items-center justify-center gap-1.5 mb-1.5">
             <Shield className="w-3.5 h-3.5" style={{ color: colors.beige }} />
-            <span className="font-bold text-xs">Pakistan Labor Law Compliance</span>
+            <span className="font-bold text-xs">
+              Pakistan Labor Law Compliance
+            </span>
           </div>
           <div className="flex flex-wrap justify-center gap-3 text-[10px]">
-            {["EOBI Act", "Provincial SS", "FBR Tax", "Standing Orders"].map((law) => (
-              <span key={law} className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: colors.beige }} />
-                {law}
-              </span>
-            ))}
+            {["EOBI Act", "Provincial SS", "FBR Tax", "Standing Orders"].map(
+              (law) => (
+                <span key={law} className="flex items-center gap-1">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ background: colors.beige }}
+                  />
+                  {law}
+                </span>
+              )
+            )}
           </div>
         </div>
       </main>
