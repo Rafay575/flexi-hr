@@ -60,6 +60,7 @@ import { EnrollmentProvider } from "./context/EnrollmentContext";
 import TransferWizard from "./components/employee-transfer/TransferWizard";
 import CountryListing from "./components/fleximeta/geography/countries";
 import StateListing from "./components/fleximeta/geography/states";
+import CityListing from "./components/fleximeta/geography/cities";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -224,6 +225,7 @@ const App: React.FC = () => {
 
               <Route path="/countries" element={<CountryListing />} />
               <Route path="/states" element={<StateListing />} />
+              <Route path="/cities" element={<CityListing />} />
                 {/* Flexi HQ routes */}
                 <Route path="/companies" element={<CompaniesPage />} />
                 <Route

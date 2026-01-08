@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
-import { Check, ChevronsUpDown, Globe } from "lucide-react";
+import { Check, ChevronsUpDown, Globe, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type Option = {
@@ -19,12 +19,8 @@ export type Option = {
   label: string;
 };
 
-// ────────────────────────────────────────────
-// Props: support single OR multi via `multiple`
-// ────────────────────────────────────────────
-
 type CommonProps = {
-  options: Option[];
+  options: Option[]; // The array of options for the select dropdown
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
@@ -36,17 +32,18 @@ type CommonProps = {
   className?: string;
   widthClass?: string;
   disabled?: boolean;
+  isLoading?: boolean; // Adding loading state
 };
 
 type SingleProps = CommonProps & {
   multiple?: false;
-  value: string; // '' = nothing selected
+  value: string; 
   onChange: (v: string) => void;
 };
 
 type MultiProps = CommonProps & {
   multiple: true;
-  value: string[]; // [] = nothing selected
+  value: string[]; 
   onChange: (v: string[]) => void;
 };
 
@@ -68,13 +65,12 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (props) => {
     className,
     widthClass = "w-56",
     disabled = false,
+    isLoading = false, // Default to false if not passed
   } = props;
 
   const [open, setOpen] = React.useState(false);
 
-  // ─────────────────────────────
-  // Display label (button text)
-  // ─────────────────────────────
+  // Display label based on the selected values
   const displayLabel = React.useMemo(() => {
     if ("multiple" in props && props.multiple) {
       if (!props.value || props.value.length === 0) {
@@ -86,7 +82,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (props) => {
       }
       return `${props.value.length} selected`;
     } else {
-      // single
       const val = props.value;
       if (!val) {
         return allowAll ? allLabel : placeholder;
@@ -96,9 +91,6 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (props) => {
     }
   }, [props, options, placeholder, allowAll, allLabel]);
 
-  // ─────────────────────────────
-  // Handle selection
-  // ─────────────────────────────
   const handleSelectSingle = (val: string) => {
     const { onChange } = props as SingleProps;
     if (allowAll && val === allValue) {
@@ -141,17 +133,14 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (props) => {
     }
   };
 
-  // ─────────────────────────────
-  // Render
-  // ─────────────────────────────
   return (
-    <Popover open={open} onOpenChange={setOpen} >
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          disabled={disabled}
+          disabled={disabled || isLoading}
           className={cn(widthClass, "justify-between", className)}
         >
           <span className="inline-flex items-center gap-2">
@@ -191,22 +180,28 @@ const SearchableSelect: React.FC<SearchableSelectProps> = (props) => {
             )}
 
             <CommandGroup heading={groupLabel}>
-              {options.map((opt) => (
-                <CommandItem
-                  key={opt.value}
-                  value={opt.label} // search by label
-                  onSelect={() => handleItemSelect(opt.value)}
-                  className="cursor-pointer"
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 size-4",
-                      isSelected(opt.value) ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {opt.label}
-                </CommandItem>
-              ))}
+              {isLoading ? (
+                <div className="text-center p-4">
+                  <Loader2 className="h-6 w-6 animate-spin text-[#1E1B4B]" />
+                </div>
+              ) : (
+                options.map((opt) => (
+                  <CommandItem
+                    key={opt.value}
+                    value={opt.label} // search by label
+                    onSelect={() => handleItemSelect(opt.value)}
+                    className="cursor-pointer"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 size-4",
+                        isSelected(opt.value) ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {opt.label}
+                  </CommandItem>
+                ))
+              )}
             </CommandGroup>
           </CommandList>
         </Command>

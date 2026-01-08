@@ -773,7 +773,7 @@ export const modules: ModuleItem[] = [
       subMenu: [
         { id: 14101, icon: 'Zap', title: "Countries", pathname: "/countries" },
         { id: 14102, icon: 'Zap', title: "States/Provinces", pathname: "/states" },
-        { id: 14103, icon: 'Zap', title: "Cities", pathname: "/dashboard/adminsettings/fleximeta/company/city" },
+        { id: 14103, icon: 'Zap', title: "Cities", pathname: "/cities" },
       ],
     },
 
