@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -25,11 +25,12 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import {
+  useStates,
+  useCreateState,
+  useUpdateState,
+  useDeleteState,
   useCountries,
-  useCreateCountry,
-  useUpdateCountry,
-  useDeleteCountry,
-} from "./useCountries";
+} from "./useStates";
 import {
   flexRender,
   getCoreRowModel,
@@ -37,13 +38,13 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import type { CountryRow, FrontendCountriesResponse } from "./types";
+import type { StateRow, FrontendStatesResponse } from "./types";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CreateCountryModal } from "./CreateCountryModal";
-import { EditCountryModal } from "./EditCountryModal";
-import { DeleteCountryDialog } from "./DeleteCountryDialog";
-
+import { CreateStateModal } from "./CreateStateModal";
+import { EditStateModal } from "./EditStateModal";
+import { DeleteStateDialog } from "./DeleteStateDialog";
+import SearchableSelect from "@/components/common/SearchableSelect";
 
 const DEFAULT_PER_PAGE = 10;
 
@@ -57,7 +58,7 @@ function useDebounced<T>(value: T, delay = 400) {
   return debounced;
 }
 
-const CountryListing: React.FC = () => {
+const StateListing: React.FC = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
   const [search, setSearch] = useState("");
@@ -66,12 +67,9 @@ const CountryListing: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<CountryRow | null>(
-    null
-  );
-  const [countryToDelete, setCountryToDelete] = useState<CountryRow | null>(
-    null
-  );
+  const [selectedState, setSelectedState] = useState<StateRow | null>(null);
+  const [stateToDelete, setStateToDelete] = useState<StateRow | null>(null);
+  const [countrySelected, setCountrySelected] = useState<string>('');
 
   const {
     data,
@@ -79,116 +77,92 @@ const CountryListing: React.FC = () => {
     isError,
     isFetching,
     refetch,
-  }: UseQueryResult<FrontendCountriesResponse, Error> = useCountries(
-    page,
-    perPage,
-    q
-  );
+  }: UseQueryResult<FrontendStatesResponse, Error> = useStates(page, perPage, q,countrySelected);
 
-  const createCountryMutation = useCreateCountry();
-  const updateCountryMutation = useUpdateCountry();
-  const deleteCountryMutation = useDeleteCountry();
+  const createStateMutation = useCreateState();
+  const updateStateMutation = useUpdateState();
+  const deleteStateMutation = useDeleteState();
 
   // reset to page 1 when perPage or q changes
   React.useEffect(() => {
     setPage(1);
-  }, [perPage, q]);
+  }, [perPage, q,countrySelected]);
 
-  const rows: CountryRow[] = React.useMemo(() => {
+  const rows: StateRow[] = React.useMemo(() => {
     if (!data) return [];
-    return data.data.map((country, index) => ({
-      sr: (page - 1) * perPage + index + 1, 
-      id: country.id,
-      name: country.name,
-      iso2: country.iso2,
-      iso3: country.iso3,
-      phonecode: country.phonecode,
-      capital: country.capital,
-      currency: country.currency,
-      currency_symbol: country.currency_symbol,
-      region: country.region,
-      subregion: country.subregion,
-      latitude: country.latitude,
-      longitude: country.longitude,
-      flag: country.flag,
-      is_active: country.flag === 1, 
+    return data.data.map((state, index) => ({
+      sr: (page - 1) * perPage + index + 1,
+      id: state.id,
+      country_id: state.country_id,
+      fips_code: state.fips_code,
+      iso2: state.iso2,
+      name: state.name,
+      country_code: state.country_code,
+      latitude: state.latitude,
+      longitude: state.longitude,
+      is_active: state.is_active,
     }));
-  }, [data, page, perPage]); // Dependency on page and perPage to re-fetch
+  }, [data, page, perPage]);
 
-  // Handle create country
+  // Handle create state
   const handleCreateSubmit = async (values: any) => {
     try {
-      await createCountryMutation.mutateAsync(values);
-      toast.success("Country created successfully");
+      await createStateMutation.mutateAsync(values);
+      toast.success("State created successfully");
       setIsCreateModalOpen(false);
       refetch();
     } catch (error) {
-      toast.error("Failed to create country");
+      toast.error("Failed to create state");
     }
   };
 
+  // Handle edit state
   const handleEditSubmit = async (values: any) => {
-    console.log("CountryListing - Edit submit values:", values);
-    console.log("CountryListing - Selected country ID:", selectedCountry?.id);
-
-    if (!selectedCountry) {
-      console.error("CountryListing - No selected country");
-      return;
-    }
+    if (!selectedState) return;
 
     try {
-      console.log("CountryListing - Making API call...");
-      const result = await updateCountryMutation.mutateAsync({
-        id: selectedCountry.id,
+      await updateStateMutation.mutateAsync({
+        id: selectedState.id,
         data: values,
       });
-      console.log("CountryListing - API response:", result);
-
-      toast.success("Country updated successfully");
+      toast.success("State updated successfully");
       setIsEditModalOpen(false);
-      setSelectedCountry(null);
+      setSelectedState(null);
       refetch();
-    } catch (error: any) {
-      console.error("CountryListing - API error:", error);
-      console.error(
-        "CountryListing - Error details:",
-        error.response?.data || error.message
-      );
-      toast.error("Failed to update country");
+    } catch (error) {
+      toast.error("Failed to update state");
     }
   };
 
-  // Also, add a console.log when opening the edit modal:
-
-  // Handle delete country
+  // Handle delete state
   const handleDelete = async () => {
-    if (!countryToDelete) return;
+    if (!stateToDelete) return;
 
     try {
-      await deleteCountryMutation.mutateAsync(countryToDelete.id);
-      toast.success("Country deleted successfully");
+      await deleteStateMutation.mutateAsync(stateToDelete.id);
+      toast.success("State deleted successfully");
       setIsDeleteDialogOpen(false);
-      setCountryToDelete(null);
+      setStateToDelete(null);
       refetch();
     } catch (error) {
-      toast.error("Failed to delete country");
+      toast.error("Failed to delete state");
     }
   };
 
   // Open edit modal
-  const openEditModal = (country: CountryRow) => {
-    setSelectedCountry(country);
+  const openEditModal = (state: StateRow) => {
+    setSelectedState(state);
     setIsEditModalOpen(true);
   };
 
   // Open delete dialog
-  const openDeleteDialog = (country: CountryRow) => {
-    setCountryToDelete(country);
+  const openDeleteDialog = (state: StateRow) => {
+    setStateToDelete(state);
     setIsDeleteDialogOpen(true);
   };
 
   // Define columns
-  const columns: ColumnDef<CountryRow>[] = React.useMemo(
+  const columns: ColumnDef<StateRow>[] = React.useMemo(
     () => [
       {
         accessorKey: "sr",
@@ -199,35 +173,29 @@ const CountryListing: React.FC = () => {
       },
       {
         accessorKey: "name",
-        header: "Country Name",
+        header: "State Name",
         cell: ({ row }) => (
           <div className="font-semibold text-gray-900">{row.original.name}</div>
         ),
       },
       {
-        accessorKey: "iso2",
-        header: "ISO2",
+        accessorKey: "country_code",
+        header: "Country Code",
         cell: ({ row }) => (
           <div className="font-mono bg-gray-50 px-3 py-1 rounded-md text-sm inline-block">
-            {row.original.iso2}
+            {row.original.country_code}
           </div>
         ),
       },
       {
-        accessorKey: "iso3",
-        header: "ISO3",
-        cell: ({ row }) => (
-          <div className="font-mono bg-gray-50 px-3 py-1 rounded-md text-sm inline-block">
-            {row.original.iso3}
-          </div>
-        ),
+        accessorKey: "latitude",
+        header: "Latitude",
+        cell: ({ row }) => <div className="text-gray-700">{row.original.latitude}</div>,
       },
       {
-        accessorKey: "phonecode",
-        header: "Phone Code",
-        cell: ({ row }) => (
-          <div className="text-gray-700">+{row.original.phonecode}</div>
-        ),
+        accessorKey: "longitude",
+        header: "Longitude",
+        cell: ({ row }) => <div className="text-gray-700">{row.original.longitude}</div>,
       },
       {
         accessorKey: "is_active",
@@ -273,7 +241,7 @@ const CountryListing: React.FC = () => {
       },
     ],
     []
-  ); // Columns definition
+  );
 
   // Create the table using useReactTable hook
   const table = useReactTable({
@@ -286,10 +254,19 @@ const CountryListing: React.FC = () => {
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
   });
-
+   const { data: countries, isLoading: countriesLoading } = useCountries();
+  
+    // Map countries to match the required Option[] format
+    const countryOptions = Array.isArray(countries)
+      ? countries.map((country) => ({
+          value: country.id.toString(), // Ensure the value is always a string
+          label: country.name,
+          iso2: country.iso2,
+        }))
+      : [];
   // Calculate total entries and page count
   const totalEntries = data?.meta?.total || 0;
-  const totalPages = data?.meta?.last_page || 1; // Ensure last_page is being used correctly
+  const totalPages = data?.meta?.last_page || 1;
 
   const currentPage = data?.meta?.current_page || 1;
   const showingFrom = totalEntries > 0 ? (currentPage - 1) * perPage + 1 : 0;
@@ -298,32 +275,26 @@ const CountryListing: React.FC = () => {
 
   return (
     <div className="p-6">
-      {/* Existing Modal and Dialog code */}
-
-      {/* Create Country Modal */}
-      <CreateCountryModal
+      {/* Modals for Create, Edit, and Delete */}
+      <CreateStateModal
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         onSubmit={handleCreateSubmit}
-        isLoading={createCountryMutation.isPending}
+        isLoading={createStateMutation.isPending}
       />
-
-      {/* Edit Country Modal */}
-      <EditCountryModal
+      <EditStateModal
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         onSubmit={handleEditSubmit}
-        isLoading={updateCountryMutation.isPending}
-        country={selectedCountry}
+        isLoading={updateStateMutation.isPending}
+        state={selectedState}
       />
-
-      {/* Delete Country Dialog */}
-      <DeleteCountryDialog
+      <DeleteStateDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDelete}
-        countryName={countryToDelete?.name || ""}
-        isLoading={deleteCountryMutation.isPending}
+        stateName={stateToDelete?.name || ""}
+        isLoading={deleteStateMutation.isPending}
       />
 
       <Card className="border-0 shadow-lg">
@@ -331,10 +302,10 @@ const CountryListing: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <CardTitle className="text-2xl font-bold text-gray-900">
-                Country Directory
+                States Directory
               </CardTitle>
               <p className="text-sm text-gray-500 mt-1">
-                {totalEntries.toLocaleString()} countries registered •
+                {totalEntries.toLocaleString()} states registered •
                 Server-side pagination & search
               </p>
             </div>
@@ -344,7 +315,7 @@ const CountryListing: React.FC = () => {
                 className="bg-[#1E1B4B] hover:bg-[#2A2675] gap-2"
               >
                 <PlusIcon className="h-4 w-4" />
-                Add Country
+                Add State
               </Button>
               <Button
                 variant="outline"
@@ -364,12 +335,32 @@ const CountryListing: React.FC = () => {
             <div className="relative flex-1">
               <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search countries by name, ISO code, or phone code..."
+                placeholder="Search states by name, country code..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10 border-gray-300 focus:border-[#1E1B4B] focus:ring-[#1E1B4B]"
               />
             </div>
+            <div>
+
+             
+                      <SearchableSelect
+                       
+                        className="w-full"
+                        options={countryOptions}
+                        placeholder="Select Country"
+                        searchPlaceholder="Search Countries..."
+                        onChange={(value) => {
+                          // Ensure that the selected value is a string before passing it to the form
+                          setCountrySelected(value);
+                        
+                        }}
+                        value={countrySelected}
+                        multiple={false} // Single select
+                        allowAll={false} // Disabling the "Select All" option
+                      />
+                    
+                </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">Show</span>
               <Select
@@ -463,7 +454,7 @@ const CountryListing: React.FC = () => {
                       >
                         <div className="flex flex-col items-center justify-center">
                           <Loader2 className="h-8 w-8 animate-spin text-[#1E1B4B] mb-2" />
-                          <p className="text-gray-600">Loading countries...</p>
+                          <p className="text-gray-600">Loading states...</p>
                         </div>
                       </td>
                     </tr>
@@ -488,7 +479,7 @@ const CountryListing: React.FC = () => {
                         className="py-12 text-center"
                       >
                         <div className="text-gray-500">
-                          <p className="font-medium">No countries found</p>
+                          <p className="font-medium">No states found</p>
                           <p className="text-sm mt-1">
                             Try adjusting your search criteria
                           </p>
@@ -634,4 +625,4 @@ const CountryListing: React.FC = () => {
   );
 };
 
-export default CountryListing;
+export default StateListing;
