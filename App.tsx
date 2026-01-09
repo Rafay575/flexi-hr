@@ -61,6 +61,12 @@ import TransferWizard from "./components/employee-transfer/TransferWizard";
 import CountryListing from "./components/fleximeta/geography/countries";
 import StateListing from "./components/fleximeta/geography/states";
 import CityListing from "./components/fleximeta/geography/cities";
+import EntityListing from "./components/fleximeta/company_dictionaries/entities";
+import LocationTypeListing from "./components/fleximeta/company_dictionaries/locations-types";
+import LocationListing from "./components/fleximeta/company_dictionaries/location";
+import BusinessListing from "./components/fleximeta/company_dictionaries/business";
+import RegionsListing from "./components/fleximeta/geography/region";
+import GenderListing from "./components/fleximeta/employee/gender";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -226,6 +232,12 @@ const App: React.FC = () => {
               <Route path="/countries" element={<CountryListing />} />
               <Route path="/states" element={<StateListing />} />
               <Route path="/cities" element={<CityListing />} />
+              <Route path="/regions" element={<RegionsListing />} />
+              <Route path="/entity-types" element={<EntityListing />} />
+              <Route path="/location-types" element={<LocationTypeListing />} />
+              <Route path="/locations-1" element={<LocationListing />} />
+              <Route path="/business" element={<BusinessListing />} />
+              <Route path="/genders" element={<GenderListing />} />
                 {/* Flexi HQ routes */}
                 <Route path="/companies" element={<CompaniesPage />} />
                 <Route

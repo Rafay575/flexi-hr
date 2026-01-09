@@ -774,6 +774,7 @@ export const modules: ModuleItem[] = [
         { id: 14101, icon: 'Zap', title: "Countries", pathname: "/countries" },
         { id: 14102, icon: 'Zap', title: "States/Provinces", pathname: "/states" },
         { id: 14103, icon: 'Zap', title: "Cities", pathname: "/cities" },
+        { id: 14104, icon: 'Zap', title: "Regions", pathname: "/regions" },
       ],
     },
 
@@ -783,9 +784,10 @@ export const modules: ModuleItem[] = [
       icon: 'Zap',
       title: "Company Dictionaries",
       subMenu: [
-        { id: 14301, icon: 'Zap', title: "Entity Type", pathname: "/dashboard/adminsettings/fleximeta/company/entitytype" },
-        { id: 14302, icon: 'Zap', title: "Location Type", pathname: "/dashboard/adminsettings/fleximeta/company/locationtype" },
-        { id: 14303, icon: 'Zap', title: "Business Line", pathname: "/dashboard/adminsettings/fleximeta/company/businessline" },
+        { id: 14301, icon: 'Zap', title: "Entity Type", pathname: "/entity-types" },
+        { id: 14302, icon: 'Zap', title: "Location Type", pathname: "/location-types" },
+        { id: 14304, icon: 'Zap', title: "Locations", pathname: "/locations-1" },
+        { id: 14303, icon: 'Zap', title: "Business Line", pathname: "/business" },
       ],
     },
 
@@ -795,7 +797,7 @@ export const modules: ModuleItem[] = [
       icon: 'Zap',
       title: "Employee",
       subMenu: [
-        { id: 1511, icon: 'Zap', title: "Gender", pathname:"/dashboard/adminsettings/fleximeta/employee/gender" },
+        { id: 1511, icon: 'Zap', title: "Gender", pathname:"/genders" },
         { id: 1512, icon: 'Zap', title: "Salutation", pathname:"/dashboard/adminsettings/fleximeta/employee/salutation" },
         { id: 1513, icon: 'Zap', title: "Status", pathname:"/dashboard/adminsettings/fleximeta/employee/status" },
         { id: 1511, icon: 'Zap', title: "Grade", pathname:"/dashboard/adminsettings/fleximeta/employee/grade" },
