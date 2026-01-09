@@ -67,6 +67,12 @@ import LocationListing from "./components/fleximeta/company_dictionaries/locatio
 import BusinessListing from "./components/fleximeta/company_dictionaries/business";
 import RegionsListing from "./components/fleximeta/geography/region";
 import GenderListing from "./components/fleximeta/employee/gender";
+import SalutationListing from "./components/fleximeta/employee/salutation";
+import EmployeeStatusListing from "./components/fleximeta/employee/status";
+import EmployeeTypeListing from "./components/fleximeta/employee/employee-type";
+import BloodGroupsListing from "./components/fleximeta/employee/blood-groups";
+import MaritalStatusListing from "./components/fleximeta/employee/marital-status";
+import HealthListing from "./components/fleximeta/employee/health";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -238,6 +244,12 @@ const App: React.FC = () => {
               <Route path="/locations-1" element={<LocationListing />} />
               <Route path="/business" element={<BusinessListing />} />
               <Route path="/genders" element={<GenderListing />} />
+              <Route path="/salutation" element={<SalutationListing />} />
+              <Route path="/employee-status" element={<EmployeeStatusListing />} />
+              <Route path="/employee-type" element={<EmployeeTypeListing />} />
+              <Route path="/blood-group" element={<BloodGroupsListing />} />
+              <Route path="/marital-status" element={<MaritalStatusListing />} />
+              <Route path="/health" element={<HealthListing />} />
                 {/* Flexi HQ routes */}
                 <Route path="/companies" element={<CompaniesPage />} />
                 <Route
