@@ -814,9 +814,9 @@ export const modules: ModuleItem[] = [
       icon: 'Zap',
       title: "Finance",
       subMenu: [
-        { id: 14401, icon: 'Zap', title: "Currencies", pathname: "/dashboard/adminsettings/fleximeta/Finance/Currencies" },
-        { id: 14402, icon: 'Zap', title: "FX Rates", pathname: "/dashboard/adminsettings/fleximeta/Finance/FxRate" },
-        { id: 14403, icon: 'Zap', title: "Banks", pathname: "/dashboard/adminsettings/fleximeta/Finance/Bank" },
+        { id: 14401, icon: 'Zap', title: "Currencies", pathname: "/currencies" },
+        { id: 14402, icon: 'Zap', title: "FX Rates", pathname: "/fx-rates" },
+        { id: 14403, icon: 'Zap', title: "Banks", pathname: "/banks" },
         { id: 14404, icon: 'Zap', title: "Bank Branches", pathname: "/dashboard/adminsettings/fleximeta/Finance/BankBranch" },
         { id: 14405, icon: 'Zap', title: "IBAN Formats", pathname: "/dashboard/adminsettings/fleximeta/Finance/IbanFormat" },
       ],
@@ -828,8 +828,8 @@ export const modules: ModuleItem[] = [
       icon: 'Zap',
       title: "Statutory Framework",
       subMenu: [
-        { id: 14501, icon: 'Zap', title: "Minimum Wages", pathname: "/dashboard/adminsettings/fleximeta/Statutory/MinimumWage" },
-        { id: 14502, icon: 'Zap', title: "Statutory Rates", pathname: "/dashboard/adminsettings/fleximeta/Statutory/StatutoryRate" },
+        { id: 14501, icon: 'Zap', title: "Minimum Wages", pathname: "/minimum-wage" },
+        { id: 14502, icon: 'Zap', title: "Statutory Rates", pathname: "/statutory-rates" },
       ],
     },
 
@@ -839,7 +839,7 @@ export const modules: ModuleItem[] = [
       icon: 'Zap',
       title: "Calendars",
       subMenu: [
-        { id: 14601, icon: 'Zap', title: "Public Holiday Templates", pathname: "/dashboard/adminsettings/fleximeta/Calendars/PublicHoliday" },
+        { id: 14601, icon: 'Zap', title: "Public Holiday Templates", pathname: "/holidays" },
       ],
     },
 
@@ -849,12 +849,12 @@ export const modules: ModuleItem[] = [
       icon: 'Zap',
       title: "Catalogs",
       subMenu: [
-        { id: 14701, icon: 'Zap', title: "Salary Components", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/SalaryComponents" },
-        { id: 14702, icon: 'Zap', title: "Shift Archetypes", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/shiftarchetypes" },
-        { id: 14703, icon: 'Zap', title: "Attendance Device Types", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/attendancedevicetypes" },
-        { id: 14704, icon: 'Zap', title: "Document Types", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/documenttypes" },
-        { id: 14705, icon: 'Zap', title: "Skills & Trades", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/skillsandtrades" },
-        { id: 14706, icon: 'Zap', title: "Grade Templates", pathname: "/dashboard/adminsettings/fleximeta/Catalogs/gradetemplates" },
+        { id: 14701, icon: 'Zap', title: "Salary Components", pathname: "/salary-components" },
+        { id: 14702, icon: 'Zap', title: "Shift Archetypes", pathname: "/shift-archectypes" },
+        { id: 14703, icon: 'Zap', title: "Attendance Device Types", pathname: "/device-types" },
+        { id: 14704, icon: 'Zap', title: "Document Types", pathname: "/document-types" },
+        { id: 14705, icon: 'Zap', title: "Skills & Trades", pathname: "/skills-trades" },
+        { id: 14706, icon: 'Zap', title: "Grade Templates", pathname: "/grade-templates" },
       ],
     },
   ],

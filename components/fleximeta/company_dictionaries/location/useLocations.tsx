@@ -119,6 +119,7 @@ export const useLocationTypeapi = () => {
    
   });
 };
+
 export const useCities = (countryId?: string, stateId?: string) => {
   return useQuery({
     queryKey: ['cities', countryId, stateId],

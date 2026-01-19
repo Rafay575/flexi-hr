@@ -73,6 +73,18 @@ import EmployeeTypeListing from "./components/fleximeta/employee/employee-type";
 import BloodGroupsListing from "./components/fleximeta/employee/blood-groups";
 import MaritalStatusListing from "./components/fleximeta/employee/marital-status";
 import HealthListing from "./components/fleximeta/employee/health";
+import CurrencyListing from "./components/fleximeta/finance/currencies";
+import BankListing from "./components/fleximeta/finance/banks";
+import FxRateListing from "./components/fleximeta/finance/fx-rates";
+import HolidayListing from "./components/fleximeta/calander/holidays";
+import MinimumWageListing from "./components/fleximeta/statutory/minimum-wages";
+import StatutoryRatesListing from "./components/fleximeta/statutory/statutory-rates";
+import SalaryComponentsListing from "./components/fleximeta/catalogs/salary-components";
+import ShiftArchetypesListing from "./components/fleximeta/catalogs/shift-archetypes";
+import DeviceTypesListing from "./components/fleximeta/catalogs/device-type";
+import DocumentTypesListing from "./components/fleximeta/catalogs/document-type";
+import TradeListing from "./components/fleximeta/catalogs/trades";
+import GradeTemplateListing from "./components/fleximeta/catalogs/grade-templates";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -250,6 +262,18 @@ const App: React.FC = () => {
               <Route path="/blood-group" element={<BloodGroupsListing />} />
               <Route path="/marital-status" element={<MaritalStatusListing />} />
               <Route path="/health" element={<HealthListing />} />
+              <Route path="/currencies" element={<CurrencyListing />} />
+              <Route path="/fx-rates" element={<FxRateListing />} />
+              <Route path="/banks" element={<BankListing />} />
+              <Route path="/holidays" element={<HolidayListing />} />
+              <Route path="/minimum-wage" element={<MinimumWageListing />} />
+              <Route path="/statutory-rates" element={<StatutoryRatesListing />} />
+              <Route path="/salary-components" element={<SalaryComponentsListing />} />
+              <Route path="/shift-archectypes" element={<ShiftArchetypesListing />} />
+              <Route path="/device-types" element={<DeviceTypesListing />} />
+              <Route path="/document-types" element={<DocumentTypesListing />} />
+              <Route path="/skills-trades" element={<TradeListing />} />
+              <Route path="/grade-templates" element={<GradeTemplateListing />} />
                 {/* Flexi HQ routes */}
                 <Route path="/companies" element={<CompaniesPage />} />
                 <Route
