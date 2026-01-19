@@ -387,3 +387,46 @@ export interface EmployeeDocument {
     uploadedBy: string;
     versions: DocVersion[];
 }
+
+
+export enum AttendanceStatus {
+  PRESENT = 'Present',
+  ABSENT = 'Absent',
+  LATE = 'Late',
+  ON_LEAVE = 'On Leave',
+  REMOTE = 'Remote'
+}
+
+export enum ApprovalStatus {
+  PENDING = 'Pending',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected'
+}
+
+export interface AttendanceRecord {
+  id: string;
+  employeeName: string;
+  employeeId: string;
+  date: string;
+  clockIn: string;
+  clockOut: string | null;
+  status: AttendanceStatus;
+  workHours: number;
+}
+
+export interface LeaveRequest {
+  id: string;
+  employeeName: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  status: ApprovalStatus;
+  reason: string;
+}
+
+export interface DashboardStats {
+  totalEmployees: number;
+  presentToday: number;
+  onLeave: number;
+  lateArrivals: number;
+}

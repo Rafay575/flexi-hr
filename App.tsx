@@ -85,6 +85,89 @@ import DeviceTypesListing from "./components/fleximeta/catalogs/device-type";
 import DocumentTypesListing from "./components/fleximeta/catalogs/document-type";
 import TradeListing from "./components/fleximeta/catalogs/trades";
 import GradeTemplateListing from "./components/fleximeta/catalogs/grade-templates";
+// -------- TimeSync (merged) pages --------
+import { TodaysStatus } from "./components/TodaysStatus";
+import { PunchAttendance } from "./components/PunchAttendance";
+import { MyAttendanceTimeline } from "./components/MyAttendanceTimeline";
+import { MyAttendanceCalendar } from "./components/MyAttendanceCalendar";
+import { MySchedule } from "./components/MySchedule";
+
+import { TeamDashboard } from "./components/TeamDashboard";
+import { TeamCalendar } from "./components/TeamCalendar";
+import { ManagerPendingApprovals } from "./components/ManagerPendingApprovals";
+
+import { ApprovalsInbox } from "./components/ApprovalsInbox";
+import { RegularizationRequestsList } from "./components/RegularizationRequestsList";
+import { RegularizationPanel } from "./components/RegularizationPanel";
+import { RegularizationRequest } from "./components/RegularizationRequest";
+import { ManualPunchPanel } from "./components/ManualPunchPanel";
+
+import { OTRequests } from "./components/OTRequests";
+import { OTApprovalsManager } from "./components/OTApprovalsManager";
+import { OTApprovalsList } from "./components/OTApprovalsList";
+
+import { ShiftSwapRequestsList } from "./components/ShiftSwapRequestsList";
+
+import { ShiftTemplatesList } from "./components/ShiftTemplatesList";
+import { ShiftTemplateForm } from "./components/ShiftTemplateForm";
+
+import { ShiftAssignment } from "./components/ShiftAssignment";
+import { CalendarAssignment } from "./components/CalendarAssignment";
+import { FlexiShiftRules } from "./components/FlexiShiftRules";
+import { BreakConfigurationsList } from "./components/BreakConfigurationsList";
+import { WeeklyOffRules } from "./components/WeeklyOffRules";
+import { AlternateSaturdayRules } from "./components/AlternateSaturdayRules";
+import { HolidayCalendarList } from "./components/HolidayCalendarList";
+import { SpecialShifts } from "./components/SpecialShifts";
+
+import { RosterPlanner } from "./components/RosterPlanner";
+import { RosterTemplates } from "./components/RosterTemplates";
+import { RosterOptimizer } from "./components/RosterOptimizer";
+import { OpenShifts } from "./components/OpenShifts";
+import { DemandGrid } from "./components/DemandGrid";
+import { SwapManagement } from "./components/SwapManagement";
+
+import { AttendancePolicyList } from "./components/AttendancePolicyList";
+import { AttendancePolicyBuilder } from "./components/AttendancePolicyBuilder";
+import { PunchMethodsConfig } from "./components/PunchMethodsConfig";
+import { GracePenaltiesConfig } from "./components/GracePenaltiesConfig";
+import { ThresholdSettings } from "./components/ThresholdSettings";
+import { DeductionRulesConfig } from "./components/DeductionRulesConfig";
+import { AttendanceBonusRules } from "./components/AttendanceBonusRules";
+import { OTPolicySetup } from "./components/OTPolicySetup";
+import { CompOffConversion } from "./components/CompOffConversion";
+import { PolicySimulator } from "./components/PolicySimulator";
+
+import { ExceptionsInbox } from "./components/ExceptionsInbox";
+import { AIAnomalyDetection } from "./components/AIAnomalyDetection";
+import { AnomaliesList } from "./components/AnomaliesList";
+
+import { DeviceManagementList } from "./components/DeviceManagementList";
+import { DeviceHealthDashboard } from "./components/DeviceHealthDashboard";
+import { IngestionJobs } from "./components/IngestionJobs";
+import { TimeSyncAuditLogs } from "./components/TimeSyncAuditLogs";
+
+import { DailyAttendanceReport } from "./components/DailyAttendanceReport";
+import { MonthlySummaryReport } from "./components/MonthlySummaryReport";
+import { OTReport } from "./components/OTReport";
+import { OTForecast } from "./components/OTForecast";
+import { LateEarlyReport } from "./components/LateEarlyReport";
+import { AnomalyReport } from "./components/AnomalyReport";
+import { ScheduledReportsList } from "./components/ScheduledReportsList";
+
+import { TimeSyncAIChat } from "./components/TimeSyncAIChat";
+import { AIPolicyCopilot } from "./components/AIPolicyCopilot";
+
+import { TimeSyncNotificationTemplates } from "./components/TimeSyncNotificationTemplates";
+import { NotificationDeliveryLogs } from "./components/NotificationDeliveryLogs";
+
+import { TimeSyncWorkflowsList } from "./components/TimeSyncWorkflowsList";
+import { TimeSyncWorkflowBuilder } from "./components/TimeSyncWorkflowBuilder";
+import { WorkflowInstances } from "./components/WorkflowInstances";
+
+import { TimeSyncIntegrations } from "./components/TimeSyncIntegrations";
+import { TimeSyncEntitlements } from "./components/TimeSyncEntitlements";
+import { PayrollPeriods } from "./components/PayrollPeriods";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -322,6 +405,101 @@ const App: React.FC = () => {
                 />
                 <Route path="/peoplehub/docs" element={<Documents />} />
                 <Route path="/peoplehub/import" element={<BulkImport />} />
+{/* ---------------- TimeSync routes ---------------- */}
+<Route path="/timesync" element={<TodaysStatus />} />
+
+{/* My Attendance */}
+<Route path="/timesync/punch" element={<PunchAttendance />} />
+<Route path="/timesync/my-ot" element={<OTRequests />} />
+<Route path="/timesync/my-regularization" element={<RegularizationRequest />} />
+<Route path="/timesync/timeline" element={<MyAttendanceTimeline />} />
+<Route path="/timesync/calendar" element={<MyAttendanceCalendar />} />
+<Route path="/timesync/schedule" element={<MySchedule />} />
+
+{/* Team */}
+<Route path="/timesync/team-dashboard" element={<TeamDashboard />} />
+<Route path="/timesync/team-calendar" element={<TeamCalendar />} />
+<Route path="/timesync/pending-approvals" element={<ManagerPendingApprovals />} />
+
+{/* Approvals Inbox */}
+<Route path="/timesync/approvals-inbox" element={<ApprovalsInbox />} />
+
+{/* Workflows */}
+<Route path="/timesync/regularizations" element={<RegularizationRequestsList />} />
+<Route path="/timesync/regularization-panel" element={<RegularizationPanel />} />
+<Route path="/timesync/manual-punch" element={<ManualPunchPanel />} />
+<Route path="/timesync/ot-approvals-admin" element={<OTApprovalsManager />} />
+<Route path="/timesync/ot-approvals" element={<OTApprovalsList />} />
+<Route path="/timesync/shift-swaps" element={<ShiftSwapRequestsList />} />
+<Route path="/timesync/workflow-instances" element={<WorkflowInstances />} />
+<Route path="/timesync/payroll-periods" element={<PayrollPeriods />} />
+
+{/* Shift Studio */}
+<Route path="/timesync/roster-planner" element={<RosterPlanner />} />
+<Route path="/timesync/roster-templates" element={<RosterTemplates />} />
+<Route path="/timesync/roster-optimizer" element={<RosterOptimizer />} />
+<Route path="/timesync/demand-grid" element={<DemandGrid />} />
+<Route path="/timesync/open-shifts" element={<OpenShifts />} />
+<Route
+  path="/timesync/swap-management"
+  element={<SwapManagement userRole={"MANAGER"} />}
+/>
+<Route path="/timesync/shift-templates" element={<ShiftTemplatesList onCreateNew={() => {}} />} />
+<Route path="/timesync/shift-templates/new" element={<ShiftTemplateForm onClose={() => {}} />} />
+<Route path="/timesync/shift-assignment" element={<ShiftAssignment />} />
+<Route path="/timesync/calendar-assignment" element={<CalendarAssignment />} />
+<Route path="/timesync/flexi-rules" element={<FlexiShiftRules />} />
+<Route path="/timesync/break-configs" element={<BreakConfigurationsList />} />
+<Route path="/timesync/weekly-off" element={<WeeklyOffRules />} />
+<Route path="/timesync/alt-saturdays" element={<AlternateSaturdayRules />} />
+<Route path="/timesync/holiday-calendars" element={<HolidayCalendarList />} />
+<Route path="/timesync/special-shifts" element={<SpecialShifts />} />
+
+{/* Policies */}
+<Route path="/timesync/policy-builder" element={<AttendancePolicyList onCreateNew={() => {}} />} />
+<Route path="/timesync/policy-builder/new" element={<AttendancePolicyBuilder onClose={() => {}} />} />
+<Route path="/timesync/punch-methods" element={<PunchMethodsConfig />} />
+<Route path="/timesync/grace-penalties" element={<GracePenaltiesConfig />} />
+<Route path="/timesync/thresholds" element={<ThresholdSettings />} />
+<Route path="/timesync/deductions" element={<DeductionRulesConfig />} />
+<Route path="/timesync/bonuses" element={<AttendanceBonusRules />} />
+<Route path="/timesync/ot-policies" element={<OTPolicySetup />} />
+<Route path="/timesync/compoff-conversion" element={<CompOffConversion />} />
+<Route path="/timesync/ai-simulator" element={<PolicySimulator />} />
+
+{/* Anomalies */}
+<Route path="/timesync/exceptions" element={<ExceptionsInbox />} />
+<Route path="/timesync/ai-anomaly" element={<AIAnomalyDetection />} />
+<Route path="/timesync/anomalies-audit" element={<AnomaliesList />} />
+
+{/* Hardware */}
+<Route path="/timesync/hardware-devices" element={<DeviceManagementList />} />
+<Route path="/timesync/device-health" element={<DeviceHealthDashboard />} />
+<Route path="/timesync/ingestion-jobs" element={<IngestionJobs />} />
+<Route path="/timesync/audit-logs" element={<TimeSyncAuditLogs />} />
+
+{/* Reports */}
+<Route path="/timesync/daily-report" element={<DailyAttendanceReport />} />
+<Route path="/timesync/monthly-report" element={<MonthlySummaryReport />} />
+<Route path="/timesync/ot-report" element={<OTReport />} />
+<Route path="/timesync/ot-forecast" element={<OTForecast />} />
+<Route path="/timesync/late-early-report" element={<LateEarlyReport />} />
+<Route path="/timesync/anomaly-report" element={<AnomalyReport />} />
+<Route path="/timesync/scheduled-reports" element={<ScheduledReportsList />} />
+
+{/* System Settings */}
+<Route path="/timesync/notif-templates" element={<TimeSyncNotificationTemplates />} />
+<Route path="/timesync/notif-logs" element={<NotificationDeliveryLogs />} />
+<Route path="/timesync/integrations" element={<TimeSyncIntegrations />} />
+<Route path="/timesync/entitlements" element={<TimeSyncEntitlements />} />
+
+{/* Workflow Designer + Create New (full-screen) */}
+<Route path="/timesync/workflow-list" element={<TimeSyncWorkflowsList onCreateNew={() => {}} />} />
+<Route path="/timesync/workflows/new" element={<TimeSyncWorkflowBuilder onClose={() => {}} />} />
+
+{/* AI Assistant */}
+<Route path="/timesync/ai-chat" element={<TimeSyncAIChat />} />
+<Route path="/timesync/ai-copilot" element={<AIPolicyCopilot />} />
 
                 {/* Fallback (inside layout) */}
                 <Route path="*" element={<Navigate to="/" replace />} />

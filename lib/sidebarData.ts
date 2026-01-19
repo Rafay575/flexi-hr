@@ -70,7 +70,7 @@ export const modules: ModuleItem[] = [
     ],
     admin: false,
   },
-  // { path:"/dashboard", id: "dashboard", icon: LayoutDashboard, label: "PeopleHub Home" }, { path:"/directory", id: "directory", icon: Users, label: "Employee Directory" }, { path:"/employee360", id: "employee360", icon: UserCircle, label: "Employee 360" }, { path:"/onboardx", id: "onboardx", icon: UserPlus, label: "OnboardX" }, { path:"/transfers", id: "transfers", icon: ArrowRightLeft, label: "Transfers & Promotions" }, { path:"/exit", id: "exit", icon: LogOut, label: "Exit Horizon" }, { path:"/docs", id: "docs", icon: FileText, label: "Documents" }, { path:"/import", id: "import", icon: UploadCloud, label: "Bulk Import" },
+  
 {
   id: 2,
   name: "PeopleHub",
@@ -136,120 +136,183 @@ export const modules: ModuleItem[] = [
 }
 ,
 
-  {
-    id: 5,
-    name: "TimeSync",
-    icon: "Zap",
-    Menu: [
-      {
-        id: 51,
-        icon: "Zap",
-        title: "Shifts",
-        subMenu: [
-          {
-            id: 511,
-            icon: "Zap",
-            title: "Shift Type",
-            pathname: "/dashboard/TimeSync/Shifts/ShiftType/list",
-          },
-          {
-            id: 512,
-            icon: "Zap",
-            title: "Shift Assignment",
-            pathname: "/dashboard/TimeSync/Shifts/ShiftAssignment/list",
-          },
-          {
-            id: 513,
-            icon: "Zap",
-            title: "Shift Assignment Schedule",
-            pathname: "/dashboard/TimeSync/Shifts/ShiftAssignmentSchedule/list",
-          },
-          {
-            id: 514,
-            icon: "Zap",
-            title: "Shift Request",
-            pathname: "/dashboard/TimeSync/Shifts/ShiftRequest/list",
-          },
-          {
-            id: 515,
-            icon: "Zap",
-            title: "Shift Assignment Tool",
-            pathname: "/dashboard/TimeSync/Shifts/ShiftAssignmentAction/list",
-          },
-        ],
-      },
-      {
-        id: 52,
-        icon: "Zap",
-        title: "Attendance",
-        subMenu: [
-          {
-            id: 521,
-            icon: "Zap",
-            title: "Attendance",
-            pathname: "/dashboard/TimeSync/Attendance/attendance/list",
-          },
-          {
-            id: 522,
-            icon: "Zap",
-            title: "Attendance Request",
-            pathname: "/dashboard/TimeSync/Attendance/AttendanceRequest/list",
-          },
-          {
-            id: 523,
-            icon: "Zap",
-            title: "Employee Checkin",
-            pathname: "/dashboard/TimeSync/Attendance/EmployeeCheckin/list",
-          },
-          {
-            id: 524,
-            icon: "Zap",
-            title: "Employee Attendance Tool",
-            pathname:
-              "/dashboard/TimeSync/Attendance/EmployeeAttendanceTool/list",
-          },
-          {
-            id: 525,
-            icon: "Zap",
-            title: "Upload Attendance",
-            pathname: "/dashboard/TimeSync/Attendance/UploadAttendance",
-          },
-        ],
-      },
-      {
-        id: 53,
-        icon: "Zap",
-        title: "Time",
-        subMenu: [
-          {
-            id: 531,
-            icon: "Zap",
-            title: "Timesheet",
-            pathname: "/dashboard/TimeSync/Time/Timsheet/list",
-          },
-          {
-            id: 532,
-            icon: "Zap",
-            title: "Activity Type",
-            pathname: "/dashboard/TimeSync/Time/ActivityType/list",
-          },
-        ],
-      },
-      {
-        id: 54,
-        icon: "Zap",
-        title: "Reports",
-        subMenu: [
-          {
-            id: 541,
-            icon: "Zap",
-            title: "Attendance Metrics",
-          },
-        ],
-      },
-    ],
-    admin: false,
-  },
+{
+  id: 5,
+  name: "TimeSync",
+  icon: "Zap",
+  admin: false,
+  Menu: [
+    // Dashboard (root)
+    {
+      id: 1,
+      icon: "LayoutDashboard",
+      title: "Dashboard",
+      pathname: "/timesync",
+    },
+
+    // MY ATTENDANCE
+    {
+      id: 2,
+      icon: "User",
+      title: "MY ATTENDANCE",
+      subMenu: [
+        { id: 21, icon: "Zap", title: "Today's Status", pathname: "/timesync" },
+        { id: 22, icon: "Zap", title: "Punch Attendance", pathname: "/timesync/punch" },
+        { id: 23, icon: "Zap", title: "My Overtime", pathname: "/timesync/my-ot" },
+        { id: 24, icon: "Zap", title: "Regularization Request", pathname: "/timesync/my-regularization" },
+        { id: 25, icon: "Zap", title: "My Timeline", pathname: "/timesync/timeline" },
+        { id: 26, icon: "Zap", title: "My Calendar", pathname: "/timesync/calendar" },
+        { id: 27, icon: "Zap", title: "My Schedule", pathname: "/timesync/schedule" },
+      ],
+    },
+
+    // TEAM
+    {
+      id: 3,
+      icon: "Users",
+      title: "TEAM",
+      subMenu: [
+        { id: 31, icon: "Zap", title: "Team Dashboard", pathname: "/timesync/team-dashboard" },
+        { id: 32, icon: "Zap", title: "Team Calendar", pathname: "/timesync/team-calendar" },
+        { id: 33, icon: "Zap", title: "Pending Approvals", pathname: "/timesync/pending-approvals" },
+      ],
+    },
+
+    // APPROVALS INBOX
+    {
+      id: 4,
+      icon: "Inbox",
+      title: "APPROVALS INBOX",
+      pathname: "/timesync/approvals-inbox",
+    },
+
+    // WORKFLOWS
+    {
+      id: 5,
+      icon: "History",
+      title: "WORKFLOWS",
+      subMenu: [
+        { id: 51, icon: "Zap", title: "Regularizations", pathname: "/timesync/regularizations" },
+        { id: 52, icon: "Zap", title: "Regularization Panel", pathname: "/timesync/regularization-panel" },
+        { id: 53, icon: "Zap", title: "Manual Punch", pathname: "/timesync/manual-punch" },
+        { id: 54, icon: "Zap", title: "OT Approvals", pathname: "/timesync/ot-approvals-admin" },
+        { id: 55, icon: "Zap", title: "Shift Swaps", pathname: "/timesync/shift-swaps" },
+        { id: 56, icon: "Zap", title: "Live Processes", pathname: "/timesync/workflow-instances" },
+        { id: 57, icon: "Zap", title: "Payroll Control", pathname: "/timesync/payroll-periods" },
+      ],
+    },
+
+    // SHIFT STUDIO
+    {
+      id: 6,
+      icon: "Settings2",
+      title: "SHIFT STUDIO",
+      subMenu: [
+        { id: 61, icon: "Zap", title: "Roster Planner", pathname: "/timesync/roster-planner" },
+        { id: 62, icon: "Zap", title: "Roster Templates", pathname: "/timesync/roster-templates" },
+        { id: 63, icon: "Zap", title: "AI Optimizer", pathname: "/timesync/roster-optimizer" },
+        { id: 64, icon: "Zap", title: "Demand Planning", pathname: "/timesync/demand-grid" },
+        { id: 65, icon: "Zap", title: "Open Shifts", pathname: "/timesync/open-shifts" },
+        { id: 66, icon: "Zap", title: "Swap Management", pathname: "/timesync/swap-management" },
+        { id: 67, icon: "Zap", title: "Shift Templates", pathname: "/timesync/shift-templates" },
+        { id: 68, icon: "Zap", title: "Shift Assignment", pathname: "/timesync/shift-assignment" },
+        { id: 69, icon: "Zap", title: "Calendar Assignment", pathname: "/timesync/calendar-assignment" },
+        { id: 610, icon: "Zap", title: "Flexi Rules", pathname: "/timesync/flexi-rules" },
+        { id: 611, icon: "Zap", title: "Break Configs", pathname: "/timesync/break-configs" },
+        { id: 612, icon: "Zap", title: "Weekly Off Rules", pathname: "/timesync/weekly-off" },
+        { id: 613, icon: "Zap", title: "Alternate Saturdays", pathname: "/timesync/alt-saturdays" },
+        { id: 614, icon: "Zap", title: "Holiday Calendars", pathname: "/timesync/holiday-calendars" },
+        { id: 615, icon: "Zap", title: "Special Shifts", pathname: "/timesync/special-shifts" },
+      ],
+    },
+
+    // POLICIES
+    {
+      id: 7,
+      icon: "Briefcase",
+      title: "POLICIES",
+      subMenu: [
+        { id: 71, icon: "Zap", title: "Policy Builder", pathname: "/timesync/policy-builder" },
+        { id: 72, icon: "Zap", title: "Punch Methods", pathname: "/timesync/punch-methods" },
+        { id: 73, icon: "Zap", title: "Grace & Penalties", pathname: "/timesync/grace-penalties" },
+        { id: 74, icon: "Zap", title: "Thresholds", pathname: "/timesync/thresholds" },
+        { id: 75, icon: "Zap", title: "Deduction Rules", pathname: "/timesync/deductions" },
+        { id: 76, icon: "Zap", title: "Bonus Rules", pathname: "/timesync/bonuses" },
+        { id: 77, icon: "Zap", title: "OT Policies", pathname: "/timesync/ot-policies" },
+        { id: 78, icon: "Zap", title: "Comp-Off Conversion", pathname: "/timesync/compoff-conversion" },
+      ],
+    },
+
+    // ANOMALIES
+    {
+      id: 8,
+      icon: "ShieldAlert",
+      title: "ANOMALIES",
+      subMenu: [
+        { id: 81, icon: "Zap", title: "Exceptions Inbox", pathname: "/timesync/exceptions" },
+        { id: 82, icon: "Zap", title: "AI Guard", pathname: "/timesync/ai-anomaly" },
+        { id: 83, icon: "Zap", title: "Detailed Audit", pathname: "/timesync/anomalies-audit" },
+      ],
+    },
+
+    // HARDWARE
+    {
+      id: 9,
+      icon: "Database",
+      title: "HARDWARE",
+      subMenu: [
+        { id: 91, icon: "Zap", title: "Devices", pathname: "/timesync/hardware-devices" },
+        { id: 92, icon: "Zap", title: "Device Health", pathname: "/timesync/device-health" },
+        { id: 93, icon: "Zap", title: "Ingestion Jobs", pathname: "/timesync/ingestion-jobs" },
+        { id: 94, icon: "Zap", title: "System Audit Logs", pathname: "/timesync/audit-logs" },
+      ],
+    },
+
+    // REPORTS
+    {
+      id: 10,
+      icon: "BarChart3",
+      title: "REPORTS",
+      subMenu: [
+        { id: 101, icon: "Zap", title: "Daily Attendance", pathname: "/timesync/daily-report" },
+        { id: 102, icon: "Zap", title: "Monthly Summary", pathname: "/timesync/monthly-report" },
+        { id: 103, icon: "Zap", title: "OT Analysis", pathname: "/timesync/ot-report" },
+        { id: 104, icon: "Zap", title: "OT Forecast", pathname: "/timesync/ot-forecast" },
+        { id: 105, icon: "Zap", title: "Punctuality", pathname: "/timesync/late-early-report" },
+        { id: 106, icon: "Zap", title: "Anomalies", pathname: "/timesync/anomaly-report" },
+        { id: 107, icon: "Zap", title: "Scheduled", pathname: "/timesync/scheduled-reports" },
+      ],
+    },
+
+    // SYSTEM SETTINGS
+    {
+      id: 11,
+      icon: "Settings",
+      title: "SYSTEM SETTINGS",
+      subMenu: [
+        { id: 111, icon: "Zap", title: "Approvals Designer", pathname: "/timesync/workflow-list" },
+        { id: 112, icon: "Zap", title: "Notifications", pathname: "/timesync/notif-templates" },
+        { id: 113, icon: "Zap", title: "Delivery Logs", pathname: "/timesync/notif-logs" },
+        { id: 114, icon: "Zap", title: "Integrations", pathname: "/timesync/integrations" },
+        { id: 115, icon: "Zap", title: "Plan & Entitlements", pathname: "/timesync/entitlements" },
+        { id: 116, icon: "Zap", title: "User Access", pathname: "/timesync" },
+      ],
+    },
+
+    // AI ASSISTANT
+    {
+      id: 12,
+      icon: "Cpu",
+      title: "AI ASSISTANT",
+      subMenu: [
+        { id: 121, icon: "Zap", title: "AI Chat", pathname: "/timesync/ai-chat" },
+        { id: 122, icon: "Zap", title: "Policy Copilot", pathname: "/timesync/ai-copilot" },
+        { id: 123, icon: "Zap", title: "Policy Simulator", pathname: "/timesync/ai-simulator" },
+      ],
+    },
+  ],
+}
+,
   {
     id: 6,
     name: "PayEdge",

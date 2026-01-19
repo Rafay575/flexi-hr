@@ -21,6 +21,7 @@ import {
   ChevronDown,
   type LucideIcon,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { modules } from "@/lib/sidebarData";
 import { useAppSelector } from "@/redux/store/hooks";
@@ -57,6 +58,7 @@ type RawMenuItem = {
   id: number;
   icon: string;
   title: string;
+  pathname?: string;
   subMenu?: RawSubMenu[];
 };
 
@@ -86,12 +88,9 @@ const buildNavItemsFromModule = (moduleId: number | string): BuildResult => {
     };
   }
 
-  // Convert raw menu items to NavItem structure
-  // Only show the main menu items (Geography, Company Dictionaries, Employee, etc.)
   const navItems: NavItem[] = (module.Menu || []).map((menuItem: RawMenuItem) => {
     const icon = ICON_MAP[menuItem.icon] || Zap;
-    
-    // Convert submenu items (Gender, Salutation, etc. for Employee menu)
+
     const subMenu: NavItem[] | undefined = menuItem.subMenu?.map((subItem: RawSubMenu) => ({
       id: subItem.id.toString(),
       label: subItem.title,
@@ -102,8 +101,9 @@ const buildNavItemsFromModule = (moduleId: number | string): BuildResult => {
     return {
       id: menuItem.id.toString(),
       label: menuItem.title,
-      icon: icon,
-      subMenu: subMenu,
+      icon,
+      path: menuItem.pathname || undefined,
+      subMenu,
     };
   });
 
@@ -116,14 +116,11 @@ const buildNavItemsFromModule = (moduleId: number | string): BuildResult => {
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
-  
-  // Redux: which main module is selected (1 = Flexi HQ, 2 = PeopleHub, ...)
-  const activeModuleId = useAppSelector(
-    (state) => state.navItem.activeNavItemId
-  );
 
-  const { navItems, moduleName, moduleTagline } =
-    buildNavItemsFromModule(activeModuleId);
+  // Redux: which main module is selected (1 = Flexi HQ, 2 = PeopleHub, ...)
+  const activeModuleId = useAppSelector((state) => state.navItem.activeNavItemId);
+
+  const { navItems, moduleName, moduleTagline } = buildNavItemsFromModule(activeModuleId);
 
   // State to track which menus are open
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set());
@@ -132,14 +129,11 @@ export const Sidebar: React.FC = () => {
   const toggleDropdown = (id: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     setOpenDropdowns((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
       return newSet;
     });
   };
@@ -147,7 +141,7 @@ export const Sidebar: React.FC = () => {
   // Check if any subitem of a parent is active
   const isSubItemActive = (item: NavItem): boolean => {
     if (!item.subMenu) return false;
-    return item.subMenu.some(subItem => location.pathname === subItem.path);
+    return item.subMenu.some((subItem) => location.pathname === subItem.path);
   };
 
   return (
@@ -180,69 +174,121 @@ export const Sidebar: React.FC = () => {
         {navItems.map((item) => {
           const isDropdownOpen = openDropdowns.has(item.id);
           const isActive = isSubItemActive(item);
-          
+
           return (
             <div key={item.id} className="space-y-1">
-              {/* Parent Menu Item - Always clickable to toggle dropdown */}
+              {/* Parent row */}
               <div className="relative">
-                <button
-                  onClick={(e) => toggleDropdown(item.id, e)}
+                <div
                   className={`group flex items-center justify-between w-full px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive || isDropdownOpen
                       ? "bg-white/10 text-white shadow-sm"
                       : "hover:bg-white/5 hover:text-white text-slate-400"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <item.icon
-                      size={20}
-                      className={
-                        isActive || isDropdownOpen
-                          ? "text-brand-accent1"
-                          : "text-slate-500 group-hover:text-white"
-                      }
-                    />
-                    <span className="truncate">{item.label}</span>
-                  </div>
-                  <ChevronDown
-                    size={16}
-                    className={`transform transition-transform duration-200 ${
-                      isDropdownOpen ? "rotate-180" : ""
-                    } ${isActive || isDropdownOpen
-                      ? "text-brand-accent1" 
-                      : "text-slate-500 group-hover:text-white"
-                    }`}
-                  />
-                </button>
+                  {/* LEFT: label area (link if item.path exists) */}
+                  {item.path ? (
+                    <NavLink
+                      to={item.path}
+                      className="flex items-center gap-3 flex-1 min-w-0"
+                      onClick={(e) => {
+                        // allow navigation, but keep dropdown state unchanged
+                        e.stopPropagation();
+                      }}
+                    >
+                      <item.icon
+                        size={20}
+                        className={
+                          isActive || isDropdownOpen
+                            ? "text-brand-accent1"
+                            : "text-slate-500 group-hover:text-white"
+                        }
+                      />
+                      <span className="truncate">{item.label}</span>
+                    </NavLink>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => toggleDropdown(item.id, e)}
+                      className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                    >
+                      <item.icon
+                        size={20}
+                        className={
+                          isActive || isDropdownOpen
+                            ? "text-brand-accent1"
+                            : "text-slate-500 group-hover:text-white"
+                        }
+                      />
+                      <span className="truncate">{item.label}</span>
+                    </button>
+                  )}
+
+                  {/* RIGHT: chevron toggle (always toggles if submenu exists) */}
+                  {item.subMenu && item.subMenu.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={(e) => toggleDropdown(item.id, e)}
+                      className="ml-2 p-1 rounded hover:bg-white/5"
+                      aria-label="Toggle submenu"
+                    >
+                      <motion.div
+                        animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                        transition={{ duration: 0.22, ease: "easeInOut" }}
+                        className="flex items-center justify-center"
+                      >
+                        <ChevronDown
+                          size={16}
+                          className={
+                            isActive || isDropdownOpen
+                              ? "text-brand-accent1"
+                              : "text-slate-500 group-hover:text-white"
+                          }
+                        />
+                      </motion.div>
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {/* Submenu - Animated dropdown */}
-              {item.subMenu && item.subMenu.length > 0 && isDropdownOpen && (
-                <div className="ml-8 pl-2 border-l border-white/10 space-y-1">
-                  {item.subMenu.map((subItem) => (
-                    <NavLink
-                      key={subItem.id}
-                      to={subItem.path}
-                      className={({ isActive }) =>
-                        [
-                          "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ml-1",
-                          isActive
-                            ? "bg-white/10 text-white shadow-sm"
-                            : "hover:bg-white/5 hover:text-white text-slate-400",
-                        ].join(" ")
-                      }
+              {/* Submenu - smooth dropdown */}
+              <AnimatePresence initial={false}>
+                {item.subMenu && item.subMenu.length > 0 && isDropdownOpen && (
+                  <motion.div
+                    key={`submenu-${item.id}`}
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <motion.div
+                      initial={{ y: -4 }}
+                      animate={{ y: 0 }}
+                      exit={{ y: -4 }}
+                      transition={{ duration: 0.22, ease: "easeInOut" }}
+                      className="ml-8 pl-2 border-l border-white/10 space-y-1"
                     >
-                      {({ isActive }) => (
-                        <>
-                          
-                          
+                      {item.subMenu.map((subItem) => (
+                        <NavLink
+                          key={subItem.id}
+                          to={subItem.path || "#"}
+                          className={({ isActive }) =>
+                            [
+                              "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ml-1",
+                              isActive
+                                ? "bg-white/10 text-white shadow-sm"
+                                : "hover:bg-white/5 hover:text-white text-slate-400",
+                            ].join(" ")
+                          }
+                        >
                           <span className="truncate">{subItem.label}</span>
-                        </>
-                      )}
-                    </NavLink>
-                  ))}
-                </div>
-              )}
+                        </NavLink>
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}

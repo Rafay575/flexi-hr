@@ -77,3 +77,25 @@
 .text-primary-foreground{
   color: #f1f1f1 !important
 }
+
+ body {
+        font-family: "League Spartan", sans-serif;
+        background-color: #f5f5f5;
+        color: #1f2937;
+      }
+      .bg-primary-gradient {
+        background: linear-gradient(135deg, #4a4680 0%, #3e3b6f 100%);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
