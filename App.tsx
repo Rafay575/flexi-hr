@@ -305,6 +305,7 @@ import { IncrementLetterGenerator } from "./components/IncrementLetterGenerator"
 import { EOSSettlementWizard } from "./components/EOSSettlementWizard";
 import { VarianceReport } from "./components/VarianceReport";
 import DashboardRouter from "./components/DashboardRouter";
+import { PayrollRunsList } from "./components/PayrollRunsList";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -1338,6 +1339,10 @@ const App: React.FC = () => {
                     <Route
                       path="salary-history"
                       element={<MySalaryHistory />}
+                    />
+                    <Route
+                      path="payroll-processing"
+                      element={<PayrollRunsList />}
                     />
                     <Route path="my-loans" element={<MyLoans />} />
                     <Route
