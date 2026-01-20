@@ -462,3 +462,43 @@ export interface UserProfile {
   role: string;
   avatar: string;
 }
+
+
+
+export enum PayrollStatus {
+  Draft = 'Draft',
+  Pending = 'Pending',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
+  Locked = 'Locked',
+  Published = 'Published'
+}
+
+export type PayrollSummary = {
+  totalGross: number;
+  totalDeductions: number;
+  totalTax: number;
+  totalNet: number;
+  employeeCount: number;
+};
+
+export type EmployeePayroll = {
+  id: string;
+  name: string;
+  designation: string;
+  department: string;
+  basicSalary: number;
+  allowances: number;
+  deductions: number;
+  incomeTax: number;
+  netSalary: number;
+  status: PayrollStatus;
+};
+
+export type PayrollCycle = {
+  id: string;
+  month: string;
+  year: number;
+  status: PayrollStatus;
+  disbursedOn?: string;
+};

@@ -620,56 +620,395 @@ export const modules: ModuleItem[] = [
       },
     ],
   },
-  {
-    id: 6,
-    name: "PayEdge",
-    icon: "Zap",
-    Menu: [
-      {
-        id: 61,
-        icon: "Zap",
-        title: "PayMaster",
-        subMenu: [
-          {
-            id: 611,
-            icon: "Zap",
-            title: "Payroll Grid",
-            pathname: "/dashboard/PayMaster/PayrollGrid/list",
-          },
-          {
-            id: 612,
-            icon: "Zap",
-            title: "Salary Boost",
-            pathname: "/dashboard/PayMaster/SalaryBoost/list",
-          },
-          {
-            id: 613,
-            icon: "Zap",
-            title: "TaxCalc",
-            pathname: "/dashboard/PayMaster/TaxCalc/list",
-          },
-        ],
-      },
-      {
-        id: 62,
-        icon: "Zap",
-        title: "Reports",
-        subMenu: [
-          {
-            id: 621,
-            icon: "Zap",
-            title: "Salary Register",
-          },
-          {
-            id: 622,
-            icon: "Zap",
-            title: "Tax Reports",
-          },
-        ],
-      },
-    ],
-    admin: false,
-  },
+ {
+  id: 6,
+  name: "PayEdge",
+  icon: "Zap",
+  admin: false, // Default, can be overridden based on user
+  Menu: [
+    {
+      id: 1,
+      icon: "LayoutDashboard",
+      title: "Main",
+      subMenu: [
+        {
+          id: 101,
+          icon: "LayoutDashboard",
+          title: "Dashboard",
+          pathname: "/payedge/dashboard",
+          
+        },
+        {
+          id: 102,
+          icon: "UserCircle",
+          title: "My Payroll",
+          pathname: "/payedge/my-payroll",
+        
+        },
+        {
+          id: 103,
+          icon: "Sparkles",
+          title: "Payslip Explainer",
+          pathname: "/payedge/payslip-explainer",
+         
+        },
+        {
+          id: 104,
+          icon: "History",
+          title: "Salary History",
+          pathname: "/payedge/salary-history",
+       
+        },
+        {
+          id: 105,
+          icon: "HandCoins",
+          title: "My Loans",
+          pathname: "/payedge/my-loans",
+          
+        },
+        {
+          id: 106,
+          icon: "ShieldCheck",
+          title: "EOBI Statement",
+          pathname: "/payedge/eobi-statement",
+        
+        },
+        {
+          id: 107,
+          icon: "Landmark",
+          title: "PF Statement",
+          pathname: "/payedge/pf-statement",
+        
+        },
+        {
+          id: 108,
+          icon: "Users",
+          title: "Team Payroll",
+          pathname: "/payedge/team-payroll",
+          
+        },
+        {
+          id: 109,
+          icon: "HandCoins",
+          title: "Request Advance",
+          pathname: "/payedge/request-advance",
+        
+        }
+      ]
+    },
+    {
+      id: 2,
+      icon: "Settings",
+      title: "Configuration",
+     
+      subMenu: [
+        {
+          id: 201,
+          icon: "Layers",
+          title: "Pay Components",
+          pathname: "/payedge/pay-components",
+        
+        },
+        {
+          id: 202,
+          icon: "Briefcase",
+          title: "Salary Structures",
+          pathname: "/payedge/salary-structures",
+        
+        },
+        {
+          id: 203,
+          icon: "GitBranch",
+          title: "Workflow Config",
+          pathname: "/payedge/workflow-config",
+         
+        },
+        {
+          id: 204,
+          icon: "Link2",
+          title: "Integration Hub",
+          pathname: "/payedge/integration-hub",
+         
+        },
+        {
+          id: 205,
+          icon: "BookOpen",
+          title: "Bank Library [PK]",
+          pathname: "/payedge/bank-library",
+       
+        },
+        {
+          id: 206,
+          icon: "Landmark",
+          title: "Bank Formats",
+          pathname: "/payedge/bank-formats",
+        
+        },
+        {
+          id: 207,
+          icon: "LayoutDashboard",
+          title: "Payslip Designer",
+          pathname: "/payedge/payslip-designer",
+         
+        }
+      ]
+    },
+    {
+      id: 3,
+      icon: "Calculator",
+      title: "Operations",
+   
+      subMenu: [
+        {
+          id: 301,
+          icon: "Calculator",
+          title: "Payroll Processing",
+          pathname: "/payedge/payroll-processing"
+         
+          
+        },
+        {
+          id: 302,
+          icon: "Calendar",
+          title: "Payroll Calendar",
+          pathname: "/payedge/payroll-calendar",
+         
+        },
+        {
+          id: 303,
+          icon: "AlertCircle",
+          title: "Exception Center",
+          pathname: "/payedge/exception-center",
+     
+        },
+        {
+          id: 304,
+          icon: "CalendarRange",
+          title: "Payroll Periods",
+          pathname: "/payedge/payroll-periods",
+         
+        },
+        {
+          id: 305,
+          icon: "Boxes",
+          title: "Payroll Groups",
+          pathname: "/payedge/payroll-groups",
+      
+        },
+        {
+          id: 306,
+          icon: "HandCoins",
+          title: "Loans & Advances",
+          pathname: "/payedge/loans-advances",
+         
+        },
+        {
+          id: 307,
+          icon: "Repeat",
+          title: "Recovery Schedule",
+          pathname: "/payedge/recovery-schedule",
+          
+        },
+        {
+          id: 308,
+          icon: "Percent",
+          title: "Adjustments",
+          pathname: "/payedge/adjustments",
+         
+        },
+        {
+          id: 309,
+          icon: "ClipboardCheck",
+          title: "Adj. Approvals",
+          pathname: "/payedge/adj-approvals",
+        
+        },
+        {
+          id: 310,
+          icon: "History",
+          title: "Arrears Processing",
+          pathname: "/payedge/arrears-processing",
+        
+        },
+        {
+          id: 311,
+          icon: "TrendingUp",
+          title: "Increments & Bonus",
+          pathname: "/payedge/increments-bonus",
+       
+        },
+        {
+          id: 312,
+          icon: "Ban",
+          title: "Final Settlement",
+          pathname: "/payedge/final-settlement",
+         
+        },
+        {
+          id: 313,
+          icon: "CalcIcon", // Note: You may need to import this or use a different icon
+          title: "Gratuity Calc",
+          pathname: "/payedge/gratuity-calc",
+         
+        }
+      ]
+    },
+    {
+      id: 4,
+      icon: "FileText",
+      title: "Outputs",
+      subMenu: [
+        {
+          id: 401,
+          icon: "FileText",
+          title: "Payslip Viewer",
+          pathname: "/payedge/payslip-viewer",
+        
+        },
+        {
+          id: 402,
+          icon: "LayoutList",
+          title: "Payroll Registers",
+          pathname: "/payedge/payroll-registers",
+          
+        },
+        {
+          id: 403,
+          icon: "Landmark",
+          title: "Bank Advice",
+          pathname: "/payedge/bank-advice",
+         
+        },
+        {
+          id: 404,
+          icon: "History",
+          title: "Export History",
+          pathname: "/payedge/export-history",
+         
+        },
+        {
+          id: 405,
+          icon: "Database",
+          title: "JV Export",
+          pathname: "/payedge/jv-export",
+          
+        },
+        {
+          id: 406,
+          icon: "FileText",
+          title: "Revision Letters",
+          pathname: "/payedge/revision-letters",
+         
+        },
+        {
+          id: 407,
+          icon: "Database",
+          title: "Cost Analysis",
+          pathname: "/payedge/cost-analysis",
+         
+        },
+        {
+          id: 408,
+          icon: "BarChart3",
+          title: "Gratuity Provisions",
+          pathname: "/payedge/gratuity-provisions",
+         
+        },
+        {
+          id: 409,
+          icon: "ShieldCheck",
+          title: "Pakistan Compliance",
+          pathname: "/payedge/pakistan-compliance",
+         
+        },
+        {
+          id: 410,
+          icon: "BarChart3",
+          title: "Reports",
+          pathname: "/payedge/reports",
+        
+        },
+        {
+          id: 411,
+          icon: "RefreshCw",
+          title: "Reconciliation",
+          pathname: "/payedge/reconciliation",
+        
+        },
+        {
+          id: 412,
+          icon: "ShieldAlert",
+          title: "Anomaly Detection",
+          pathname: "/payedge/anomaly-detection",
+         
+        },
+        {
+          id: 413,
+          icon: "ShieldCheck",
+          title: "Audit Logs",
+          pathname: "/payedge/audit-logs",
+         
+        },
+        {
+          id: 414,
+          icon: "Clock",
+          title: "Scheduled",
+          pathname: "/payedge/scheduled-reports",
+         
+        }
+      ]
+    },
+    {
+      id: 5,
+      icon: "Zap",
+      title: "Advanced",
+      subMenu: [
+        {
+          id: 501,
+          icon: "Bot",
+          title: "AI Assistant",
+          pathname: "/payedge/ai-assistant"
+        
+        },
+        {
+          id: 502,
+          icon: "Zap",
+          title: "Policy Copilot",
+          pathname: "/payedge/policy-copilot"
+       
+        },
+        {
+          id: 503,
+          icon: "Globe",
+          title: "FX Rates",
+          pathname: "/payedge/fx-rates",
+         
+        },
+        {
+          id: 504,
+          icon: "Bell",
+          title: "Alert Config",
+          pathname: "/payedge/alert-config"
+        
+        },
+        {
+          id: 505,
+          icon: "Gem",
+          title: "Entitlements",
+          pathname: "/payedge/entitlements"
+        
+        },
+        {
+          id: 506,
+          icon: "Settings",
+          title: "Settings",
+          pathname: "/payedge/settings"
+       
+        }
+      ]
+    }
+  ]
+},
   {
     id: 7,
     name: "LeaveEase",

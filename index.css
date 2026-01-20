@@ -31,7 +31,18 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem
+    --radius: 0.5rem;
+     --color-payroll-earning: #10B981;
+    --color-payroll-deduction: #EF4444;
+    --color-payroll-contribution: #3B82F6;
+    --color-payroll-tax: #8B5CF6;
+    --color-payroll-reimbursement: #F59E0B;
+    --color-status-draft: #9CA3AF;
+    --color-status-pending: #FBBF24;
+    --color-status-approved: #10B981;
+    --color-status-rejected: #EF4444;
+    --color-status-locked: #8B5CF6;
+    --color-status-published: #6366F1;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -99,3 +110,4 @@
       .custom-scrollbar::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.2);
       }
+      

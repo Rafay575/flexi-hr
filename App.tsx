@@ -42,7 +42,9 @@ import {
   Employee,
   Transfer,
   ExitRequest,
-  ApprovalStatus
+  ApprovalStatus,
+  PayrollSummary,
+  EmployeePayroll,
 } from "./types";
 
 import {
@@ -173,7 +175,11 @@ import { PayrollPeriods } from "./components/PayrollPeriods";
 
 // -------- LeaveEase Components --------
 import { LeaveEaseShell } from "./components/LeaveEaseShell";
-import { EmployeeView, ManagerView, HRView } from "./components/DashboardSections";
+import {
+  EmployeeView,
+  ManagerView,
+  HRView,
+} from "./components/DashboardSections";
 import { MyBalances } from "./components/MyBalances";
 import { ApplyLeaveWizard } from "./components/ApplyLeaveWizard";
 import { MyRequests } from "./components/MyRequests";
@@ -237,6 +243,69 @@ import { LeaveBalance, LeaveRequest, LeaveStatus } from "./types";
 import { INITIAL_BALANCES, MOCK_HISTORY } from "./constants";
 import { ChevronRight, Plus } from "lucide-react";
 
+// -------- PayEdge Components --------
+// Import PayEdge components from your PayEdge project
+import { RBACProvider } from "./hooks/useRBAC";
+
+import { MyPayslips } from "./components/MyPayslips";
+import { PayslipExplainer } from "./components/PayslipExplainer";
+import { MySalaryHistory } from "./components/MySalaryHistory";
+import { MyLoans } from "./components/MyLoans";
+import { MyEOBIStatement } from "./components/MyEOBIStatement";
+import { MyPFStatement } from "./components/MyPFStatement";
+import { PayComponentsList } from "./components/PayComponentsList";
+import { SalaryTemplatesList } from "./components/SalaryTemplatesList";
+import { PayEdgeWorkflowConfig } from "./components/PayEdgeWorkflowConfig";
+import { PayEdgeIntegrationSettings } from "./components/PayEdgeIntegrationSettings";
+import { PakistanBankLibrary } from "./components/PakistanBankLibrary";
+import { BankFormatsConfig } from "./components/BankFormatsConfig";
+import { PayslipTemplateDesigner } from "./components/PayslipTemplateDesigner";
+
+import { PayrollCalendar } from "./components/PayrollCalendar";
+import { ExceptionCenter } from "./components/ExceptionCenter";
+import { PayrollGroupsList } from "./components/PayrollGroupsList";
+import { LoansList } from "./components/LoansList";
+import { RecoverySchedule } from "./components/RecoverySchedule";
+import { AdjustmentsList } from "./components/AdjustmentsList";
+import { AdjustmentApproval } from "./components/AdjustmentApproval";
+import { ArrearsProcessing } from "./components/ArrearsProcessing";
+import { IncrementProcessing } from "./components/IncrementProcessing";
+import { EOSSettlementsList } from "./components/EOSSettlementsList";
+import { GratuityCalculator } from "./components/GratuityCalculator";
+import { PayslipViewer } from "./components/PayslipViewer";
+import { PayrollRegisters } from "./components/PayrollRegisters";
+import { BankAdviceGenerator } from "./components/BankAdviceGenerator";
+import { BankExportHistory } from "./components/BankExportHistory";
+import { JVExport } from "./components/JVExport";
+import { CostAnalysisReport } from "./components/CostAnalysisReport";
+import { GratuityProvisionReport } from "./components/GratuityProvisionReport";
+import { PayrollReportsDashboard } from "./components/PayrollReportsDashboard";
+import { ReconciliationAssistant } from "./components/ReconciliationAssistant";
+import { PayrollAnomalyDetection } from "./components/PayrollAnomalyDetection";
+import { PayrollAuditLogs } from "./components/PayrollAuditLogs";
+import { ScheduledReports } from "./components/ScheduledReports";
+import { PayEdgeAIChat } from "./components/PayEdgeAIChat";
+import { PolicyCopilot as PayEdgePolicyCopilot } from "./components/PolicyCopilot";
+import { CurrencyFXRates } from "./components/CurrencyFXRates";
+import { PayEdgeNotificationsConfig } from "./components/PayEdgeNotificationsConfig";
+import { PayEdgeEntitlements } from "./components/PayEdgeEntitlements";
+import { EmployeePayProfilesList } from "./components/EmployeePayProfilesList";
+import { AdvanceRequestESS } from "./components/AdvanceRequestESS";
+import { TaxConfiguration } from "./components/TaxConfiguration";
+import { TaxCalculationEngine } from "./components/TaxCalculationEngine";
+import { EOBIConfiguration } from "./components/EOBIConfiguration";
+import { SocialSecurityConfiguration } from "./components/SocialSecurityConfiguration";
+import { ProvidentFundConfiguration } from "./components/ProvidentFundConfiguration";
+import { MyTaxCertificate } from "./components/MyTaxCertificate";
+import { StatutoryReturnsDashboard } from "./components/StatutoryReturnsDashboard";
+import { ChallanGenerator } from "./components/ChallanGenerator";
+import { BonusProcessing } from "./components/BonusProcessing";
+import { PromotionProcessing } from "./components/PromotionProcessing";
+import { IncrementLetterGenerator } from "./components/IncrementLetterGenerator";
+import { EOSSettlementWizard } from "./components/EOSSettlementWizard";
+import { VarianceReport } from "./components/VarianceReport";
+import DashboardRouter from "./components/DashboardRouter";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -273,28 +342,32 @@ const LeaveEaseApp: React.FC = () => {
       type: data.type,
       startDate: data.startDate,
       endDate: data.endDate,
-      days: 3, 
+      days: 3,
       reason: data.reason,
       status: ApprovalStatus.PENDING,
-      appliedDate: new Date().toISOString().split('T')[0],
+      appliedDate: new Date().toISOString().split("T")[0],
     };
 
     setHistory([newRequest, ...history]);
     setIsWizardOpen(false);
-    navigate('/leaveease/my-requests');
+    navigate("/leaveease/my-requests");
   };
 
   const getStatusStyle = (status: LeaveStatus) => {
     switch (status) {
-      case LeaveStatus.APPROVED: return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case LeaveStatus.PENDING: return 'bg-amber-100 text-amber-700 border-amber-200';
-      case LeaveStatus.REJECTED: return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-500 border-gray-200';
+      case LeaveStatus.APPROVED:
+        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      case LeaveStatus.PENDING:
+        return "bg-amber-100 text-amber-700 border-amber-200";
+      case LeaveStatus.REJECTED:
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-500 border-gray-200";
     }
   };
 
   const handleNavigate = (id: string) => {
-    if (id === 'apply-leave') {
+    if (id === "apply-leave") {
       setIsWizardOpen(true);
     } else {
       navigate(`/leaveease/${id}`);
@@ -303,13 +376,20 @@ const LeaveEaseApp: React.FC = () => {
 
   return (
     <div className="font-['League_Spartan']">
-      <LeaveEaseShell 
-        activeId={window.location.pathname.split('/').pop() || 'dashboard'}
+      <LeaveEaseShell
+        activeId={window.location.pathname.split("/").pop() || "dashboard"}
         onNavigate={handleNavigate}
       >
         <Outlet />
-        <ApplyLeaveWizard isOpen={isWizardOpen} onClose={() => setIsWizardOpen(false)} onSubmit={handleWizardSubmit} />
-        <IncentiveRuleForm isOpen={isIncentiveFormOpen} onClose={() => setIsIncentiveFormOpen(false)} />
+        <ApplyLeaveWizard
+          isOpen={isWizardOpen}
+          onClose={() => setIsWizardOpen(false)}
+          onSubmit={handleWizardSubmit}
+        />
+        <IncentiveRuleForm
+          isOpen={isIncentiveFormOpen}
+          onClose={() => setIsIncentiveFormOpen(false)}
+        />
       </LeaveEaseShell>
     </div>
   );
@@ -323,10 +403,14 @@ const LeaveEaseDashboard: React.FC = () => {
 
   const getStatusStyle = (status: LeaveStatus) => {
     switch (status) {
-      case LeaveStatus.APPROVED: return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case LeaveStatus.PENDING: return 'bg-amber-100 text-amber-700 border-amber-200';
-      case LeaveStatus.REJECTED: return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-gray-100 text-gray-500 border-gray-200';
+      case LeaveStatus.APPROVED:
+        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      case LeaveStatus.PENDING:
+        return "bg-amber-100 text-amber-700 border-amber-200";
+      case LeaveStatus.REJECTED:
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-500 border-gray-200";
     }
   };
 
@@ -337,15 +421,24 @@ const LeaveEaseDashboard: React.FC = () => {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="bg-[#E8D5A3] text-[#3E3B6F] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Active Period: 2025</span>
+              <span className="bg-[#E8D5A3] text-[#3E3B6F] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                Active Period: 2025
+              </span>
             </div>
-            <h2 className="text-3xl lg:text-4xl font-bold mb-2">Welcome back, John! 👋</h2>
-            <p className="text-white/80 max-w-md text-lg">You have <span className="text-[#E8D5A3] font-bold">16 days</span> of Annual Leave remaining. Ready for a break?</p>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-2">
+              Welcome back, John! 👋
+            </h2>
+            <p className="text-white/80 max-w-md text-lg">
+              You have <span className="text-[#E8D5A3] font-bold">16 days</span>{" "}
+              of Annual Leave remaining. Ready for a break?
+            </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20 min-w-[200px]">
-              <p className="text-xs uppercase tracking-widest text-white/60 mb-2">Upcoming Leave</p>
+              <p className="text-xs uppercase tracking-widest text-white/60 mb-2">
+                Upcoming Leave
+              </p>
               <div className="flex items-center gap-4">
                 <div className="text-center px-4 py-2 bg-accent-cream rounded-lg text-[#3E3B6F]">
                   <p className="text-[10px] font-bold leading-none">FEB</p>
@@ -359,7 +452,7 @@ const LeaveEaseDashboard: React.FC = () => {
             </div>
 
             <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20 flex flex-col justify-center">
-              <button 
+              <button
                 onClick={() => setIsWizardOpen(true)}
                 className="bg-[#E8D5A3] text-[#3E3B6F] px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-white transition-all shadow-xl active:scale-95 whitespace-nowrap"
               >
@@ -380,35 +473,68 @@ const LeaveEaseDashboard: React.FC = () => {
       <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-12">
         <div className="px-6 py-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h3 className="text-xl font-bold text-gray-800">Recent Leave Activity</h3>
-            <p className="text-sm text-gray-500">A quick glance at your latest requests.</p>
+            <h3 className="text-xl font-bold text-gray-800">
+              Recent Leave Activity
+            </h3>
+            <p className="text-sm text-gray-500">
+              A quick glance at your latest requests.
+            </p>
           </div>
-          <button onClick={() => navigate('/leaveease/my-requests')} className="text-sm font-bold text-[#3E3B6F] hover:underline">View All Requests</button>
+          <button
+            onClick={() => navigate("/leaveease/my-requests")}
+            className="text-sm font-bold text-[#3E3B6F] hover:underline"
+          >
+            View All Requests
+          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-gray-50/50">
               <tr>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">Ref ID</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">Type</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">Duration</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">Status</th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] text-right">Action</th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
+                  Ref ID
+                </th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
+                  Type
+                </th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
+                  Duration
+                </th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
+                  Status
+                </th>
+                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] text-right">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {history.slice(0, 4).map((request) => (
-                <tr key={request.id} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-6 py-5 font-mono text-xs text-gray-400">{request.id}</td>
-                  <td className="px-6 py-5 font-bold text-gray-800 text-sm">{request.type}</td>
-                  <td className="px-8 py-5 text-sm font-bold text-[#3E3B6F]">{request.days} Days</td>
+                <tr
+                  key={request.id}
+                  className="hover:bg-gray-50/50 transition-colors group"
+                >
+                  <td className="px-6 py-5 font-mono text-xs text-gray-400">
+                    {request.id}
+                  </td>
+                  <td className="px-6 py-5 font-bold text-gray-800 text-sm">
+                    {request.type}
+                  </td>
+                  <td className="px-8 py-5 text-sm font-bold text-[#3E3B6F]">
+                    {request.days} Days
+                  </td>
                   <td className="px-6 py-5">
-                    <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wider `}>
+                    <span
+                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wider `}
+                    >
                       {request.status}
                     </span>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <button onClick={() => navigate('/leaveease/my-requests')} className="text-gray-400 hover:text-[#3E3B6F] transition-colors p-2 rounded-lg hover:bg-white shadow-sm border border-transparent hover:border-gray-100">
+                    <button
+                      onClick={() => navigate("/leaveease/my-requests")}
+                      className="text-gray-400 hover:text-[#3E3B6F] transition-colors p-2 rounded-lg hover:bg-white shadow-sm border border-transparent hover:border-gray-100"
+                    >
                       <ChevronRight size={18} />
                     </button>
                   </td>
@@ -419,9 +545,32 @@ const LeaveEaseDashboard: React.FC = () => {
         </div>
       </section>
       <footer className="py-10 text-center space-y-2 border-t border-gray-100">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Powered by Flexi HRMS Engine</p>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+          Powered by Flexi HRMS Engine
+        </p>
       </footer>
-      <ApplyLeaveWizard isOpen={isWizardOpen} onClose={() => setIsWizardOpen(false)} onSubmit={() => {}} />
+      <ApplyLeaveWizard
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        onSubmit={() => {}}
+      />
+    </div>
+  );
+};
+
+// ---------- PayEdge Wrapper Component ----------
+
+// ---------- PayEdge with Shell Component ----------
+const PayEdgeWithShell: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (id: string) => {
+    navigate(`/payedge/${id}`);
+  };
+
+  return (
+    <div>
+      <Outlet />
     </div>
   );
 };
@@ -516,9 +665,10 @@ const PeopleHubDashboard: React.FC<PeopleHubDashboardProps> = ({
 const App: React.FC = () => {
   // ---------- PeopleHub state ----------
   const [employees, setEmployees] = useState<Employee[]>(() =>
-    generateEmployees(142)
+    generateEmployees(142),
   );
- 
+  const [employeesP, setEmployeesP] = useState<EmployeePayroll[]>([]);
+  const [summary, setSummary] = useState<PayrollSummary | null>(null);
   const [activities, setActivities] =
     useState<ActivityItem[]>(INITIAL_ACTIVITIES);
   const [stats, setStats] = useState<StatMetric[]>(INITIAL_STATS);
@@ -544,264 +694,845 @@ const App: React.FC = () => {
           return { ...stat, value: (val + 1).toString() };
         }
         return stat;
-      })
+      }),
     );
   };
 
   return (
     <CompanyProvider>
       <EnrollmentProvider>
-        <QueryClientProvider client={queryClient}>
-          <Router>
-            <Routes>
-              {/* Auth routes (no main layout) */}
-              <Route path="/auth/login" element={<LoginPage />} />
+        <RBACProvider>
+          <QueryClientProvider client={queryClient}>
+            <Router>
+              <Routes>
+                {/* Auth routes (no main layout) */}
+                <Route path="/auth/login" element={<LoginPage />} />
 
-              {/* Protected / main app routes with Layout */}
-              <Route element={<Layout />}>
-                {/* Dashboard: both / and /dashboard work */}
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+                {/* Protected / main app routes with Layout */}
+                <Route element={<Layout />}>
+                  {/* Dashboard: both / and /dashboard work */}
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
 
-                {/* Geography routes */}
-                <Route path="/countries" element={<CountryListing />} />
-                <Route path="/states" element={<StateListing />} />
-                <Route path="/cities" element={<CityListing />} />
-                <Route path="/regions" element={<RegionsListing />} />
+                  {/* Geography routes */}
+                  <Route path="/countries" element={<CountryListing />} />
+                  <Route path="/states" element={<StateListing />} />
+                  <Route path="/cities" element={<CityListing />} />
+                  <Route path="/regions" element={<RegionsListing />} />
 
-                {/* Company Dictionary routes */}
-                <Route path="/entity-types" element={<EntityListing />} />
-                <Route path="/location-types" element={<LocationTypeListing />} />
-                <Route path="/locations-1" element={<LocationListing />} />
-                <Route path="/business" element={<BusinessListing />} />
+                  {/* Company Dictionary routes */}
+                  <Route path="/entity-types" element={<EntityListing />} />
+                  <Route
+                    path="/location-types"
+                    element={<LocationTypeListing />}
+                  />
+                  <Route path="/locations-1" element={<LocationListing />} />
+                  <Route path="/business" element={<BusinessListing />} />
 
-                {/* Employee Meta routes */}
-                <Route path="/genders" element={<GenderListing />} />
-                <Route path="/salutation" element={<SalutationListing />} />
-                <Route path="/employee-status" element={<EmployeeStatusListing />} />
-                <Route path="/employee-type" element={<EmployeeTypeListing />} />
-                <Route path="/blood-group" element={<BloodGroupsListing />} />
-                <Route path="/marital-status" element={<MaritalStatusListing />} />
-                <Route path="/health" element={<HealthListing />} />
+                  {/* Employee Meta routes */}
+                  <Route path="/genders" element={<GenderListing />} />
+                  <Route path="/salutation" element={<SalutationListing />} />
+                  <Route
+                    path="/employee-status"
+                    element={<EmployeeStatusListing />}
+                  />
+                  <Route
+                    path="/employee-type"
+                    element={<EmployeeTypeListing />}
+                  />
+                  <Route path="/blood-group" element={<BloodGroupsListing />} />
+                  <Route
+                    path="/marital-status"
+                    element={<MaritalStatusListing />}
+                  />
+                  <Route path="/health" element={<HealthListing />} />
 
-                {/* Finance routes */}
-                <Route path="/currencies" element={<CurrencyListing />} />
-                <Route path="/fx-rates" element={<FxRateListing />} />
-                <Route path="/banks" element={<BankListing />} />
+                  {/* Finance routes */}
+                  <Route path="/currencies" element={<CurrencyListing />} />
+                  <Route path="/fx-rates" element={<FxRateListing />} />
+                  <Route path="/banks" element={<BankListing />} />
 
-                {/* Calendar & Statutory routes */}
-                <Route path="/holidays" element={<HolidayListing />} />
-                <Route path="/minimum-wage" element={<MinimumWageListing />} />
-                <Route path="/statutory-rates" element={<StatutoryRatesListing />} />
+                  {/* Calendar & Statutory routes */}
+                  <Route path="/holidays" element={<HolidayListing />} />
+                  <Route
+                    path="/minimum-wage"
+                    element={<MinimumWageListing />}
+                  />
+                  <Route
+                    path="/statutory-rates"
+                    element={<StatutoryRatesListing />}
+                  />
 
-                {/* Catalog routes */}
-                <Route path="/salary-components" element={<SalaryComponentsListing />} />
-                <Route path="/shift-archectypes" element={<ShiftArchetypesListing />} />
-                <Route path="/device-types" element={<DeviceTypesListing />} />
-                <Route path="/document-types" element={<DocumentTypesListing />} />
-                <Route path="/skills-trades" element={<TradeListing />} />
-                <Route path="/grade-templates" element={<GradeTemplateListing />} />
+                  {/* Catalog routes */}
+                  <Route
+                    path="/salary-components"
+                    element={<SalaryComponentsListing />}
+                  />
+                  <Route
+                    path="/shift-archectypes"
+                    element={<ShiftArchetypesListing />}
+                  />
+                  <Route
+                    path="/device-types"
+                    element={<DeviceTypesListing />}
+                  />
+                  <Route
+                    path="/document-types"
+                    element={<DocumentTypesListing />}
+                  />
+                  <Route path="/skills-trades" element={<TradeListing />} />
+                  <Route
+                    path="/grade-templates"
+                    element={<GradeTemplateListing />}
+                  />
 
-                {/* Flexi HQ routes */}
-                <Route path="/companies" element={<CompaniesPage />} />
-                <Route
-                  path="/companies/:id/summary"
-                  element={<CompanySummaryPage />}
-                />
-                <Route path="/company-create" element={<CompanyStepper />} />
-                <Route path="/divisions" element={<DivisionsPage />} />
-                <Route path="/departments" element={<DepartmentTree />} />
-                <Route path="/designations" element={<DesignationDirectory />} />
-                <Route path="/grades" element={<Grades />} />
-                <Route path="/locations" element={<Locations />} />
-                <Route path="/cost-centers" element={<CostCenters />} />
-                <Route path="/audit" element={<AuditLog />} />
+                  {/* Flexi HQ routes */}
+                  <Route path="/companies" element={<CompaniesPage />} />
+                  <Route
+                    path="/companies/:id/summary"
+                    element={<CompanySummaryPage />}
+                  />
+                  <Route path="/company-create" element={<CompanyStepper />} />
+                  <Route path="/divisions" element={<DivisionsPage />} />
+                  <Route path="/departments" element={<DepartmentTree />} />
+                  <Route
+                    path="/designations"
+                    element={<DesignationDirectory />}
+                  />
+                  <Route path="/grades" element={<Grades />} />
+                  <Route path="/locations" element={<Locations />} />
+                  <Route path="/cost-centers" element={<CostCenters />} />
+                  <Route path="/audit" element={<AuditLog />} />
 
-                {/* PeopleHub routes */}
-                <Route
-                  path="/peoplehub"
-                  element={
-                    <PeopleHubDashboard stats={stats} activities={activities} />
-                  }
-                />
-                <Route
-                  path="/peoplehub/directory"
-                  element={<Directory companyId={1} />}
-                />
-                <Route
-                  path="/peoplehub/employee360"
-                  element={<Employee360 />}
-                />
-                <Route path="/peoplehub/onboardx" element={<OnboardX />} />
-                <Route path="/peoplehub/transfers" element={<Transfers />} />
-                <Route path="/peoplehub/transfers-wizard" element={<TransferWizard />} />
-                <Route
-                  path="/peoplehub/exit"
-                  element={
-                    <ExitHorizon
-                      employees={employees}
-                      onExitCreate={handleExitCreate}
+                  {/* PeopleHub routes */}
+                  <Route
+                    path="/peoplehub"
+                    element={
+                      <PeopleHubDashboard
+                        stats={stats}
+                        activities={activities}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/peoplehub/directory"
+                    element={<Directory companyId={1} />}
+                  />
+                  <Route
+                    path="/peoplehub/employee360"
+                    element={<Employee360 />}
+                  />
+                  <Route path="/peoplehub/onboardx" element={<OnboardX />} />
+                  <Route path="/peoplehub/transfers" element={<Transfers />} />
+                  <Route
+                    path="/peoplehub/transfers-wizard"
+                    element={<TransferWizard />}
+                  />
+                  <Route
+                    path="/peoplehub/exit"
+                    element={
+                      <ExitHorizon
+                        employees={employees}
+                        onExitCreate={handleExitCreate}
+                      />
+                    }
+                  />
+                  <Route path="/peoplehub/docs" element={<Documents />} />
+                  <Route path="/peoplehub/import" element={<BulkImport />} />
+
+                  {/* TimeSync routes */}
+                  <Route path="/timesync" element={<TodaysStatus />} />
+                  <Route path="/timesync/punch" element={<PunchAttendance />} />
+                  <Route path="/timesync/my-ot" element={<OTRequests />} />
+                  <Route
+                    path="/timesync/my-regularization"
+                    element={<RegularizationRequest />}
+                  />
+                  <Route
+                    path="/timesync/timeline"
+                    element={<MyAttendanceTimeline />}
+                  />
+                  <Route
+                    path="/timesync/calendar"
+                    element={<MyAttendanceCalendar />}
+                  />
+                  <Route path="/timesync/schedule" element={<MySchedule />} />
+                  <Route
+                    path="/timesync/team-dashboard"
+                    element={<TeamDashboard />}
+                  />
+                  <Route
+                    path="/timesync/team-calendar"
+                    element={<TeamCalendar />}
+                  />
+                  <Route
+                    path="/timesync/pending-approvals"
+                    element={<ManagerPendingApprovals />}
+                  />
+                  <Route
+                    path="/timesync/approvals-inbox"
+                    element={<ApprovalsInbox />}
+                  />
+                  <Route
+                    path="/timesync/regularizations"
+                    element={<RegularizationRequestsList />}
+                  />
+                  <Route
+                    path="/timesync/regularization-panel"
+                    element={<RegularizationPanel />}
+                  />
+                  <Route
+                    path="/timesync/manual-punch"
+                    element={<ManualPunchPanel />}
+                  />
+                  <Route
+                    path="/timesync/ot-approvals-admin"
+                    element={<OTApprovalsManager />}
+                  />
+                  <Route
+                    path="/timesync/ot-approvals"
+                    element={<OTApprovalsList />}
+                  />
+                  <Route
+                    path="/timesync/shift-swaps"
+                    element={<ShiftSwapRequestsList />}
+                  />
+                  <Route
+                    path="/timesync/workflow-instances"
+                    element={<WorkflowInstances />}
+                  />
+                  <Route
+                    path="/timesync/payroll-periods"
+                    element={<PayrollPeriods />}
+                  />
+                  <Route
+                    path="/timesync/roster-planner"
+                    element={<RosterPlanner />}
+                  />
+                  <Route
+                    path="/timesync/roster-templates"
+                    element={<RosterTemplates />}
+                  />
+                  <Route
+                    path="/timesync/roster-optimizer"
+                    element={<RosterOptimizer />}
+                  />
+                  <Route
+                    path="/timesync/demand-grid"
+                    element={<DemandGrid />}
+                  />
+                  <Route
+                    path="/timesync/open-shifts"
+                    element={<OpenShifts />}
+                  />
+                  <Route
+                    path="/timesync/swap-management"
+                    element={<SwapManagement userRole={"MANAGER"} />}
+                  />
+                  <Route
+                    path="/timesync/shift-templates"
+                    element={<ShiftTemplatesList onCreateNew={() => {}} />}
+                  />
+                  <Route
+                    path="/timesync/shift-templates/new"
+                    element={<ShiftTemplateForm onClose={() => {}} />}
+                  />
+                  <Route
+                    path="/timesync/shift-assignment"
+                    element={<ShiftAssignment />}
+                  />
+                  <Route
+                    path="/timesync/calendar-assignment"
+                    element={<CalendarAssignment />}
+                  />
+                  <Route
+                    path="/timesync/flexi-rules"
+                    element={<FlexiShiftRules />}
+                  />
+                  <Route
+                    path="/timesync/break-configs"
+                    element={<BreakConfigurationsList />}
+                  />
+                  <Route
+                    path="/timesync/weekly-off"
+                    element={<WeeklyOffRules />}
+                  />
+                  <Route
+                    path="/timesync/alt-saturdays"
+                    element={<AlternateSaturdayRules />}
+                  />
+                  <Route
+                    path="/timesync/holiday-calendars"
+                    element={<HolidayCalendarList />}
+                  />
+                  <Route
+                    path="/timesync/special-shifts"
+                    element={<SpecialShifts />}
+                  />
+                  <Route
+                    path="/timesync/policy-builder"
+                    element={<AttendancePolicyList onCreateNew={() => {}} />}
+                  />
+                  <Route
+                    path="/timesync/policy-builder/new"
+                    element={<AttendancePolicyBuilder onClose={() => {}} />}
+                  />
+                  <Route
+                    path="/timesync/punch-methods"
+                    element={<PunchMethodsConfig />}
+                  />
+                  <Route
+                    path="/timesync/grace-penalties"
+                    element={<GracePenaltiesConfig />}
+                  />
+                  <Route
+                    path="/timesync/thresholds"
+                    element={<ThresholdSettings />}
+                  />
+                  <Route
+                    path="/timesync/deductions"
+                    element={<DeductionRulesConfig />}
+                  />
+                  <Route
+                    path="/timesync/bonuses"
+                    element={<AttendanceBonusRules />}
+                  />
+                  <Route
+                    path="/timesync/ot-policies"
+                    element={<OTPolicySetup />}
+                  />
+                  <Route
+                    path="/timesync/compoff-conversion"
+                    element={<CompOffConversion />}
+                  />
+                  <Route
+                    path="/timesync/ai-simulator"
+                    element={<TimeSyncPolicySimulator />}
+                  />
+                  <Route
+                    path="/timesync/exceptions"
+                    element={<ExceptionsInbox />}
+                  />
+                  <Route
+                    path="/timesync/ai-anomaly"
+                    element={<AIAnomalyDetection />}
+                  />
+                  <Route
+                    path="/timesync/anomalies-audit"
+                    element={<AnomaliesList />}
+                  />
+                  <Route
+                    path="/timesync/hardware-devices"
+                    element={<DeviceManagementList />}
+                  />
+                  <Route
+                    path="/timesync/device-health"
+                    element={<DeviceHealthDashboard />}
+                  />
+                  <Route
+                    path="/timesync/ingestion-jobs"
+                    element={<IngestionJobs />}
+                  />
+                  <Route
+                    path="/timesync/audit-logs"
+                    element={<TimeSyncAuditLogs />}
+                  />
+                  <Route
+                    path="/timesync/daily-report"
+                    element={<DailyAttendanceReport />}
+                  />
+                  <Route
+                    path="/timesync/monthly-report"
+                    element={<MonthlySummaryReport />}
+                  />
+                  <Route path="/timesync/ot-report" element={<OTReport />} />
+                  <Route
+                    path="/timesync/ot-forecast"
+                    element={<OTForecast />}
+                  />
+                  <Route
+                    path="/timesync/late-early-report"
+                    element={<LateEarlyReport />}
+                  />
+                  <Route
+                    path="/timesync/anomaly-report"
+                    element={<AnomalyReport />}
+                  />
+                  <Route
+                    path="/timesync/scheduled-reports"
+                    element={<ScheduledReportsList />}
+                  />
+                  <Route
+                    path="/timesync/notif-templates"
+                    element={<TimeSyncNotificationTemplates />}
+                  />
+                  <Route
+                    path="/timesync/notif-logs"
+                    element={<NotificationDeliveryLogs />}
+                  />
+                  <Route
+                    path="/timesync/integrations"
+                    element={<TimeSyncIntegrations />}
+                  />
+                  <Route
+                    path="/timesync/entitlements"
+                    element={<TimeSyncEntitlements />}
+                  />
+                  <Route
+                    path="/timesync/workflow-list"
+                    element={<TimeSyncWorkflowsList onCreateNew={() => {}} />}
+                  />
+                  <Route
+                    path="/timesync/workflows/new"
+                    element={<TimeSyncWorkflowBuilder onClose={() => {}} />}
+                  />
+                  <Route
+                    path="/timesync/ai-chat"
+                    element={<TimeSyncAIChat />}
+                  />
+                  <Route
+                    path="/timesync/ai-copilot"
+                    element={<AIPolicyCopilot />}
+                  />
+
+                  {/* LeaveEase Routes */}
+                  <Route path="/leaveease" element={<LeaveEaseApp />}>
+                    <Route index element={<LeaveEaseDashboard />} />
+                    {/* My Leave Section */}
+                    <Route path="dashboard" element={<LeaveEaseDashboard />} />
+                    <Route
+                      path="my-balances"
+                      element={
+                        <MyBalances
+                          onApply={() =>
+                            (window.location.href = "/leaveease/apply-leave")
+                          }
+                        />
+                      }
                     />
-                  }
-                />
-                <Route path="/peoplehub/docs" element={<Documents />} />
-                <Route path="/peoplehub/import" element={<BulkImport />} />
+                    <Route
+                      path="apply-leave"
+                      element={
+                        <MyBalances
+                          onApply={() =>
+                            (window.location.href = "/leaveease/apply-leave")
+                          }
+                        />
+                      }
+                    />
+                    <Route
+                      path="my-requests"
+                      element={
+                        <MyRequests
+                          onApply={() =>
+                            (window.location.href = "/leaveease/apply-leave")
+                          }
+                        />
+                      }
+                    />
+                    <Route path="my-calendar" element={<MyLeaveCalendar />} />
+                    <Route path="balance-ledger" element={<BalanceLedger />} />
+                    <Route
+                      path="my-earned-rewards"
+                      element={<MyEarnedRewards />}
+                    />
+                    {/* Team Section */}
+                    <Route
+                      path="team-calendar"
+                      element={<LeaveEaseTeamCalendar />}
+                    />
+                    <Route path="team-balances" element={<TeamBalances />} />
+                    <Route
+                      path="pending-approvals"
+                      element={<PendingApprovals />}
+                    />
+                    {/* Approvals Section */}
+                    <Route
+                      path="approvals-inbox"
+                      element={<LeaveApprovalsInbox />}
+                    />
+                    <Route
+                      path="delegations"
+                      element={<DelegationSettings />}
+                    />
+                    {/* Policy Studio Section */}
+                    <Route
+                      path="holiday-calendar"
+                      element={<HolidayCalendarReference />}
+                    />
+                    <Route path="leave-types" element={<LeaveTypesList />} />
+                    <Route
+                      path="eligibility"
+                      element={
+                        <EligibilityGroupForm
+                          isOpen={true}
+                          onClose={() => {}}
+                        />
+                      }
+                    />
+                    <Route
+                      path="employee-assignments"
+                      element={<EmployeeLeaveAssignments />}
+                    />
+                    <Route path="accrual" element={<AccrualRulesList />} />
+                    <Route path="accrual-jobs" element={<AccrualJobs />} />
+                    <Route
+                      path="carry-forward-rules"
+                      element={<CarryForwardRules />}
+                    />
+                    <Route path="year-end" element={<YearEndProcessing />} />
+                    <Route
+                      path="year-end-history"
+                      element={<YearEndJobsHistory />}
+                    />
+                    <Route path="blackout" element={<BlackoutPeriods />} />
+                    <Route
+                      path="incentive-rules"
+                      element={<IncentiveRulesList />}
+                    />
+                    <Route
+                      path="incentive-runs"
+                      element={<IncentiveAwardRuns />}
+                    />
+                    <Route
+                      path="balance-adjustments"
+                      element={<BalanceAdjustmentsList />}
+                    />
+                    <Route
+                      path="adjustment-approvals"
+                      element={<AdjustmentApprovalPanel />}
+                    />
+                    <Route
+                      path="opening-balances"
+                      element={<OpeningBalancesImport />}
+                    />
+                    <Route
+                      path="rejection-reasons"
+                      element={<RejectionReasonCategories />}
+                    />
+                    <Route path="audit-logs" element={<LeaveAuditLogs />} />
+                    <Route
+                      path="sla-monitor"
+                      element={<SLAMonitorDashboard />}
+                    />
+                    <Route
+                      path="simulator"
+                      element={<LeaveEasePolicySimulator />}
+                    />
+                    {/* Comp-Off Section */}
+                    <Route
+                      path="co-credits"
+                      element={
+                        <MyCompOffCredits
+                          onApply={() =>
+                            (window.location.href = "/leaveease/apply-leave")
+                          }
+                        />
+                      }
+                    />
+                    <Route
+                      path="co-approvals"
+                      element={<CompOffApprovalPanel />}
+                    />
+                    <Route path="co-all" element={<CompOffAllCredits />} />
+                    {/* Official Duty Section */}
+                    <Route path="od-travel" element={<MyODTravelRequests />} />
+                    <Route
+                      path="od-approvals"
+                      element={<ODTravelApprovalPanel />}
+                    />
+                    <Route
+                      path="od-reports"
+                      element={<ODTravelAllRequests />}
+                    />
+                    {/* AI Assistant Section */}
+                    <Route path="ai-copilot" element={<PolicyCopilot />} />
+                    <Route path="ai-risk" element={<CoverageRiskPanel />} />
+                    <Route
+                      path="ai-anomalies"
+                      element={<LeaveAnomalyDetection />}
+                    />
+                    {/* Payroll Liquidation Section */}
+                    <Route path="encashment" element={<EncashmentRequest />} />
+                    <Route
+                      path="encashment-list"
+                      element={<EncashmentRequestsList />}
+                    />
+                    <Route
+                      path="encashment-approvals"
+                      element={<EncashmentApprovalPanel />}
+                    />
+                    <Route
+                      path="payroll-periods"
+                      element={<PayrollPeriodsList />}
+                    />
+                    {/* Reports Section */}
+                    <Route path="reports" element={<LeaveReportGenerator />} />
+                    <Route
+                      path="scheduled-reports"
+                      element={<LeaveScheduledReportsList />}
+                    />
+                    <Route path="analytics" element={<LeaveAnalytics />} />
+                    <Route path="forecast" element={<LeaveForecast />} />
+                    {/* Settings Section */}
+                    <Route
+                      path="notifications"
+                      element={<LeaveEaseDashboard />}
+                    />{" "}
+                    {/* Placeholder */}
+                    <Route
+                      path="notification-templates"
+                      element={<LeaveNotificationTemplates />}
+                    />
+                    <Route
+                      path="notification-logs"
+                      element={<LeaveNotificationDeliveryLogs />}
+                    />
+                    <Route path="workflows" element={<LeaveWorkflowsList />} />
+                    <Route
+                      path="workflow-builder"
+                      element={<LeaveWorkflowBuilder />}
+                    />
+                    <Route
+                      path="workflow-instances"
+                      element={<WorkflowInstancesList />}
+                    />
+                    <Route
+                      path="integrations"
+                      element={<LeaveIntegrations />}
+                    />
+                    <Route
+                      path="entitlements"
+                      element={<LeaveEntitlements />}
+                    />
+                  </Route>
 
-                {/* TimeSync routes */}
-                <Route path="/timesync" element={<TodaysStatus />} />
-                <Route path="/timesync/punch" element={<PunchAttendance />} />
-                <Route path="/timesync/my-ot" element={<OTRequests />} />
-                <Route path="/timesync/my-regularization" element={<RegularizationRequest />} />
-                <Route path="/timesync/timeline" element={<MyAttendanceTimeline />} />
-                <Route path="/timesync/calendar" element={<MyAttendanceCalendar />} />
-                <Route path="/timesync/schedule" element={<MySchedule />} />
-                <Route path="/timesync/team-dashboard" element={<TeamDashboard />} />
-                <Route path="/timesync/team-calendar" element={<TeamCalendar />} />
-                <Route path="/timesync/pending-approvals" element={<ManagerPendingApprovals />} />
-                <Route path="/timesync/approvals-inbox" element={<ApprovalsInbox />} />
-                <Route path="/timesync/regularizations" element={<RegularizationRequestsList />} />
-                <Route path="/timesync/regularization-panel" element={<RegularizationPanel />} />
-                <Route path="/timesync/manual-punch" element={<ManualPunchPanel />} />
-                <Route path="/timesync/ot-approvals-admin" element={<OTApprovalsManager />} />
-                <Route path="/timesync/ot-approvals" element={<OTApprovalsList />} />
-                <Route path="/timesync/shift-swaps" element={<ShiftSwapRequestsList />} />
-                <Route path="/timesync/workflow-instances" element={<WorkflowInstances />} />
-                <Route path="/timesync/payroll-periods" element={<PayrollPeriods />} />
-                <Route path="/timesync/roster-planner" element={<RosterPlanner />} />
-                <Route path="/timesync/roster-templates" element={<RosterTemplates />} />
-                <Route path="/timesync/roster-optimizer" element={<RosterOptimizer />} />
-                <Route path="/timesync/demand-grid" element={<DemandGrid />} />
-                <Route path="/timesync/open-shifts" element={<OpenShifts />} />
-                <Route path="/timesync/swap-management" element={<SwapManagement userRole={"MANAGER"} />} />
-                <Route path="/timesync/shift-templates" element={<ShiftTemplatesList onCreateNew={() => {}} />} />
-                <Route path="/timesync/shift-templates/new" element={<ShiftTemplateForm onClose={() => {}} />} />
-                <Route path="/timesync/shift-assignment" element={<ShiftAssignment />} />
-                <Route path="/timesync/calendar-assignment" element={<CalendarAssignment />} />
-                <Route path="/timesync/flexi-rules" element={<FlexiShiftRules />} />
-                <Route path="/timesync/break-configs" element={<BreakConfigurationsList />} />
-                <Route path="/timesync/weekly-off" element={<WeeklyOffRules />} />
-                <Route path="/timesync/alt-saturdays" element={<AlternateSaturdayRules />} />
-                <Route path="/timesync/holiday-calendars" element={<HolidayCalendarList />} />
-                <Route path="/timesync/special-shifts" element={<SpecialShifts />} />
-                <Route path="/timesync/policy-builder" element={<AttendancePolicyList onCreateNew={() => {}} />} />
-                <Route path="/timesync/policy-builder/new" element={<AttendancePolicyBuilder onClose={() => {}} />} />
-                <Route path="/timesync/punch-methods" element={<PunchMethodsConfig />} />
-                <Route path="/timesync/grace-penalties" element={<GracePenaltiesConfig />} />
-                <Route path="/timesync/thresholds" element={<ThresholdSettings />} />
-                <Route path="/timesync/deductions" element={<DeductionRulesConfig />} />
-                <Route path="/timesync/bonuses" element={<AttendanceBonusRules />} />
-                <Route path="/timesync/ot-policies" element={<OTPolicySetup />} />
-                <Route path="/timesync/compoff-conversion" element={<CompOffConversion />} />
-                <Route path="/timesync/ai-simulator" element={<TimeSyncPolicySimulator />} />
-                <Route path="/timesync/exceptions" element={<ExceptionsInbox />} />
-                <Route path="/timesync/ai-anomaly" element={<AIAnomalyDetection />} />
-                <Route path="/timesync/anomalies-audit" element={<AnomaliesList />} />
-                <Route path="/timesync/hardware-devices" element={<DeviceManagementList />} />
-                <Route path="/timesync/device-health" element={<DeviceHealthDashboard />} />
-                <Route path="/timesync/ingestion-jobs" element={<IngestionJobs />} />
-                <Route path="/timesync/audit-logs" element={<TimeSyncAuditLogs />} />
-                <Route path="/timesync/daily-report" element={<DailyAttendanceReport />} />
-                <Route path="/timesync/monthly-report" element={<MonthlySummaryReport />} />
-                <Route path="/timesync/ot-report" element={<OTReport />} />
-                <Route path="/timesync/ot-forecast" element={<OTForecast />} />
-                <Route path="/timesync/late-early-report" element={<LateEarlyReport />} />
-                <Route path="/timesync/anomaly-report" element={<AnomalyReport />} />
-                <Route path="/timesync/scheduled-reports" element={<ScheduledReportsList />} />
-                <Route path="/timesync/notif-templates" element={<TimeSyncNotificationTemplates />} />
-                <Route path="/timesync/notif-logs" element={<NotificationDeliveryLogs />} />
-                <Route path="/timesync/integrations" element={<TimeSyncIntegrations />} />
-                <Route path="/timesync/entitlements" element={<TimeSyncEntitlements />} />
-                <Route path="/timesync/workflow-list" element={<TimeSyncWorkflowsList onCreateNew={() => {}} />} />
-                <Route path="/timesync/workflows/new" element={<TimeSyncWorkflowBuilder onClose={() => {}} />} />
-                <Route path="/timesync/ai-chat" element={<TimeSyncAIChat />} />
-                <Route path="/timesync/ai-copilot" element={<AIPolicyCopilot />} />
+                  {/* PayEdge Routes */}
 
-                {/* LeaveEase Routes */}
-              
-                  
-                  {/* My Leave Section */}
-                  <Route path="/leaveease/dashboard" element={<LeaveEaseDashboard />} />
-                  <Route path="/leaveease/my-balances" element={<MyBalances onApply={() => window.location.href = '/leaveease/apply-leave'} />} />
-                  <Route path="/leaveease/apply-leave" element={<MyBalances onApply={() => window.location.href = '/leaveease/apply-leave'} />} />
-                  <Route path="/leaveease/my-requests" element={<MyRequests onApply={() => window.location.href = '/leaveease/apply-leave'} />} />
-                  <Route path="/leaveease/my-calendar" element={<MyLeaveCalendar />} />
-                  <Route path="/leaveease/balance-ledger" element={<BalanceLedger />} />
-                  <Route path="/leaveease/my-earned-rewards" element={<MyEarnedRewards />} />
-                  
-                  {/* Team Section */}
-                  <Route path="/leaveease/team-calendar" element={<LeaveEaseTeamCalendar />} />
-                  <Route path="/leaveease/team-balances" element={<TeamBalances />} />
-                  <Route path="/leaveease/pending-approvals" element={<PendingApprovals />} />
-                  
-                  {/* Approvals Section */}
-                  <Route path="/leaveease/approvals-inbox" element={<LeaveApprovalsInbox />} />
-                  <Route path="/leaveease/delegations" element={<DelegationSettings />} />
-                  
-                  {/* Policy Studio Section */}
-                  <Route path="/leaveease/holiday-calendar" element={<HolidayCalendarReference />} />
-                  <Route path="/leaveease/leave-types" element={<LeaveTypesList />} />
-                  <Route path="/leaveease/eligibility" element={<EligibilityGroupForm isOpen={true} onClose={() => {}} />} />
-                  <Route path="/leaveease/employee-assignments" element={<EmployeeLeaveAssignments />} />
-                  <Route path="/leaveease/accrual" element={<AccrualRulesList />} />
-                  <Route path="/leaveease/accrual-jobs" element={<AccrualJobs />} />
-                  <Route path="/leaveease/carry-forward-rules" element={<CarryForwardRules />} />
-                  <Route path="/leaveease/year-end" element={<YearEndProcessing />} />
-                  <Route path="/leaveease/year-end-history" element={<YearEndJobsHistory />} />
-                  <Route path="/leaveease/blackout" element={<BlackoutPeriods />} />
-                  <Route path="/leaveease/incentive-rules" element={<IncentiveRulesList />} />
-                  <Route path="/leaveease/incentive-runs" element={<IncentiveAwardRuns />} />
-                  <Route path="/leaveease/balance-adjustments" element={<BalanceAdjustmentsList />} />
-                  <Route path="/leaveease/adjustment-approvals" element={<AdjustmentApprovalPanel />} />
-                  <Route path="/leaveease/opening-balances" element={<OpeningBalancesImport />} />
-                  <Route path="/leaveease/rejection-reasons" element={<RejectionReasonCategories />} />
-                  <Route path="/leaveease/audit-logs" element={<LeaveAuditLogs />} />
-                  <Route path="/leaveease/sla-monitor" element={<SLAMonitorDashboard />} />
-                  <Route path="/leaveease/simulator" element={<LeaveEasePolicySimulator />} />
-                  
-                  {/* Comp-Off Section */}
-                  <Route path="/leaveease/co-credits" element={<MyCompOffCredits onApply={() => window.location.href = '/leaveease/apply-leave'} />} />
-                  <Route path="/leaveease/co-approvals" element={<CompOffApprovalPanel />} />
-                  <Route path="/leaveease/co-all" element={<CompOffAllCredits />} />
-                  
-                  {/* Official Duty Section */}
-                  <Route path="/leaveease/od-travel" element={<MyODTravelRequests />} />
-                  <Route path="/leaveease/od-approvals" element={<ODTravelApprovalPanel />} />
-                  <Route path="/leaveease/od-reports" element={<ODTravelAllRequests />} />
-                  
-                  {/* AI Assistant Section */}
-                  <Route path="/leaveease/ai-copilot" element={<PolicyCopilot />} />
-                  <Route path="/leaveease/ai-risk" element={<CoverageRiskPanel />} />
-                  <Route path="/leaveease/ai-anomalies" element={<LeaveAnomalyDetection />} />
-                  
-                  {/* Payroll Liquidation Section */}
-                  <Route path="/leaveease/encashment" element={<EncashmentRequest />} />
-                  <Route path="/leaveease/encashment-list" element={<EncashmentRequestsList />} />
-                  <Route path="/leaveease/encashment-approvals" element={<EncashmentApprovalPanel />} />
-                  <Route path="/leaveease/payroll-periods" element={<PayrollPeriodsList />} />
-                  
-                  {/* Reports Section */}
-                  <Route path="/leaveease/reports" element={<LeaveReportGenerator />} />
-                  <Route path="/leaveease/scheduled-reports" element={<LeaveScheduledReportsList />} />
-                  <Route path="/leaveease/analytics" element={<LeaveAnalytics />} />
-                  <Route path="/leaveease/forecast" element={<LeaveForecast />} />
-                  
-                  {/* Settings Section */}
-                  <Route path="/leaveease/notifications" element={<LeaveEaseDashboard />} /> {/* Placeholder */}
-                  <Route path="/leaveease/notification-templates" element={<LeaveNotificationTemplates />} />
-                  <Route path="/leaveease/notification-logs" element={<LeaveNotificationDeliveryLogs />} />
-                  <Route path="/leaveease/workflows" element={<LeaveWorkflowsList />} />
-                  <Route path="/leaveease/workflow-builder" element={<LeaveWorkflowBuilder />} />
-                  <Route path="/leaveease/workflow-instances" element={<WorkflowInstancesList />} />
-                  <Route path="/leaveease/integrations" element={<LeaveIntegrations />} />
-                  <Route path="/leaveease/entitlements" element={<LeaveEntitlements />} />
-              
+                  <Route path="/payedge" element={<PayEdgeWithShell />}>
+                    <Route
+                      index
+                      element={
+                        <DashboardRouter
+                          summary={summary}
+                          employees={employeesP}
+                        />
+                      }
+                    />
 
-                {/* Fallback (inside layout) */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Route>
-            </Routes>
-          </Router>
-        </QueryClientProvider>
+                    {/* Main Section */}
+                    <Route
+                      path="dashboard"
+                      element={
+                        <DashboardRouter
+                          summary={summary}
+                          employees={employeesP}
+                        />
+                      }
+                    />
+                    <Route path="my-payroll" element={<MyPayslips />} />
+                    <Route
+                      path="payslip-explainer"
+                      element={<PayslipExplainer />}
+                    />
+                    <Route
+                      path="salary-history"
+                      element={<MySalaryHistory />}
+                    />
+                    <Route path="my-loans" element={<MyLoans />} />
+                    <Route
+                      path="eobi-statement"
+                      element={<MyEOBIStatement />}
+                    />
+                    <Route path="pf-statement" element={<MyPFStatement />} />
+                    <Route
+                      path="team-payroll"
+                      element={<EmployeePayProfilesList />}
+                    />
+                    <Route
+                      path="request-advance"
+                      element={<AdvanceRequestESS />}
+                    />
+
+                    {/* Configuration Section */}
+                    <Route
+                      path="pay-components"
+                      element={<PayComponentsList />}
+                    />
+                    <Route
+                      path="salary-structures"
+                      element={<SalaryTemplatesList />}
+                    />
+                    <Route
+                      path="workflow-config"
+                      element={<PayEdgeWorkflowConfig />}
+                    />
+                    <Route
+                      path="integration-hub"
+                      element={<PayEdgeIntegrationSettings />}
+                    />
+                    <Route
+                      path="bank-library"
+                      element={<PakistanBankLibrary />}
+                    />
+                    <Route
+                      path="bank-formats"
+                      element={<BankFormatsConfig />}
+                    />
+                    <Route
+                      path="payslip-designer"
+                      element={<PayslipTemplateDesigner />}
+                    />
+
+                    {/* Operations Section */}
+
+                    <Route
+                      path="payroll-calendar"
+                      element={<PayrollCalendar />}
+                    />
+                    <Route
+                      path="exception-center"
+                      element={<ExceptionCenter />}
+                    />
+                    <Route
+                      path="payroll-periods"
+                      element={<PayrollPeriodsList />}
+                    />
+                    <Route
+                      path="payroll-groups"
+                      element={<PayrollGroupsList />}
+                    />
+                    <Route path="loans-advances" element={<LoansList />} />
+                    <Route
+                      path="recovery-schedule"
+                      element={<RecoverySchedule />}
+                    />
+                    <Route path="adjustments" element={<AdjustmentsList />} />
+                    <Route
+                      path="adj-approvals"
+                      element={<AdjustmentApproval />}
+                    />
+                    <Route
+                      path="arrears-processing"
+                      element={<ArrearsProcessing />}
+                    />
+                    <Route
+                      path="increments-bonus"
+                      element={<IncrementProcessing />}
+                    />
+                    <Route
+                      path="final-settlement"
+                      element={<EOSSettlementsList onCreateNew={() => {}} />}
+                    />
+                    <Route
+                      path="gratuity-calc"
+                      element={<GratuityCalculator />}
+                    />
+
+                    {/* Outputs Section */}
+                    <Route path="payslip-viewer" element={<PayslipViewer />} />
+                    <Route
+                      path="payroll-registers"
+                      element={<PayrollRegisters />}
+                    />
+                    <Route
+                      path="bank-advice"
+                      element={<BankAdviceGenerator />}
+                    />
+                    <Route
+                      path="export-history"
+                      element={<BankExportHistory />}
+                    />
+                    <Route path="jv-export" element={<JVExport />} />
+                    <Route
+                      path="revision-letters"
+                      element={<IncrementLetterGenerator />}
+                    />
+                    <Route
+                      path="cost-analysis"
+                      element={<CostAnalysisReport />}
+                    />
+                    <Route
+                      path="gratuity-provisions"
+                      element={<GratuityProvisionReport />}
+                    />
+                    <Route
+                      path="pakistan-compliance"
+                      element={
+                        <>
+                          <StatutoryReturnsDashboard />
+                          <ChallanGenerator />
+                          <TaxConfiguration />
+                          <TaxCalculationEngine />
+                          <EOBIConfiguration />
+                          <SocialSecurityConfiguration />
+                          <ProvidentFundConfiguration />
+                        </>
+                      }
+                    />
+                    <Route
+                      path="reports"
+                      element={<PayrollReportsDashboard />}
+                    />
+                    <Route
+                      path="variance-analysis"
+                      element={<VarianceReport />}
+                    />
+                    <Route
+                      path="reconciliation"
+                      element={<ReconciliationAssistant />}
+                    />
+                    <Route
+                      path="anomaly-detection"
+                      element={<PayrollAnomalyDetection />}
+                    />
+                    <Route path="audit-logs" element={<PayrollAuditLogs />} />
+                    <Route
+                      path="scheduled-reports"
+                      element={<ScheduledReports />}
+                    />
+
+                    {/* Advanced Section */}
+                    <Route path="ai-assistant" element={<PayEdgeAIChat />} />
+                    <Route
+                      path="policy-copilot"
+                      element={<PayEdgePolicyCopilot />}
+                    />
+                    <Route path="fx-rates" element={<CurrencyFXRates />} />
+                    <Route
+                      path="alert-config"
+                      element={<PayEdgeNotificationsConfig />}
+                    />
+                    <Route
+                      path="entitlements"
+                      element={<PayEdgeEntitlements />}
+                    />
+                    <Route
+                      path="settings"
+                      element={
+                        <div className="p-8 bg-white rounded-xl shadow-md border border-gray-100 flex flex-col items-center justify-center min-h-[400px]">
+                          <div className="p-6 bg-gray-50 rounded-full text-gray-400 mb-4 animate-bounce">
+                            <span className="text-4xl">⚙️</span>
+                          </div>
+                          <h3 className="text-xl font-bold text-gray-800">
+                            Settings Dashboard
+                          </h3>
+                          <p className="text-gray-500 mt-2">
+                            Configure your PayEdge settings here.
+                          </p>
+                        </div>
+                      }
+                    />
+                  </Route>
+                  {/* Alternative: Full PayEdge App with own layout (if needed) */}
+
+                  {/* Fallback (inside layout) */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Route>
+              </Routes>
+            </Router>
+          </QueryClientProvider>
+        </RBACProvider>
       </EnrollmentProvider>
     </CompanyProvider>
   );
