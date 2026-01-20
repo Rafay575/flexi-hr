@@ -400,7 +400,8 @@ export enum AttendanceStatus {
 export enum ApprovalStatus {
   PENDING = 'Pending',
   APPROVED = 'Approved',
-  REJECTED = 'Rejected'
+  REJECTED = 'Rejected',
+   CANCELLED = 'Cancelled'
 }
 
 export interface AttendanceRecord {
@@ -414,19 +415,50 @@ export interface AttendanceRecord {
   workHours: number;
 }
 
-export interface LeaveRequest {
-  id: string;
-  employeeName: string;
-  type: string;
-  startDate: string;
-  endDate: string;
-  status: ApprovalStatus;
-  reason: string;
-}
+
 
 export interface DashboardStats {
   totalEmployees: number;
   presentToday: number;
   onLeave: number;
   lateArrivals: number;
+}
+
+export enum LeaveStatus {
+  PENDING = 'Pending',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected',
+  CANCELLED = 'Cancelled'
+}
+
+export enum LeaveType {
+  ANNUAL = 'Annual Leave',
+  SICK = 'Sick Leave',
+  CASUAL = 'Casual Leave',
+  MATERNITY = 'Maternity/Paternity',
+  UNPAID = 'Unpaid Leave'
+}
+
+export interface LeaveBalance {
+  type: LeaveType;
+  total: number;
+  used: number;
+  remaining: number;
+}
+
+export interface LeaveRequest {
+  id: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  status: ApprovalStatus;
+  appliedDate: string;
+}
+
+export interface UserProfile {
+  name: string;
+  role: string;
+  avatar: string;
 }

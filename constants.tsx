@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { LeaveType, ApprovalStatus, LeaveRequest, LeaveBalance } from './types';
 import { 
   Users, 
   Clock, 
@@ -42,4 +43,45 @@ export const MOCK_LEAVES = [
   { id: 'L1', employeeName: 'John Doe', type: 'Sick Leave', startDate: '2023-10-26', endDate: '2023-10-27', status: 'Pending', reason: 'Flu recovery' },
   { id: 'L2', employeeName: 'Lisa Wong', type: 'Annual Leave', startDate: '2023-11-01', endDate: '2023-11-05', status: 'Approved', reason: 'Family vacation' },
   { id: 'L3', employeeName: 'Robert Smith', type: 'Personal', startDate: '2023-10-25', endDate: '2023-10-25', status: 'Rejected', reason: 'High workload period' },
+];
+
+
+export const INITIAL_BALANCES: LeaveBalance[] = [
+  { type: LeaveType.ANNUAL, total: 24, used: 8, remaining: 16 },
+  { type: LeaveType.SICK, total: 12, used: 2, remaining: 10 },
+  { type: LeaveType.CASUAL, total: 10, used: 3, remaining: 7 },
+  { type: LeaveType.MATERNITY, total: 90, used: 0, remaining: 90 },
+];
+
+export const MOCK_HISTORY: LeaveRequest[] = [
+  {
+    id: 'LV-1024',
+    type: LeaveType.ANNUAL,
+    startDate: '2023-12-20',
+    endDate: '2023-12-24',
+    days: 5,
+    reason: 'Family vacation to the mountains.',
+    status: ApprovalStatus.APPROVED,
+    appliedDate: '2023-12-01',
+  },
+  {
+    id: 'LV-1025',
+    type: LeaveType.SICK,
+    startDate: '2024-01-15',
+    endDate: '2024-01-15',
+    days: 1,
+    reason: 'Severe migraine.',
+    status: ApprovalStatus.APPROVED,
+    appliedDate: '2024-01-14',
+  },
+  {
+    id: 'LV-1028',
+    type: LeaveType.CASUAL,
+    startDate: '2024-02-10',
+    endDate: '2024-02-11',
+    days: 2,
+    reason: 'Personal administrative work.',
+    status: ApprovalStatus.PENDING,
+    appliedDate: '2024-02-05',
+  }
 ];
