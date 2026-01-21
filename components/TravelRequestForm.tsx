@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   X, Plane, MapPin, Calendar, Clock, Phone, 
@@ -41,6 +40,18 @@ export const TravelRequestForm: React.FC<TravelRequestFormProps> = ({ isOpen, on
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Move useMemo BEFORE any conditional returns
+  const totalDuration = useMemo(() => {
+    if (legs.length === 0 || !legs[0].date) return '0 days';
+    const dates = legs.map(l => new Date(l.date).getTime()).filter(d => !isNaN(d));
+    if (dates.length === 0) return '0 days';
+    const min = new Date(Math.min(...dates));
+    const max = new Date(Math.max(...dates));
+    const diff = Math.ceil((max.getTime() - min.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return `${diff} day${diff > 1 ? 's' : ''} (${min.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}${diff > 1 ? ' - ' + max.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''})`;
+  }, [legs]);
+
+  // Only after ALL hooks are called, check for conditional return
   if (!isOpen) return null;
 
   const addLeg = () => {
@@ -56,16 +67,6 @@ export const TravelRequestForm: React.FC<TravelRequestFormProps> = ({ isOpen, on
   const updateLeg = (id: string, updates: Partial<TravelLeg>) => {
     setLegs(legs.map(l => l.id === id ? { ...l, ...updates } : l));
   };
-
-  const totalDuration = useMemo(() => {
-    if (legs.length === 0 || !legs[0].date) return '0 days';
-    const dates = legs.map(l => new Date(l.date).getTime()).filter(d => !isNaN(d));
-    if (dates.length === 0) return '0 days';
-    const min = new Date(Math.min(...dates));
-    const max = new Date(Math.max(...dates));
-    const diff = Math.ceil((max.getTime() - min.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    return `${diff} day${diff > 1 ? 's' : ''} (${min.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}${diff > 1 ? ' - ' + max.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''})`;
-  }, [legs]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,9 +252,8 @@ export const TravelRequestForm: React.FC<TravelRequestFormProps> = ({ isOpen, on
                </div>
             </section>
           )}
-       
-      </form>
+        </form>
       </div>
     </div>
-  )
+  );
 }

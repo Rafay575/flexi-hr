@@ -1097,7 +1097,7 @@ const App: React.FC = () => {
                   />
 
                   {/* LeaveEase Routes */}
-                  <Route path="/leaveease" element={<LeaveEaseApp />}>
+                  <Route path="/leaveease" >
                     <Route index element={<LeaveEaseDashboard />} />
                     {/* My Leave Section */}
                     <Route path="dashboard" element={<LeaveEaseDashboard />} />
