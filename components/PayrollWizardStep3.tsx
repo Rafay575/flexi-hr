@@ -391,7 +391,7 @@ export const PayrollWizardStep3: React.FC<PayrollWizardStep3Props> = ({ onNext, 
               Cancel
             </button>
             <button 
-              disabled={isValidating || criticalCount > 0}
+              // disabled={isValidating || criticalCount > 0}
               onClick={onNext}
               className="px-10 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
