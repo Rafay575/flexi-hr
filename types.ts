@@ -9,9 +9,6 @@ export interface Entity {
   updatedBy?: string;
 }
 
-// ------------------------------------------------------------------
-// 1. Company Management
-// ------------------------------------------------------------------
 export interface Company extends Entity {
   name: string; // Required, Unique
   registrationNumber: string; // Required, Unique
@@ -82,9 +79,7 @@ export interface Department extends Entity {
   
   // Hierarchy
   parentId: string | null; // For tree structure. Null = Top level department
-  divisionId: string; // Link to Division
-  
-  // Management
+  divisionId: string; 
   managerId?: string; // Line Manager / HOD
   costCenterId?: string; // Financial mapping
   

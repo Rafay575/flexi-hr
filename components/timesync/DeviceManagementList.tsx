@@ -26,7 +26,7 @@ import {
   Users,
   LucideProps
 } from 'lucide-react';
-import { DeviceForm } from './DeviceForm';
+import { DeviceForm } from '../DeviceForm';
 
 type DeviceType = 'BIOMETRIC' | 'FACE' | 'CARD' | 'KIOSK';
 type DeviceStatus = 'ONLINE' | 'DELAYED' | 'OFFLINE';

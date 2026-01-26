@@ -25,7 +25,7 @@ import {
   ExternalLink,
   ChevronLeft
 } from 'lucide-react';
-import { ApprovalDetailModal, RequestType } from './ApprovalDetailModal';
+import { ApprovalDetailModal, RequestType } from '../ApprovalDetailModal';
 
 type ApprovalType = 'REGULARIZATION' | 'OT' | 'SWAP' | 'MANUAL' | 'ROSTER' | 'RETRO';
 

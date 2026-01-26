@@ -18,7 +18,7 @@ import {
   ArrowDownLeft,
   ChevronRight
 } from 'lucide-react';
-import { IntegrationConfigDrawer } from './IntegrationConfigDrawer';
+import { IntegrationConfigDrawer } from '../IntegrationConfigDrawer';
 
 interface Integration {
   id: string;

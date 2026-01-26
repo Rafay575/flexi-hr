@@ -90,88 +90,90 @@ import TradeListing from "./components/fleximeta/catalogs/trades";
 import GradeTemplateListing from "./components/fleximeta/catalogs/grade-templates";
 
 // -------- TimeSync (merged) pages --------
-import { TodaysStatus } from "./components/TodaysStatus";
-import { PunchAttendance } from "./components/PunchAttendance";
-import { MyAttendanceTimeline } from "./components/MyAttendanceTimeline";
-import { MyAttendanceCalendar } from "./components/MyAttendanceCalendar";
-import { MySchedule } from "./components/MySchedule";
+import { TodaysStatus } from "./components/timesync/TodaysStatus";
+import { PunchAttendance } from "./components/timesync/PunchAttendance";
+import { OTRequests } from "./components/timesync/OTRequests";
+import { TimeSyncDashboard } from "./components/timesync/TimeSyncDashboard";
 
-import { TeamDashboard } from "./components/TeamDashboard";
-import { TeamCalendar } from "./components/TeamCalendar";
-import { ManagerPendingApprovals } from "./components/ManagerPendingApprovals";
+import { MyAttendanceTimeline } from "./components/timesync/MyAttendanceTimeline";
+import { MyAttendanceCalendar } from "./components/timesync/MyAttendanceCalendar";
+import { MySchedule } from "./components/timesync/MySchedule";
 
-import { ApprovalsInbox } from "./components/ApprovalsInbox";
-import { RegularizationRequestsList } from "./components/RegularizationRequestsList";
-import { RegularizationPanel } from "./components/RegularizationPanel";
-import { RegularizationRequest } from "./components/RegularizationRequest";
-import { ManualPunchPanel } from "./components/ManualPunchPanel";
+import { TeamDashboard } from "./components/timesync/TeamDashboard";
+import { TeamCalendar } from "./components/timesync/TeamCalendar";
+import { ManagerPendingApprovals } from "./components/timesync/ManagerPendingApprovals";
 
-import { OTRequests } from "./components/OTRequests";
-import { OTApprovalsManager } from "./components/OTApprovalsManager";
-import { OTApprovalsList } from "./components/OTApprovalsList";
+import { ApprovalsInbox } from "./components/timesync/ApprovalsInbox";
+import { RegularizationRequestsList } from "./components/timesync/RegularizationRequestsList";
+import { RegularizationPanel } from "./components/timesync/RegularizationPanel";
+import { RegularizationRequest } from "./components/timesync/RegularizationRequest";
+import { ManualPunchPanel } from "./components/timesync/ManualPunchPanel";
 
-import { ShiftSwapRequestsList } from "./components/ShiftSwapRequestsList";
+import { OTApprovalsManager } from "./components/timesync/OTApprovalsManager";
+import { OTApprovalsList } from "./components/timesync/OTApprovalsList";
 
-import { ShiftTemplatesList } from "./components/ShiftTemplatesList";
-import { ShiftTemplateForm } from "./components/ShiftTemplateForm";
+import { ShiftSwapRequestsList } from "./components/timesync/ShiftSwapRequestsList";
 
-import { ShiftAssignment } from "./components/ShiftAssignment";
-import { CalendarAssignment } from "./components/CalendarAssignment";
-import { FlexiShiftRules } from "./components/FlexiShiftRules";
-import { BreakConfigurationsList } from "./components/BreakConfigurationsList";
-import { WeeklyOffRules } from "./components/WeeklyOffRules";
-import { AlternateSaturdayRules } from "./components/AlternateSaturdayRules";
-import { HolidayCalendarList } from "./components/HolidayCalendarList";
-import { SpecialShifts } from "./components/SpecialShifts";
+import { ShiftTemplatesList } from "./components/timesync/ShiftTemplatesList";
+import { ShiftTemplateForm } from "./components/timesync/ShiftTemplateForm";
 
-import { RosterPlanner } from "./components/RosterPlanner";
-import { RosterTemplates } from "./components/RosterTemplates";
-import { RosterOptimizer } from "./components/RosterOptimizer";
-import { OpenShifts } from "./components/OpenShifts";
-import { DemandGrid } from "./components/DemandGrid";
-import { SwapManagement } from "./components/SwapManagement";
+import { ShiftAssignment } from "./components/timesync/ShiftAssignment";
+import { CalendarAssignment } from "./components/timesync/CalendarAssignment";
+import { FlexiShiftRules } from "./components/timesync/FlexiShiftRules";
+import { BreakConfigurationsList } from "./components/timesync/BreakConfigurationsList";
+import { WeeklyOffRules } from "./components/timesync/WeeklyOffRules";
+import { AlternateSaturdayRules } from "./components/timesync/AlternateSaturdayRules";
+import { HolidayCalendarList } from "./components/timesync/HolidayCalendarList";
+import { SpecialShifts } from "./components/timesync/SpecialShifts";
 
-import { AttendancePolicyList } from "./components/AttendancePolicyList";
-import { AttendancePolicyBuilder } from "./components/AttendancePolicyBuilder";
-import { PunchMethodsConfig } from "./components/PunchMethodsConfig";
-import { GracePenaltiesConfig } from "./components/GracePenaltiesConfig";
-import { ThresholdSettings } from "./components/ThresholdSettings";
-import { DeductionRulesConfig } from "./components/DeductionRulesConfig";
-import { AttendanceBonusRules } from "./components/AttendanceBonusRules";
-import { OTPolicySetup } from "./components/OTPolicySetup";
-import { CompOffConversion } from "./components/CompOffConversion";
-import { PolicySimulator as TimeSyncPolicySimulator } from "./components/PolicySimulator";
+import { RosterPlanner } from "./components/timesync/RosterPlanner";
+import { RosterTemplates } from "./components/timesync/RosterTemplates";
+import { RosterOptimizer } from "./components/timesync/RosterOptimizer";
+import { OpenShifts } from "./components/timesync/OpenShifts";
+import { DemandGrid } from "./components/timesync/DemandGrid";
+import { SwapManagement } from "./components/timesync/SwapManagement";
 
-import { ExceptionsInbox } from "./components/ExceptionsInbox";
-import { AIAnomalyDetection } from "./components/AIAnomalyDetection";
-import { AnomaliesList } from "./components/AnomaliesList";
+import { AttendancePolicyList } from "./components/timesync/AttendancePolicyList";
+import { AttendancePolicyBuilder } from "./components/timesync/AttendancePolicyBuilder";
+import { PunchMethodsConfig } from "./components/timesync/PunchMethodsConfig";
+import { GracePenaltiesConfig } from "./components/timesync/GracePenaltiesConfig";
+import { ThresholdSettings } from "./components/timesync/ThresholdSettings";
+import { DeductionRulesConfig } from "./components/timesync/DeductionRulesConfig";
+import { AttendanceBonusRules } from "./components/timesync/AttendanceBonusRules";
+import { OTPolicySetup } from "./components/timesync/OTPolicySetup";
+import { CompOffConversion } from "./components/timesync/CompOffConversion";
+import { PolicySimulator as TimeSyncPolicySimulator } from "./components/timesync/PolicySimulator";
 
-import { DeviceManagementList } from "./components/DeviceManagementList";
-import { DeviceHealthDashboard } from "./components/DeviceHealthDashboard";
-import { IngestionJobs } from "./components/IngestionJobs";
-import { TimeSyncAuditLogs } from "./components/TimeSyncAuditLogs";
+import { ExceptionsInbox } from "./components/timesync/ExceptionsInbox";
+import { AIAnomalyDetection } from "./components/timesync/AIAnomalyDetection";
+import { AnomaliesList } from "./components/timesync/AnomaliesList";
 
-import { DailyAttendanceReport } from "./components/DailyAttendanceReport";
-import { MonthlySummaryReport } from "./components/MonthlySummaryReport";
-import { OTReport } from "./components/OTReport";
-import { OTForecast } from "./components/OTForecast";
-import { LateEarlyReport } from "./components/LateEarlyReport";
-import { AnomalyReport } from "./components/AnomalyReport";
-import { ScheduledReportsList } from "./components/ScheduledReportsList";
+import { DeviceManagementList } from "./components/timesync/DeviceManagementList";
+import { DeviceHealthDashboard } from "./components/timesync/DeviceHealthDashboard";
+import { IngestionJobs } from "./components/timesync/IngestionJobs";
+import { TimeSyncAuditLogs } from "./components/timesync/TimeSyncAuditLogs";
 
-import { TimeSyncAIChat } from "./components/TimeSyncAIChat";
-import { AIPolicyCopilot } from "./components/AIPolicyCopilot";
+import { DailyAttendanceReport } from "./components/timesync/DailyAttendanceReport";
+import { MonthlySummaryReport } from "./components/timesync/MonthlySummaryReport";
+import { OTReport } from "./components/timesync/OTReport";
+import { OTForecast } from "./components/timesync/OTForecast";
+import { LateEarlyReport } from "./components/timesync/LateEarlyReport";
+import { AnomalyReport } from "./components/timesync/AnomalyReport";
+import { ScheduledReportsList } from "./components/timesync/ScheduledReportsList";
 
-import { TimeSyncNotificationTemplates } from "./components/TimeSyncNotificationTemplates";
-import { NotificationDeliveryLogs } from "./components/NotificationDeliveryLogs";
+import { TimeSyncAIChat } from "./components/timesync/TimeSyncAIChat";
+import { AIPolicyCopilot } from "./components/timesync/AIPolicyCopilot";
 
-import { TimeSyncWorkflowsList } from "./components/TimeSyncWorkflowsList";
-import { TimeSyncWorkflowBuilder } from "./components/TimeSyncWorkflowBuilder";
-import { WorkflowInstances } from "./components/WorkflowInstances";
+import { TimeSyncNotificationTemplates } from "./components/timesync/TimeSyncNotificationTemplates";
+import { NotificationDeliveryLogs } from "./components/timesync/NotificationDeliveryLogs";
 
-import { TimeSyncIntegrations } from "./components/TimeSyncIntegrations";
-import { TimeSyncEntitlements } from "./components/TimeSyncEntitlements";
-import { PayrollPeriods } from "./components/PayrollPeriods";
+import { TimeSyncWorkflowsList } from "./components/timesync/TimeSyncWorkflowsList";
+import { TimeSyncWorkflowBuilder } from "./components/timesync/TimeSyncWorkflowBuilder";
+import { WorkflowInstances } from "./components/timesync/WorkflowInstances";
+
+import { TimeSyncIntegrations } from "./components/timesync/TimeSyncIntegrations";
+import { TimeSyncEntitlements } from "./components/timesync/TimeSyncEntitlements";
+import { PayrollPeriods } from "./components/timesync/PayrollPeriods";
 
 // -------- LeaveEase Components --------
 import { LeaveEaseShell } from "./components/LeaveEaseShell";
@@ -185,9 +187,9 @@ import { ApplyLeaveWizard } from "./components/ApplyLeaveWizard";
 import { MyRequests } from "./components/MyRequests";
 import { MyLeaveCalendar } from "./components/MyLeaveCalendar";
 import { BalanceLedger } from "./components/BalanceLedger";
-import { TeamCalendar as LeaveEaseTeamCalendar } from "./components/TeamCalendar";
+import { TeamCalendar as LeaveEaseTeamCalendar } from "./components/timesync/TeamCalendar";
 import { TeamBalances } from "./components/TeamBalances";
-import { PolicySimulator as LeaveEasePolicySimulator } from "./components/PolicySimulator";
+import { PolicySimulator as LeaveEasePolicySimulator } from "./components/timesync/PolicySimulator";
 import { PendingApprovals } from "./components/PendingApprovals";
 import { HolidayCalendarReference } from "./components/HolidayCalendarReference";
 import { LeaveTypesList } from "./components/LeaveTypesList";
@@ -216,7 +218,7 @@ import { YearEndProcessing } from "./components/YearEndProcessing";
 import { YearEndJobsHistory } from "./components/YearEndJobsHistory";
 import { EmployeeLeaveAssignments } from "./components/EmployeeLeaveAssignments";
 import { LeaveReportGenerator } from "./components/LeaveReportGenerator";
-import { ScheduledReportsList as LeaveScheduledReportsList } from "./components/ScheduledReportsList";
+import { ScheduledReportsList as LeaveScheduledReportsList } from "./components/timesync/ScheduledReportsList";
 import { LeaveAnalytics } from "./components/LeaveAnalytics";
 import { LeaveAuditLogs } from "./components/LeaveAuditLogs";
 import { LeaveAIChat } from "./components/LeaveAIChat";
@@ -225,7 +227,7 @@ import { LeaveForecast } from "./components/LeaveForecast";
 import { LeaveAnomalyDetection } from "./components/LeaveAnomalyDetection";
 import { PolicyCopilot } from "./components/PolicyCopilot";
 import { LeaveNotificationTemplates } from "./components/LeaveNotificationTemplates";
-import { NotificationDeliveryLogs as LeaveNotificationDeliveryLogs } from "./components/NotificationDeliveryLogs";
+import { NotificationDeliveryLogs as LeaveNotificationDeliveryLogs } from "./components/timesync/NotificationDeliveryLogs";
 import { LeaveWorkflowsList } from "./components/LeaveWorkflowsList";
 import { LeaveWorkflowBuilder } from "./components/LeaveWorkflowBuilder";
 import { WorkflowInstancesList } from "./components/WorkflowInstancesList";
@@ -234,7 +236,7 @@ import { LeaveEntitlements } from "./components/LeaveEntitlements";
 import { PayrollPeriodsList } from "./components/PayrollPeriodsList";
 import { OrgLeaveCalendar } from "./components/OrgLeaveCalendar";
 import { SLAMonitorDashboard } from "./components/SLAMonitorDashboard";
-import { ApprovalsInbox as LeaveApprovalsInbox } from "./components/ApprovalsInbox";
+import { ApprovalsInbox as LeaveApprovalsInbox } from "./components/timesync/ApprovalsInbox";
 import { DelegationSettings } from "./components/DelegationSettings";
 import { EligibilityGroupForm } from "./components/EligibilityGroupForm";
 
@@ -842,30 +844,16 @@ const App: React.FC = () => {
                   <Route path="/peoplehub/import" element={<BulkImport />} />
 
                   {/* TimeSync routes */}
-                  <Route path="/timesync" element={<TodaysStatus />} />
+                  <Route path="/timesync" element={<TimeSyncDashboard />} />
+                  <Route path="/timesync/todays-status" element={<TodaysStatus />} />
                   <Route path="/timesync/punch" element={<PunchAttendance />} />
                   <Route path="/timesync/my-ot" element={<OTRequests />} />
-                  <Route
-                    path="/timesync/my-regularization"
-                    element={<RegularizationRequest />}
-                  />
-                  <Route
-                    path="/timesync/timeline"
-                    element={<MyAttendanceTimeline />}
-                  />
-                  <Route
-                    path="/timesync/calendar"
-                    element={<MyAttendanceCalendar />}
-                  />
+                  <Route path="/timesync/my-regularization" element={<RegularizationRequest />} />
+                  <Route path="/timesync/timeline" element={<MyAttendanceTimeline />} />
+                  <Route path="/timesync/calendar" element={<MyAttendanceCalendar />} />
                   <Route path="/timesync/schedule" element={<MySchedule />} />
-                  <Route
-                    path="/timesync/team-dashboard"
-                    element={<TeamDashboard />}
-                  />
-                  <Route
-                    path="/timesync/team-calendar"
-                    element={<TeamCalendar />}
-                  />
+                  <Route path="/timesync/team-dashboard" element={<TeamDashboard />} />
+                  <Route path="/timesync/team-calendar" element={<TeamCalendar />} />
                   <Route
                     path="/timesync/pending-approvals"
                     element={<ManagerPendingApprovals />}
@@ -942,6 +930,7 @@ const App: React.FC = () => {
                     path="/timesync/shift-assignment"
                     element={<ShiftAssignment />}
                   />
+                  {/* df */}
                   <Route
                     path="/timesync/calendar-assignment"
                     element={<CalendarAssignment />}
@@ -1010,6 +999,7 @@ const App: React.FC = () => {
                     path="/timesync/ai-simulator"
                     element={<TimeSyncPolicySimulator />}
                   />
+
                   <Route
                     path="/timesync/exceptions"
                     element={<ExceptionsInbox />}

@@ -159,7 +159,7 @@ export const modules: ModuleItem[] = [
             id: 21,
             icon: "Zap",
             title: "Today's Status",
-            pathname: "/timesync",
+            pathname: "/timesync/todays-status",
           },
           {
             id: 22,
