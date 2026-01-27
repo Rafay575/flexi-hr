@@ -20,8 +20,10 @@ import {
   Calendar,
   Zap,
   ShieldCheck,
-  Smartphone
+  Smartphone,
+  Plus
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 type RegularizationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 type IssueType = 'MISSING_IN' | 'MISSING_OUT' | 'WRONG_TIME' | 'LOCATION' | 'DEVICE';
@@ -66,7 +68,7 @@ export const RegularizationRequestsList: React.FC = () => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [items, setItems] = useState(MOCK_DATA);
-
+  const navigate = useNavigate();
   const filteredItems = useMemo(() => {
     return items.filter(item => {
       const matchesTab = activeTab === 'ALL' || item.status === activeTab;
@@ -106,6 +108,13 @@ export const RegularizationRequestsList: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Regularization Requests</h2>
           <p className="text-sm text-gray-500 font-medium">Review and audit attendance correction claims</p>
         </div>
+        <div className='flex gap-x-3'>
+
+        <button onClick={()=>navigate("/timesync/my-regularization")}  className="flex items-center gap-2 px-6 py-2.5 bg-[#3E3B6F] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-[#3E3B6F]/20 hover:scale-[1.02] active:scale-95 transition-all"
+        >
+          <Plus size={18} />
+          Regularization Requests
+        </button>
 
         <div className="flex items-center gap-3">
           <div className="relative group">
@@ -116,12 +125,13 @@ export const RegularizationRequestsList: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-medium w-64 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 focus:border-[#3E3B6F] transition-all"
-            />
+              />
           </div>
           <button className="p-2 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50">
             <Filter size={18} />
           </button>
         </div>
+              </div>
       </div>
 
       {/* TABS */}
