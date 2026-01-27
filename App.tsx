@@ -308,6 +308,9 @@ import { EOSSettlementWizard } from "./components/EOSSettlementWizard";
 import { VarianceReport } from "./components/VarianceReport";
 import DashboardRouter from "./components/DashboardRouter";
 import { PayrollRunsList } from "./components/PayrollRunsList";
+import { EscalatedApprovals } from "./components/timesync/EscalatedApprovals";
+import { ApprovalHistory } from "./components/timesync/ApprovalHistory";
+import { UserAccessSettings } from "./components/timesync/UserAccessSettings";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -870,6 +873,20 @@ const App: React.FC = () => {
                     path="/timesync/regularization-panel"
                     element={<RegularizationPanel />}
                   />
+                  <Route
+  path="/timesync/escalated-approvals"
+  element={<EscalatedApprovals />}
+/>
+<Route
+  path="/timesync/approval-history"
+  element={<ApprovalHistory />}
+/>
+
+// Fix User Access route (was pointing to /timesync)
+<Route
+  path="/timesync/user-access"
+  element={<UserAccessSettings />}
+/>
                   <Route
                     path="/timesync/manual-punch"
                     element={<ManualPunchPanel />}

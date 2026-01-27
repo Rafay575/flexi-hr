@@ -135,491 +135,562 @@ export const modules: ModuleItem[] = [
     admin: false,
   },
 
-  {
-    id: 5,
-    name: "TimeSync",
-    icon: "Zap",
-    admin: false,
-    Menu: [
-      // Dashboard (root)
-      {
-        id: 1,
-        icon: "LayoutDashboard",
-        title: "Dashboard",
-        pathname: "/timesync",
-      },
+{
+  id: 5,
+  name: "TimeSync",
+  icon: "Zap",
+  admin: false,
+  Menu: [
+    // ═══════════════════════════════════════════════════════════════════
+    // 1. DASHBOARD (standalone)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 1,
+      icon: "LayoutDashboard",
+      title: "Dashboard",
+      pathname: "/timesync",
+    },
 
-      // MY ATTENDANCE
-      {
-        id: 2,
-        icon: "User",
-        title: "MY ATTENDANCE",
-        subMenu: [
-          {
-            id: 21,
-            icon: "Zap",
-            title: "Today's Status",
-            pathname: "/timesync/todays-status",
-          },
-          {
-            id: 22,
-            icon: "Zap",
-            title: "Punch Attendance",
-            pathname: "/timesync/punch",
-          },
-          {
-            id: 23,
-            icon: "Zap",
-            title: "My Overtime",
-            pathname: "/timesync/my-ot",
-          },
-          {
-            id: 24,
-            icon: "Zap",
-            title: "Regularization Request",
-            pathname: "/timesync/my-regularization",
-          },
-          {
-            id: 25,
-            icon: "Zap",
-            title: "My Timeline",
-            pathname: "/timesync/timeline",
-          },
-          {
-            id: 26,
-            icon: "Zap",
-            title: "My Calendar",
-            pathname: "/timesync/calendar",
-          },
-          {
-            id: 27,
-            icon: "Zap",
-            title: "My Schedule",
-            pathname: "/timesync/schedule",
-          },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 2. MY ATTENDANCE (7 items - unchanged)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 2,
+      icon: "User",
+      title: "MY ATTENDANCE",
+      subMenu: [
+        {
+          id: 21,
+          icon: "CheckCircle",
+          title: "Today's Status",
+          pathname: "/timesync/todays-status",
+        },
+        {
+          id: 22,
+          icon: "Fingerprint",
+          title: "Punch Attendance",
+          pathname: "/timesync/punch",
+        },
+        {
+          id: 23,
+          icon: "Clock",
+          title: "My Overtime",
+          pathname: "/timesync/my-ot",
+        },
+        {
+          id: 24,
+          icon: "FileEdit",
+          title: "Regularization Request",
+          pathname: "/timesync/my-regularization",
+        },
+        {
+          id: 25,
+          icon: "Activity",
+          title: "My Timeline",
+          pathname: "/timesync/timeline",
+        },
+        {
+          id: 26,
+          icon: "Calendar",
+          title: "My Calendar",
+          pathname: "/timesync/calendar",
+        },
+        {
+          id: 27,
+          icon: "CalendarDays",
+          title: "My Schedule",
+          pathname: "/timesync/schedule",
+        },
+      ],
+    },
 
-      // TEAM
-      {
-        id: 3,
-        icon: "Users",
-        title: "TEAM",
-        subMenu: [
-          {
-            id: 31,
-            icon: "Zap",
-            title: "Team Dashboard",
-            pathname: "/timesync/team-dashboard",
-          },
-          {
-            id: 32,
-            icon: "Zap",
-            title: "Team Calendar",
-            pathname: "/timesync/team-calendar",
-          },
-          {
-            id: 33,
-            icon: "Zap",
-            title: "Pending Approvals",
-            pathname: "/timesync/pending-approvals",
-          },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 3. TEAM (2 items - Pending Approvals moved to Approvals Inbox)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 3,
+      icon: "Users",
+      title: "TEAM",
+      subMenu: [
+        {
+          id: 31,
+          icon: "LayoutDashboard",
+          title: "Team Dashboard",
+          pathname: "/timesync/team-dashboard",
+        },
+        {
+          id: 32,
+          icon: "CalendarRange",
+          title: "Team Calendar",
+          pathname: "/timesync/team-calendar",
+        },
+      ],
+    },
 
-      // APPROVALS INBOX
-      {
-        id: 4,
-        icon: "Inbox",
-        title: "APPROVALS INBOX",
-        pathname: "/timesync/approvals-inbox",
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 4. APPROVALS INBOX (4 items - expanded from standalone)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 4,
+      icon: "Inbox",
+      title: "APPROVALS INBOX",
+      subMenu: [
+        {
+          id: 41,
+          icon: "ListTodo",
+          title: "All Approvals",
+          pathname: "/timesync/approvals-inbox",
+        },
+        {
+          id: 42,
+          icon: "Clock",
+          title: "Pending",
+          pathname: "/timesync/pending-approvals",
+        },
+        {
+          id: 43,
+          icon: "AlertTriangle",
+          title: "Escalated",
+          pathname: "/timesync/escalated-approvals",
+        },
+        {
+          id: 44,
+          icon: "History",
+          title: "History",
+          pathname: "/timesync/approval-history",
+        },
+      ],
+    },
 
-      {
-        id: 5,
-        icon: "History",
-        title: "WORKFLOWS",
-        subMenu: [
-          {
-            id: 51,
-            icon: "Zap",
-            title: "Regularizations",
-            pathname: "/timesync/regularizations",
-          },
-          {
-            id: 52,
-            icon: "Zap",
-            title: "Regularization Panel",
-            pathname: "/timesync/regularization-panel",
-          },
-          {
-            id: 53,
-            icon: "Zap",
-            title: "Manual Punch",
-            pathname: "/timesync/manual-punch",
-          },
-          {
-            id: 54,
-            icon: "Zap",
-            title: "OT Approvals",
-            pathname: "/timesync/ot-approvals-admin",
-          },
-          {
-            id: 55,
-            icon: "Zap",
-            title: "Shift Swaps",
-            pathname: "/timesync/shift-swaps",
-          },
-          {
-            id: 56,
-            icon: "Zap",
-            title: "Live Processes",
-            pathname: "/timesync/workflow-instances",
-          },
-          {
-            id: 57,
-            icon: "Zap",
-            title: "Payroll Control",
-            pathname: "/timesync/payroll-periods",
-          },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 5. WORKFLOWS (6 items - Payroll Control moved to System Settings)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 5,
+      icon: "GitBranch",
+      title: "WORKFLOWS",
+      subMenu: [
+        {
+          id: 51,
+          icon: "FileCheck",
+          title: "Regularizations",
+          pathname: "/timesync/regularizations",
+        },
+        {
+          id: 52,
+          icon: "ClipboardList",
+          title: "Regularization Panel",
+          pathname: "/timesync/regularization-panel",
+        },
+        {
+          id: 53,
+          icon: "Hand",
+          title: "Manual Punch",
+          pathname: "/timesync/manual-punch",
+        },
+        {
+          id: 54,
+          icon: "Timer",
+          title: "OT Approvals",
+          pathname: "/timesync/ot-approvals-admin",
+        },
+        {
+          id: 55,
+          icon: "ArrowLeftRight",
+          title: "Shift Swaps",
+          pathname: "/timesync/shift-swaps",
+        },
+        {
+          id: 56,
+          icon: "Play",
+          title: "Live Processes",
+          pathname: "/timesync/workflow-instances",
+        },
+      ],
+    },
 
-      // SHIFT STUDIO
-      {
-        id: 6,
-        icon: "Settings2",
-        title: "SHIFT STUDIO",
-        subMenu: [
-          {
-            id: 61,
-            icon: "Zap",
-            title: "Roster Planner",
-            pathname: "/timesync/roster-planner",
-          },
-          {
-            id: 62,
-            icon: "Zap",
-            title: "Roster Templates",
-            pathname: "/timesync/roster-templates",
-          },
-          {
-            id: 63,
-            icon: "Zap",
-            title: "AI Optimizer",
-            pathname: "/timesync/roster-optimizer",
-          },
-          {
-            id: 64,
-            icon: "Zap",
-            title: "Demand Planning",
-            pathname: "/timesync/demand-grid",
-          },
-          {
-            id: 65,
-            icon: "Zap",
-            title: "Open Shifts",
-            pathname: "/timesync/open-shifts",
-          },
-          {
-            id: 66,
-            icon: "Zap",
-            title: "Swap Management",
-            pathname: "/timesync/swap-management",
-          },
-          {
-            id: 67,
-            icon: "Zap",
-            title: "Shift Templates",
-            pathname: "/timesync/shift-templates",
-          },
-          {
-            id: 68,
-            icon: "Zap",
-            title: "Shift Assignment",
-            pathname: "/timesync/shift-assignment",
-          },
-          {
-            id: 69,
-            icon: "Zap",
-            title: "Calendar Assignment",
-            pathname: "/timesync/calendar-assignment",
-          },
-          {
-            id: 610,
-            icon: "Zap",
-            title: "Flexi Rules",
-            pathname: "/timesync/flexi-rules",
-          },
-          {
-            id: 611,
-            icon: "Zap",
-            title: "Break Configs",
-            pathname: "/timesync/break-configs",
-          },
-          {
-            id: 612,
-            icon: "Zap",
-            title: "Weekly Off Rules",
-            pathname: "/timesync/weekly-off",
-          },
-          {
-            id: 613,
-            icon: "Zap",
-            title: "Alternate Saturdays",
-            pathname: "/timesync/alt-saturdays",
-          },
-          {
-            id: 614,
-            icon: "Zap",
-            title: "Holiday Calendars",
-            pathname: "/timesync/holiday-calendars",
-          },
-          {
-            id: 615,
-            icon: "Zap",
-            title: "Special Shifts",
-            pathname: "/timesync/special-shifts",
-          },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 6. SHIFT STUDIO (6 items - trimmed from 15)
+    // Removed: AI Optimizer, Demand Planning → WORKFORCE AI
+    // Removed: Flexi Rules, Break Configs, Weekly Off, Alt Sat, Holidays, Special → SCHEDULING RULES
+    // Removed: Swap Management (duplicate of Shift Swaps)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 6,
+      icon: "Settings2",
+      title: "SHIFT STUDIO",
+      subMenu: [
+        {
+          id: 61,
+          icon: "LayoutGrid",
+          title: "Roster Planner",
+          pathname: "/timesync/roster-planner",
+        },
+        {
+          id: 62,
+          icon: "Copy",
+          title: "Roster Templates",
+          pathname: "/timesync/roster-templates",
+        },
+        {
+          id: 63,
+          icon: "Layers",
+          title: "Shift Templates",
+          pathname: "/timesync/shift-templates",
+        },
+        {
+          id: 64,
+          icon: "UserCheck",
+          title: "Shift Assignment",
+          pathname: "/timesync/shift-assignment",
+        },
+        {
+          id: 65,
+          icon: "CalendarCheck",
+          title: "Calendar Assignment",
+          pathname: "/timesync/calendar-assignment",
+        },
+        {
+          id: 66,
+          icon: "DoorOpen",
+          title: "Open Shifts",
+          pathname: "/timesync/open-shifts",
+        },
+      ],
+    },
 
-      // POLICIES
-      {
-        id: 7,
-        icon: "Briefcase",
-        title: "POLICIES",
-        subMenu: [
-          {
-            id: 71,
-            icon: "Zap",
-            title: "Policy Builder",
-            pathname: "/timesync/policy-builder",
-          },
-          {
-            id: 72,
-            icon: "Zap",
-            title: "Punch Methods",
-            pathname: "/timesync/punch-methods",
-          },
-          {
-            id: 73,
-            icon: "Zap",
-            title: "Grace & Penalties",
-            pathname: "/timesync/grace-penalties",
-          },
-          {
-            id: 74,
-            icon: "Zap",
-            title: "Thresholds",
-            pathname: "/timesync/thresholds",
-          },
-          {
-            id: 75,
-            icon: "Zap",
-            title: "Deduction Rules",
-            pathname: "/timesync/deductions",
-          },
-          {
-            id: 76,
-            icon: "Zap",
-            title: "Bonus Rules",
-            pathname: "/timesync/bonuses",
-          },
-          {
-            id: 77,
-            icon: "Zap",
-            title: "OT Policies",
-            pathname: "/timesync/ot-policies",
-          },
-          {
-            id: 78,
-            icon: "Zap",
-            title: "Comp-Off Conversion",
-            pathname: "/timesync/compoff-conversion",
-          },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 7. SCHEDULING RULES (6 items - NEW MODULE extracted from Shift Studio)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 13,
+      icon: "CalendarCog",
+      title: "SCHEDULING RULES",
+      subMenu: [
+        {
+          id: 131,
+          icon: "Sliders",
+          title: "Flexi Rules",
+          pathname: "/timesync/flexi-rules",
+        },
+        {
+          id: 132,
+          icon: "Coffee",
+          title: "Break Configs",
+          pathname: "/timesync/break-configs",
+        },
+        {
+          id: 133,
+          icon: "CalendarOff",
+          title: "Weekly Off Rules",
+          pathname: "/timesync/weekly-off",
+        },
+        {
+          id: 134,
+          icon: "Calendar",
+          title: "Alternate Saturdays",
+          pathname: "/timesync/alt-saturdays",
+        },
+        {
+          id: 135,
+          icon: "PartyPopper",
+          title: "Holiday Calendars",
+          pathname: "/timesync/holiday-calendars",
+        },
+        {
+          id: 136,
+          icon: "Star",
+          title: "Special Shifts",
+          pathname: "/timesync/special-shifts",
+        },
+      ],
+    },
 
-      // ANOMALIES
-      {
-        id: 8,
-        icon: "ShieldAlert",
-        title: "ANOMALIES",
-        subMenu: [
-          {
-            id: 81,
-            icon: "Zap",
-            title: "Exceptions Inbox",
-            pathname: "/timesync/exceptions",
-          },
-          {
-            id: 82,
-            icon: "Zap",
-            title: "AI Guard",
-            pathname: "/timesync/ai-anomaly",
-          },
-          {
-            id: 83,
-            icon: "Zap",
-            title: "Detailed Audit",
-            pathname: "/timesync/anomalies-audit",
-          },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 8. WORKFORCE AI (3 items - NEW MODULE)
+    // Consolidated: AI Optimizer, Demand Planning from Shift Studio
+    // Consolidated: OT Forecast from Reports
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 14,
+      icon: "Brain",
+      title: "WORKFORCE AI",
+      subMenu: [
+        {
+          id: 141,
+          icon: "Sparkles",
+          title: "AI Optimizer",
+          pathname: "/timesync/roster-optimizer",
+        },
+        {
+          id: 142,
+          icon: "TrendingUp",
+          title: "Demand Planning",
+          pathname: "/timesync/demand-grid",
+        },
+        {
+          id: 143,
+          icon: "LineChart",
+          title: "OT Forecast",
+          pathname: "/timesync/ot-forecast",
+        },
+      ],
+    },
 
-      // HARDWARE
-      {
-        id: 9,
-        icon: "Database",
-        title: "HARDWARE",
-        subMenu: [
-          {
-            id: 91,
-            icon: "Zap",
-            title: "Devices",
-            pathname: "/timesync/hardware-devices",
-          },
-          {
-            id: 92,
-            icon: "Zap",
-            title: "Device Health",
-            pathname: "/timesync/device-health",
-          },
-          {
-            id: 93,
-            icon: "Zap",
-            title: "Ingestion Jobs",
-            pathname: "/timesync/ingestion-jobs",
-          },
-          {
-            id: 94,
-            icon: "Zap",
-            title: "System Audit Logs",
-            pathname: "/timesync/audit-logs",
-          },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 9. POLICIES (9 items - added Policy Simulator from AI Assistant)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 7,
+      icon: "Briefcase",
+      title: "POLICIES",
+      subMenu: [
+        {
+          id: 71,
+          icon: "Hammer",
+          title: "Policy Builder",
+          pathname: "/timesync/policy-builder",
+        },
+        {
+          id: 72,
+          icon: "Fingerprint",
+          title: "Punch Methods",
+          pathname: "/timesync/punch-methods",
+        },
+        {
+          id: 73,
+          icon: "Scale",
+          title: "Grace & Penalties",
+          pathname: "/timesync/grace-penalties",
+        },
+        {
+          id: 74,
+          icon: "Gauge",
+          title: "Thresholds",
+          pathname: "/timesync/thresholds",
+        },
+        {
+          id: 75,
+          icon: "MinusCircle",
+          title: "Deduction Rules",
+          pathname: "/timesync/deductions",
+        },
+        {
+          id: 76,
+          icon: "PlusCircle",
+          title: "Bonus Rules",
+          pathname: "/timesync/bonuses",
+        },
+        {
+          id: 77,
+          icon: "Timer",
+          title: "OT Policies",
+          pathname: "/timesync/ot-policies",
+        },
+        {
+          id: 78,
+          icon: "RefreshCw",
+          title: "Comp-Off Conversion",
+          pathname: "/timesync/compoff-conversion",
+        },
+        {
+          id: 79,
+          icon: "FlaskConical",
+          title: "Policy Simulator",
+          pathname: "/timesync/ai-simulator",
+        },
+      ],
+    },
 
-      // REPORTS
-      {
-        id: 10,
-        icon: "BarChart3",
-        title: "REPORTS",
-        subMenu: [
-          {
-            id: 101,
-            icon: "Zap",
-            title: "Daily Attendance",
-            pathname: "/timesync/daily-report",
-          },
-          {
-            id: 102,
-            icon: "Zap",
-            title: "Monthly Summary",
-            pathname: "/timesync/monthly-report",
-          },
-          {
-            id: 103,
-            icon: "Zap",
-            title: "OT Analysis",
-            pathname: "/timesync/ot-report",
-          },
-          {
-            id: 104,
-            icon: "Zap",
-            title: "OT Forecast",
-            pathname: "/timesync/ot-forecast",
-          },
-          {
-            id: 105,
-            icon: "Zap",
-            title: "Punctuality",
-            pathname: "/timesync/late-early-report",
-          },
-          {
-            id: 106,
-            icon: "Zap",
-            title: "Anomalies",
-            pathname: "/timesync/anomaly-report",
-          },
-          {
-            id: 107,
-            icon: "Zap",
-            title: "Scheduled",
-            pathname: "/timesync/scheduled-reports",
-          },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 10. ANOMALIES & COMPLIANCE (4 items - added System Audit Logs from Hardware)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 8,
+      icon: "ShieldAlert",
+      title: "ANOMALIES & COMPLIANCE",
+      subMenu: [
+        {
+          id: 81,
+          icon: "AlertCircle",
+          title: "Exceptions Inbox",
+          pathname: "/timesync/exceptions",
+        },
+        {
+          id: 82,
+          icon: "Bot",
+          title: "AI Guard",
+          pathname: "/timesync/ai-anomaly",
+        },
+        {
+          id: 83,
+          icon: "Search",
+          title: "Detailed Audit",
+          pathname: "/timesync/anomalies-audit",
+        },
+        {
+          id: 84,
+          icon: "ScrollText",
+          title: "System Audit Logs",
+          pathname: "/timesync/audit-logs",
+        },
+      ],
+    },
 
-      // SYSTEM SETTINGS
-      {
-        id: 11,
-        icon: "Settings",
-        title: "SYSTEM SETTINGS",
-        subMenu: [
-          {
-            id: 111,
-            icon: "Zap",
-            title: "Approvals Designer",
-            pathname: "/timesync/workflow-list",
-          },
-          {
-            id: 112,
-            icon: "Zap",
-            title: "Notifications",
-            pathname: "/timesync/notif-templates",
-          },
-          {
-            id: 113,
-            icon: "Zap",
-            title: "Delivery Logs",
-            pathname: "/timesync/notif-logs",
-          },
-          {
-            id: 114,
-            icon: "Zap",
-            title: "Integrations",
-            pathname: "/timesync/integrations",
-          },
-          {
-            id: 115,
-            icon: "Zap",
-            title: "Plan & Entitlements",
-            pathname: "/timesync/entitlements",
-          },
-          { id: 116, icon: "Zap", title: "User Access", pathname: "/timesync" },
-        ],
-      },
+    // ═══════════════════════════════════════════════════════════════════
+    // 11. HARDWARE (3 items - removed System Audit Logs)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 9,
+      icon: "HardDrive",
+      title: "HARDWARE",
+      subMenu: [
+        {
+          id: 91,
+          icon: "Tablet",
+          title: "Devices",
+          pathname: "/timesync/hardware-devices",
+        },
+        {
+          id: 92,
+          icon: "HeartPulse",
+          title: "Device Health",
+          pathname: "/timesync/device-health",
+        },
+        {
+          id: 93,
+          icon: "Download",
+          title: "Ingestion Jobs",
+          pathname: "/timesync/ingestion-jobs",
+        },
+      ],
+    },
 
-      // AI ASSISTANT
-      {
-        id: 12,
-        icon: "Cpu",
-        title: "AI ASSISTANT",
-        subMenu: [
-          {
-            id: 121,
-            icon: "Zap",
-            title: "AI Chat",
-            pathname: "/timesync/ai-chat",
-          },
-          {
-            id: 122,
-            icon: "Zap",
-            title: "Policy Copilot",
-            pathname: "/timesync/ai-copilot",
-          },
-          {
-            id: 123,
-            icon: "Zap",
-            title: "Policy Simulator",
-            pathname: "/timesync/ai-simulator",
-          },
-        ],
-      },
-    ],
-  },
+    // ═══════════════════════════════════════════════════════════════════
+    // 12. REPORTS (6 items - removed OT Forecast, renamed Anomalies)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 10,
+      icon: "BarChart3",
+      title: "REPORTS",
+      subMenu: [
+        {
+          id: 101,
+          icon: "FileSpreadsheet",
+          title: "Daily Attendance",
+          pathname: "/timesync/daily-report",
+        },
+        {
+          id: 102,
+          icon: "CalendarRange",
+          title: "Monthly Summary",
+          pathname: "/timesync/monthly-report",
+        },
+        {
+          id: 103,
+          icon: "Clock",
+          title: "OT Analysis",
+          pathname: "/timesync/ot-report",
+        },
+        {
+          id: 104,
+          icon: "Hourglass",
+          title: "Punctuality",
+          pathname: "/timesync/late-early-report",
+        },
+        {
+          id: 105,
+          icon: "AlertTriangle",
+          title: "Anomaly Reports",
+          pathname: "/timesync/anomaly-report",
+        },
+        {
+          id: 106,
+          icon: "CalendarClock",
+          title: "Scheduled Reports",
+          pathname: "/timesync/scheduled-reports",
+        },
+      ],
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // 13. SYSTEM SETTINGS (7 items - added Payroll Control from Workflows)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 11,
+      icon: "Settings",
+      title: "SYSTEM SETTINGS",
+      subMenu: [
+        {
+          id: 111,
+          icon: "PenTool",
+          title: "Approvals Designer",
+          pathname: "/timesync/workflow-list",
+        },
+        {
+          id: 112,
+          icon: "Bell",
+          title: "Notifications",
+          pathname: "/timesync/notif-templates",
+        },
+        {
+          id: 113,
+          icon: "Send",
+          title: "Delivery Logs",
+          pathname: "/timesync/notif-logs",
+        },
+        {
+          id: 114,
+          icon: "Plug",
+          title: "Integrations",
+          pathname: "/timesync/integrations",
+        },
+        {
+          id: 115,
+          icon: "Wallet",
+          title: "Payroll Control",
+          pathname: "/timesync/payroll-periods",
+        },
+        {
+          id: 116,
+          icon: "CreditCard",
+          title: "Plan & Entitlements",
+          pathname: "/timesync/entitlements",
+        },
+        {
+          id: 117,
+          icon: "UserCog",
+          title: "User Access",
+          pathname: "/timesync/user-access",
+        },
+      ],
+    },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // 14. AI ASSISTANT (2 items - removed Policy Simulator)
+    // ═══════════════════════════════════════════════════════════════════
+    {
+      id: 12,
+      icon: "Cpu",
+      title: "AI ASSISTANT",
+      subMenu: [
+        {
+          id: 121,
+          icon: "MessageSquare",
+          title: "AI Chat",
+          pathname: "/timesync/ai-chat",
+        },
+        {
+          id: 122,
+          icon: "Wand2",
+          title: "Policy Copilot",
+          pathname: "/timesync/ai-copilot",
+        },
+      ],
+    },
+  ],
+}
+,
  {
   id: 6,
   name: "PayEdge",
