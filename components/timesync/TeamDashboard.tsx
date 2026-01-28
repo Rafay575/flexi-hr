@@ -237,7 +237,7 @@ export const TeamDashboard: React.FC = () => {
                   <p className="text-xs font-bold text-gray-800">{action.employee}</p>
                   <p className="text-[10px] text-gray-500 mt-1 line-clamp-1">{action.details}</p>
                   
-                  <div className="mt-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="mt-4 flex gap-2  transition-all">
                     <button className="flex-1 py-2 bg-[#3E3B6F] text-white rounded-xl flex items-center justify-center hover:opacity-90 transition-all shadow-md active:scale-95">
                       <Check size={14} />
                     </button>

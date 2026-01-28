@@ -719,13 +719,11 @@ const App: React.FC = () => {
                   {/* Dashboard: both / and /dashboard work */}
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/dashboard" element={<Dashboard />} />
-
                   {/* Geography routes */}
                   <Route path="/countries" element={<CountryListing />} />
                   <Route path="/states" element={<StateListing />} />
                   <Route path="/cities" element={<CityListing />} />
                   <Route path="/regions" element={<RegionsListing />} />
-
                   {/* Company Dictionary routes */}
                   <Route path="/entity-types" element={<EntityListing />} />
                   <Route
@@ -734,7 +732,6 @@ const App: React.FC = () => {
                   />
                   <Route path="/locations-1" element={<LocationListing />} />
                   <Route path="/business" element={<BusinessListing />} />
-
                   {/* Employee Meta routes */}
                   <Route path="/genders" element={<GenderListing />} />
                   <Route path="/salutation" element={<SalutationListing />} />
@@ -752,12 +749,10 @@ const App: React.FC = () => {
                     element={<MaritalStatusListing />}
                   />
                   <Route path="/health" element={<HealthListing />} />
-
                   {/* Finance routes */}
                   <Route path="/currencies" element={<CurrencyListing />} />
                   <Route path="/fx-rates" element={<FxRateListing />} />
                   <Route path="/banks" element={<BankListing />} />
-
                   {/* Calendar & Statutory routes */}
                   <Route path="/holidays" element={<HolidayListing />} />
                   <Route
@@ -768,7 +763,6 @@ const App: React.FC = () => {
                     path="/statutory-rates"
                     element={<StatutoryRatesListing />}
                   />
-
                   {/* Catalog routes */}
                   <Route
                     path="/salary-components"
@@ -791,7 +785,6 @@ const App: React.FC = () => {
                     path="/grade-templates"
                     element={<GradeTemplateListing />}
                   />
-
                   {/* Flexi HQ routes */}
                   <Route path="/companies" element={<CompaniesPage />} />
                   <Route
@@ -809,7 +802,6 @@ const App: React.FC = () => {
                   <Route path="/locations" element={<Locations />} />
                   <Route path="/cost-centers" element={<CostCenters />} />
                   <Route path="/audit" element={<AuditLog />} />
-
                   {/* PeopleHub routes */}
                   <Route
                     path="/peoplehub"
@@ -845,25 +837,49 @@ const App: React.FC = () => {
                   />
                   <Route path="/peoplehub/docs" element={<Documents />} />
                   <Route path="/peoplehub/import" element={<BulkImport />} />
-
-                  {/* TimeSync routes */}
                   <Route path="/timesync" element={<TimeSyncDashboard />} />
-                  <Route path="/timesync/todays-status" element={<TodaysStatus />} />
+                  <Route
+                    path="/timesync/todays-status"
+                    element={<TodaysStatus />}
+                  />
                   <Route path="/timesync/punch" element={<PunchAttendance />} />
                   <Route path="/timesync/my-ot" element={<OTRequests />} />
-                  <Route path="/timesync/my-regularization" element={<RegularizationRequest />} />
-                  <Route path="/timesync/timeline" element={<MyAttendanceTimeline />} />
-                  <Route path="/timesync/calendar" element={<MyAttendanceCalendar />} />
+                  <Route
+                    path="/timesync/my-regularization"
+                    element={<RegularizationRequest />}
+                  />
+                  <Route
+                    path="/timesync/timeline"
+                    element={<MyAttendanceTimeline />}
+                  />
+                  <Route
+                    path="/timesync/calendar"
+                    element={<MyAttendanceCalendar />}
+                  />
                   <Route path="/timesync/schedule" element={<MySchedule />} />
-                  <Route path="/timesync/team-dashboard" element={<TeamDashboard />} />
-                  <Route path="/timesync/team-calendar" element={<TeamCalendar />} />
+                  <Route
+                    path="/timesync/team-dashboard"
+                    element={<TeamDashboard />}
+                  />
+                  <Route
+                    path="/timesync/team-calendar"
+                    element={<TeamCalendar />}
+                  />
+                  <Route
+                    path="/timesync/approvals-inbox"
+                    element={<ApprovalsInbox />}
+                  />
                   <Route
                     path="/timesync/pending-approvals"
                     element={<ManagerPendingApprovals />}
                   />
                   <Route
-                    path="/timesync/approvals-inbox"
-                    element={<ApprovalsInbox />}
+                    path="/timesync/escalated-approvals"
+                    element={<EscalatedApprovals />}
+                  />
+                  <Route
+                    path="/timesync/approval-history"
+                    element={<ApprovalHistory />}
                   />
                   <Route
                     path="/timesync/regularizations"
@@ -873,20 +889,11 @@ const App: React.FC = () => {
                     path="/timesync/regularization-panel"
                     element={<RegularizationPanel />}
                   />
+                  // Fix User Access route (was pointing to /timesync)
                   <Route
-  path="/timesync/escalated-approvals"
-  element={<EscalatedApprovals />}
-/>
-<Route
-  path="/timesync/approval-history"
-  element={<ApprovalHistory />}
-/>
-
-// Fix User Access route (was pointing to /timesync)
-<Route
-  path="/timesync/user-access"
-  element={<UserAccessSettings />}
-/>
+                    path="/timesync/user-access"
+                    element={<UserAccessSettings />}
+                  />
                   <Route
                     path="/timesync/manual-punch"
                     element={<ManualPunchPanel />}
@@ -1016,7 +1023,6 @@ const App: React.FC = () => {
                     path="/timesync/ai-simulator"
                     element={<TimeSyncPolicySimulator />}
                   />
-
                   <Route
                     path="/timesync/exceptions"
                     element={<ExceptionsInbox />}
@@ -1102,9 +1108,7 @@ const App: React.FC = () => {
                     path="/timesync/ai-copilot"
                     element={<AIPolicyCopilot />}
                   />
-
-                  {/* LeaveEase Routes */}
-                  <Route path="/leaveease" >
+                  <Route path="/leaveease">
                     <Route index element={<LeaveEaseDashboard />} />
                     {/* My Leave Section */}
                     <Route path="dashboard" element={<LeaveEaseDashboard />} />
@@ -1314,9 +1318,7 @@ const App: React.FC = () => {
                       element={<LeaveEntitlements />}
                     />
                   </Route>
-
                   {/* PayEdge Routes */}
-
                   <Route path="/payedge" element={<PayEdgeWithShell />}>
                     <Route
                       index
@@ -1537,7 +1539,6 @@ const App: React.FC = () => {
                     />
                   </Route>
                   {/* Alternative: Full PayEdge App with own layout (if needed) */}
-
                   {/* Fallback (inside layout) */}
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>

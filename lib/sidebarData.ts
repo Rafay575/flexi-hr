@@ -234,32 +234,8 @@ export const modules: ModuleItem[] = [
       id: 4,
       icon: "Inbox",
       title: "APPROVALS INBOX",
-      subMenu: [
-        {
-          id: 41,
-          icon: "ListTodo",
-          title: "All Approvals",
-          pathname: "/timesync/approvals-inbox",
-        },
-        {
-          id: 42,
-          icon: "Clock",
-          title: "Pending",
-          pathname: "/timesync/pending-approvals",
-        },
-        {
-          id: 43,
-          icon: "AlertTriangle",
-          title: "Escalated",
-          pathname: "/timesync/escalated-approvals",
-        },
-        {
-          id: 44,
-          icon: "History",
-          title: "History",
-          pathname: "/timesync/approval-history",
-        },
-      ],
+      pathname: "/timesync/approvals-inbox",
+     
     },
 
     // ═══════════════════════════════════════════════════════════════════
