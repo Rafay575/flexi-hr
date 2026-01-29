@@ -180,8 +180,20 @@ export const modules: ModuleItem[] = [
         {
           id: 24,
           icon: "FileEdit",
-          title: "Regularization Request",
+          title: "My Regularization",
           pathname: "/timesync/my-regularization",
+        },
+        {
+          id: 24,
+          icon: "FileEdit",
+          title: "My Shift Swap",
+          pathname: "/timesync/my-shift-swap",
+        },
+         {
+          id: 55,
+          icon: "ArrowLeftRight",
+          title: "Roaster Change",
+          pathname: "/timesync/my-change-roaster",
         },
         {
           id: 25,
@@ -246,12 +258,12 @@ export const modules: ModuleItem[] = [
       icon: "GitBranch",
       title: "WORKFLOWS",
       subMenu: [
-        {
-          id: 51,
-          icon: "FileCheck",
-          title: "Regularizations",
-          pathname: "/timesync/regularizations",
-        },
+        // {
+        //   id: 51,
+        //   icon: "FileCheck",
+        //   title: "Regularizations",
+        //   pathname: "/timesync/regularizations",
+        // },
         {
           id: 52,
           icon: "ClipboardList",
@@ -276,6 +288,7 @@ export const modules: ModuleItem[] = [
           title: "Shift Swaps",
           pathname: "/timesync/shift-swaps",
         },
+       
         {
           id: 56,
           icon: "Play",

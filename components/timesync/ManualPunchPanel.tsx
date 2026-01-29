@@ -186,7 +186,7 @@ export const ManualPunchPanel: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex items-center justify-end gap-1  transition-all">
                        {item.status === 'PENDING' ? (
                          <>
                            <button className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all shadow-none"><Check size={16}/></button>
@@ -212,7 +212,7 @@ export const ManualPunchPanel: React.FC = () => {
 
       {/* ADD MANUAL PUNCH MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[160] flex items-center justify-center p-0 !m-0">
           <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsModalOpen(false)}></div>
           <div className="relative bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col max-h-[95vh]">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">

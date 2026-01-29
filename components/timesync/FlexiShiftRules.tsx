@@ -82,7 +82,7 @@ export const FlexiShiftRules: React.FC = () => {
                <p className="text-[10px] text-gray-400 italic">"Employees can work their required hours anytime within this 14h window."</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 ml-3">
                <label className="text-[10px] font-black text-gray-500 uppercase">Hour Requirements</label>
                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">

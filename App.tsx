@@ -311,6 +311,8 @@ import { PayrollRunsList } from "./components/PayrollRunsList";
 import { EscalatedApprovals } from "./components/timesync/EscalatedApprovals";
 import { ApprovalHistory } from "./components/timesync/ApprovalHistory";
 import { UserAccessSettings } from "./components/timesync/UserAccessSettings";
+import { ShiftSwapRequest } from "./components/timesync/my-shift-swap";
+import { RoasterChangeRequest } from "./components/timesync/roasterchange";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -847,6 +849,14 @@ const App: React.FC = () => {
                   <Route
                     path="/timesync/my-regularization"
                     element={<RegularizationRequest />}
+                  />
+                  <Route
+                    path="/timesync/my-shift-swap"
+                    element={<ShiftSwapRequest />}
+                  />
+                  <Route
+                    path="/timesync/my-change-roaster"
+                    element={<RoasterChangeRequest />}
                   />
                   <Route
                     path="/timesync/timeline"
