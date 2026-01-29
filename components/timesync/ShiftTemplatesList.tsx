@@ -58,7 +58,7 @@ const MOCK_SHIFTS: ShiftTemplate[] = [
   { id: 'ST-010', code: 'INT', name: 'Intern Flexi', type: 'FLEXI', timing: '4h window', breakTime: '15 min', grace: { in: 0, out: 0 }, employeeCount: 15, status: 'ACTIVE' },
 ];
 
-export const ShiftTemplatesList: React.FC<{ onCreateNew?: () => void }> = ({ onCreateNew }) => {
+export const ShiftTemplatesList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<ShiftType | 'ALL'>('ALL');
 
@@ -92,7 +92,7 @@ export const ShiftTemplatesList: React.FC<{ onCreateNew?: () => void }> = ({ onC
             />
           </div>
           <button 
-            onClick={onCreateNew}
+          
             className="flex items-center gap-2 px-6 py-2.5 bg-[#3E3B6F] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-[#3E3B6F]/20 hover:scale-[1.02] active:scale-95 transition-all"
           >
             <Plus size={18} /> Create Shift

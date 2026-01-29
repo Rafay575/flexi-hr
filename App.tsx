@@ -126,7 +126,7 @@ import { AlternateSaturdayRules } from "./components/timesync/AlternateSaturdayR
 import { HolidayCalendarList } from "./components/timesync/HolidayCalendarList";
 import { SpecialShifts } from "./components/timesync/SpecialShifts";
 
-import { RosterPlanner } from "./components/timesync/RosterPlanner";
+// import { RosterPlanner } from "./components/timesync/RosterPlanner";
 import { RosterTemplates } from "./components/timesync/RosterTemplates";
 import { RosterOptimizer } from "./components/timesync/RosterOptimizer";
 import { OpenShifts } from "./components/timesync/OpenShifts";
@@ -313,6 +313,9 @@ import { ApprovalHistory } from "./components/timesync/ApprovalHistory";
 import { UserAccessSettings } from "./components/timesync/UserAccessSettings";
 import { ShiftSwapRequest } from "./components/timesync/my-shift-swap";
 import { RoasterChangeRequest } from "./components/timesync/roasterchange";
+import { RosterSetupPage } from "./pages/RosterSetupPage";
+import RosterTemplatesPage from "./pages/RosterTemplatesPage";
+import ShiftTemplatesPage from "./pages/ShiftTemplatesPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -930,11 +933,11 @@ const App: React.FC = () => {
                   />
                   <Route
                     path="/timesync/roster-planner"
-                    element={<RosterPlanner />}
+                    element={<RosterSetupPage />}
                   />
                   <Route
                     path="/timesync/roster-templates"
-                    element={<RosterTemplates />}
+                    element={<RosterTemplatesPage />}
                   />
                   <Route
                     path="/timesync/roster-optimizer"
@@ -954,7 +957,7 @@ const App: React.FC = () => {
                   />
                   <Route
                     path="/timesync/shift-templates"
-                    element={<ShiftTemplatesList onCreateNew={() => {}} />}
+                    element={<ShiftTemplatesPage />}
                   />
                   <Route
                     path="/timesync/shift-templates/new"
