@@ -8,16 +8,12 @@ import {
   Plus, 
   Clock, 
   Users, 
-  MoreVertical, 
-  ChevronRight, 
+  MoreVertical,  
   Edit3, 
   Power, 
-  AlertCircle,
   X,
-  ArrowRight,
   ShieldCheck,
   Bell,
-  Coffee,
   Info,
   Sparkles
 } from 'lucide-react';
