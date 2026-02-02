@@ -167,7 +167,7 @@ export const SalaryTemplateBuilder: React.FC<{ onBack: () => void }> = ({ onBack
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center justify-end gap-1  transition-opacity">
                                 <button className="p-1.5 text-gray-400 hover:text-primary hover:bg-white rounded"><Settings2 size={14} /></button>
                                 <button className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-white rounded"><Trash2 size={14} /></button>
                               </div>

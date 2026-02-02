@@ -288,7 +288,7 @@ export const BonusProcessing: React.FC = () => {
                            </button>
                         </td>
                         <td className="px-6 py-4 text-right">
-                           <button className="p-2 text-gray-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100"><Trash2 size={16}/></button>
+                           <button className="p-2 text-gray-300 hover:text-red-500 transition-all "><Trash2 size={16}/></button>
                         </td>
                      </tr>
                    ))}

@@ -482,7 +482,7 @@ const filteredEmployees = useMemo(() => {
                   </div>
                   <button
                     onClick={() => handleIndividualAssignment(emp)}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all"
+                    className=" p-1.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all"
                     title="Assign Shift"
                   >
                     <ArrowRight size={14} />

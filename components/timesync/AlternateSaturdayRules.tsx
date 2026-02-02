@@ -1768,7 +1768,7 @@ const RULE_STATUS_CONFIG = {
                         )}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <div className="flex justify-end gap-1  transition-all">
                           <button 
                             onClick={() => handleAddOverride(sat.date, sat.defaultStatus)}
                             className="p-2 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-all"

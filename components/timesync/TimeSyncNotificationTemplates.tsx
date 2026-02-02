@@ -153,7 +153,7 @@ export const TimeSyncNotificationTemplates: React.FC = () => {
                       className={`w-full text-left px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center justify-between group ${selectedEventId === event.id ? 'text-[#3E3B6F] bg-white border border-[#3E3B6F]/10' : 'text-gray-400 hover:text-gray-600'}`}
                     >
                       <span className="truncate">{event.name}</span>
-                      <ChevronRight size={14} className={`opacity-0 group-hover:opacity-100 ${selectedEventId === event.id ? 'opacity-100' : ''}`} />
+                      <ChevronRight size={14} className={` ${selectedEventId === event.id ? 'opacity-100' : ''}`} />
                     </button>
                   ))}
                 </div>

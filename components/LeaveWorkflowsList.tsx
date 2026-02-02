@@ -146,7 +146,7 @@ export const LeaveWorkflowsList = () => {
                   </td>
                   <td className="px-8 py-5 text-right">
                     <div className="relative inline-block group/menu">
-                      <button className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                      <button className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg transition-all ">
                         <MoreHorizontal size={18} />
                       </button>
                       <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl invisible group-hover/menu:visible opacity-0 group-hover/menu:opacity-100 transition-all z-20">

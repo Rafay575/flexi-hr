@@ -143,7 +143,7 @@ export const ThresholdSettings: React.FC = () => {
                    </span>
                 </td>
                 <td className="px-6 py-5 text-right">
-                   <button className="p-2 text-gray-300 hover:text-[#3E3B6F] hover:bg-white rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                   <button className="p-2 text-gray-300 hover:text-[#3E3B6F] hover:bg-white rounded-lg transition-all ">
                       <ArrowRight size={16} />
                    </button>
                 </td>

@@ -739,7 +739,7 @@ export const EmployeeESSDashboard: React.FC<{
                       className="w-full bg-primary rounded-t-lg transition-all"
                       style={{ height: "75%" }}
                     ></div>
-                    <div className="absolute inset-x-0 top-0 h-4 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="absolute inset-x-0 top-0 h-4 bg-white/20  transition-opacity"></div>
                   </div>
                   <span className="text-[10px] font-bold text-gray-400">
                     {["Aug", "Sep", "Oct", "Nov", "Dec", "Jan"][i]}

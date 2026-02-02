@@ -1913,7 +1913,7 @@ const Employee360: React.FC = () => {
                                                                 onClick={() => setPreviewDoc(doc)}
                                                                 className="group bg-white border border-neutral-border rounded-xl p-4 flex flex-col items-center text-center cursor-pointer hover:border-flexi-blue hover:shadow-md transition-all relative"
                                                             >
-                                                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <div className="absolute top-2 right-2  transition-opacity">
                                                                     <button className="p-1.5 hover:bg-neutral-page rounded-lg text-neutral-muted hover:text-neutral-primary">
                                                                         <MoreHorizontal className="w-4 h-4" />
                                                                     </button>
@@ -1960,7 +1960,7 @@ const Employee360: React.FC = () => {
                                                                     <td className="px-4 py-3 text-neutral-secondary">{doc.uploadDate}</td>
                                                                     <td className="px-4 py-3 text-neutral-secondary font-mono text-xs">{doc.size}</td>
                                                                     <td className="px-4 py-3 text-right">
-                                                                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                        <div className="flex justify-end gap-2  transition-opacity">
                                                                             <button className="p-1.5 text-neutral-muted hover:text-flexi-blue hover:bg-flexi-light/20 rounded">
                                                                                 <Download className="w-4 h-4" />
                                                                             </button>
@@ -2030,7 +2030,7 @@ const Employee360: React.FC = () => {
                                                                 <p className="text-sm text-neutral-primary leading-relaxed pl-11">
                                                                     {note.content}
                                                                 </p>
-                                                                <div className="absolute top-4 right-12 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <div className="absolute top-4 right-12  transition-opacity">
                                                                     <button 
                                                                         onClick={() => deleteNote(note.id)}
                                                                         className="p-1.5 hover:bg-yellow-100 rounded text-yellow-700/50 hover:text-yellow-700"
@@ -2071,7 +2071,7 @@ const Employee360: React.FC = () => {
                                                                     </div>
                                                                     <button 
                                                                         onClick={() => deleteNote(note.id)}
-                                                                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-neutral-page rounded text-neutral-400 hover:text-state-error transition-all"
+                                                                        className=" p-1.5 hover:bg-neutral-page rounded text-neutral-400 hover:text-state-error transition-all"
                                                                     >
                                                                         <Trash2 className="w-3.5 h-3.5" />
                                                                     </button>

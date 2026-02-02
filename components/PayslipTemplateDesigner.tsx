@@ -127,7 +127,7 @@ export const PayslipTemplateDesigner = () => {
                             <GripVertical size={14} className="text-gray-300" />
                             <span className="text-xs font-bold text-gray-700">{c}</span>
                           </div>
-                          <button className="text-gray-300 group-hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14}/></button>
+                          <button className="text-gray-300 group-hover:text-red-500  transition-all"><Trash2 size={14}/></button>
                         </div>
                       ))}
                       <button className="w-full py-2 border-2 border-dashed border-gray-100 text-gray-400 text-[10px] font-black uppercase flex items-center justify-center gap-1 hover:text-primary transition-all">

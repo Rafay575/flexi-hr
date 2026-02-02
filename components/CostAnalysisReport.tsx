@@ -142,7 +142,7 @@ export const CostAnalysisReport: React.FC = () => {
                     <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">{['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'][i]}</p>
                   </div>
                   {/* Tooltip on hover */}
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded  transition-opacity whitespace-nowrap pointer-events-none z-20">
                     CTC: {formatPKR(totalCTC * (h/100))}
                   </div>
                 </div>

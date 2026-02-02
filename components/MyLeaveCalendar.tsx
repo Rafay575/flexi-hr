@@ -132,7 +132,7 @@ export const MyLeaveCalendar = () => {
                         {e.status}
                       </span>
                     )}
-                    <button className="p-2 text-gray-400 hover:text-[#3E3B6F] opacity-0 group-hover:opacity-100 transition-all">
+                    <button className="p-2 text-gray-400 hover:text-[#3E3B6F]  transition-all">
                       <ChevronRight size={18} />
                     </button>
                   </div>

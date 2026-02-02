@@ -124,7 +124,7 @@ export const YearEndJobsHistory = () => {
                     </div>
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex justify-end gap-2  transition-all">
                       <button 
                         onClick={() => setSelectedJob(job)}
                         className="p-2 bg-indigo-50 text-[#3E3B6F] rounded-lg hover:bg-[#3E3B6F] hover:text-white transition-all shadow-sm"

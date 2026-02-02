@@ -212,7 +212,7 @@ export const AnomaliesList: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex items-center justify-end gap-2  transition-all">
                       <button 
                         onClick={() => setSelectedAnomaly(item)}
                         className="px-4 py-2 bg-[#3E3B6F] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#3E3B6F]/20 hover:scale-105 active:scale-95 transition-all"

@@ -167,7 +167,7 @@ export const SLAMonitorDashboard = () => {
                       </td>
                       <td className="px-6 py-4 text-xs font-medium text-gray-600">{req.approver}</td>
                       <td className="px-6 py-4 text-right">
-                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <div className="flex justify-end gap-2  transition-opacity">
                             <button title="Escalate" className="p-1.5 text-red-500 hover:bg-red-50 rounded"><Zap size={16}/></button>
                             <button title="Reassign" className="p-1.5 text-blue-500 hover:bg-blue-50 rounded"><UserPlus size={16}/></button>
                          </div>
@@ -244,7 +244,7 @@ export const SLAMonitorDashboard = () => {
                        style={{ width: `${app.compliance}%` }} 
                      />
                    </div>
-                   <div className="mt-3 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                   <div className="mt-3 flex justify-between items-center  transition-opacity">
                       <span className="text-[10px] text-gray-400">Avg Time: <span className="font-bold text-gray-700">{app.avgTime}</span></span>
                       <button className="p-1.5 text-gray-400 hover:text-[#3E3B6F]"><Mail size={14}/></button>
                    </div>
@@ -262,7 +262,7 @@ export const SLAMonitorDashboard = () => {
                       className={`w-full rounded-t-sm transition-all duration-500 ${h > 90 ? 'bg-emerald-400' : 'bg-[#3E3B6F]/40'}`} 
                       style={{ height: `${h}%` }} 
                     />
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{h}%</div>
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[8px] font-bold text-gray-400  transition-opacity">{h}%</div>
                   </div>
                 ))}
              </div>

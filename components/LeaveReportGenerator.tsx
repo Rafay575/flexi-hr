@@ -63,7 +63,7 @@ export const LeaveReportGenerator = () => {
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2 leading-tight">{type.label}</h3>
               <p className="text-xs text-gray-400 font-medium leading-relaxed">{type.desc}</p>
-              <div className="mt-6 flex items-center gap-2 text-[10px] font-bold text-[#3E3B6F] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">
+              <div className="mt-6 flex items-center gap-2 text-[10px] font-bold text-[#3E3B6F]  transition-opacity uppercase tracking-widest">
                 Configure Report <ChevronRight size={12} />
               </div>
             </button>

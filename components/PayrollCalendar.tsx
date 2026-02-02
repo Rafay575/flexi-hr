@@ -87,7 +87,7 @@ export const PayrollCalendar: React.FC = () => {
             ))}
           </div>
           {dayEvents.length > 0 && (
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-white/95 p-2 flex flex-col justify-center transition-opacity z-10 pointer-events-none">
+            <div className="absolute inset-0  bg-white/95 p-2 flex flex-col justify-center transition-opacity z-10 pointer-events-none">
                {dayEvents.map((e, idx) => (
                  <p key={idx} className={`text-[9px] font-black uppercase leading-tight mb-1 truncate ${EVENT_CONFIG[e.type].color}`}>
                    {e.label}

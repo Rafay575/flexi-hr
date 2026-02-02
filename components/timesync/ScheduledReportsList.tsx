@@ -177,7 +177,7 @@ export const ScheduledReportsList: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex items-center justify-end gap-1  transition-all">
                       <button className="p-2 text-gray-400 hover:text-green-600" title="Run Now"><Play size={16} fill="currentColor" /></button>
                       <button className="p-2 text-gray-400 hover:text-blue-500" title="Edit"><Edit3 size={16} /></button>
                       <button className="p-2 text-gray-400 hover:text-orange-500" title="Pause/Resume"><Pause size={16} /></button>

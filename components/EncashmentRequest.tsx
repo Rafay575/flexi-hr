@@ -321,7 +321,7 @@ export const EncashmentRequest = () => {
                       </td>
                       <td className="px-8 py-5 text-xs text-gray-500 font-medium">{h.paidOn}</td>
                       <td className="px-8 py-5 text-right">
-                        <button className="p-2 text-gray-300 hover:text-[#3E3B6F] opacity-0 group-hover:opacity-100 transition-all">
+                        <button className="p-2 text-gray-300 hover:text-[#3E3B6F]  transition-all">
                           <FileText size={18} />
                         </button>
                       </td>

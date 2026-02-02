@@ -198,7 +198,7 @@ export const BankFormatsConfig: React.FC = () => {
                                   {m.required ? <CheckCircle2 size={16} className="text-green-500 mx-auto" /> : <X size={16} className="text-gray-200 mx-auto" />}
                                </td>
                                <td className="px-6 py-4 text-right">
-                                  <button className="p-1 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14}/></button>
+                                  <button className="p-1 text-gray-300 hover:text-red-500  transition-all"><Trash2 size={14}/></button>
                                </td>
                             </tr>
                           ))}

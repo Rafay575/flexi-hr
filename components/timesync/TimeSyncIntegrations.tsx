@@ -260,7 +260,7 @@ export const TimeSyncIntegrations: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                     <button className="p-2 text-gray-300 hover:text-[#3E3B6F] transition-all opacity-0 group-hover:opacity-100">
+                     <button className="p-2 text-gray-300 hover:text-[#3E3B6F] transition-all ">
                         <ExternalLink size={16} />
                      </button>
                   </td>

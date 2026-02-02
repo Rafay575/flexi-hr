@@ -200,7 +200,7 @@ export const OpenShifts: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex gap-2  transition-all">
                       <button className="flex-1 py-2 bg-green-500 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-green-100 hover:bg-green-600">Assign</button>
                       <button className="flex-1 py-2 bg-white border border-gray-200 text-gray-500 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-gray-50">Waitlist</button>
                       <button className="p-2 bg-red-50 text-red-600 rounded-xl border border-red-100 hover:bg-red-500 hover:text-white transition-all"><X size={14}/></button>

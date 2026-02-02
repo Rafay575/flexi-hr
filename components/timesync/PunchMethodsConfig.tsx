@@ -152,7 +152,7 @@ export const PunchMethodsConfig: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="p-2 text-gray-300 hover:text-[#3E3B6F] opacity-0 group-hover:opacity-100 transition-all"><MoreVertical size={16} /></button>
+                        <button className="p-2 text-gray-300 hover:text-[#3E3B6F]  transition-all"><MoreVertical size={16} /></button>
                       </td>
                     </tr>
                   ))}
@@ -196,7 +196,7 @@ export const PunchMethodsConfig: React.FC = () => {
                     <td className="px-6 py-4 text-[10px] text-gray-500 font-medium italic">"Working from home (Medical)"</td>
                     <td className="px-6 py-4 text-[9px] font-bold text-gray-400 uppercase tabular-nums">Jane Doe (HR) • Jan 01</td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><X size={16} /></button>
+                      <button className="p-2 text-gray-300 hover:text-red-500  transition-all"><X size={16} /></button>
                     </td>
                   </tr>
                 </tbody>

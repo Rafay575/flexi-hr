@@ -146,7 +146,7 @@ export const BlackoutPeriods = () => {
                       </span>
                     </td>
                     <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                      <div className="flex justify-end gap-2  transition-all">
                         <button onClick={() => handleEdit(p)} className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg transition-all shadow-sm border border-transparent hover:border-gray-100 transition-all">
                           <Edit3 size={16} />
                         </button>
@@ -190,7 +190,7 @@ export const BlackoutPeriods = () => {
                     <div className={`absolute inset-x-0 bottom-0 h-1 ${isStrict ? 'bg-red-500' : 'bg-red-200'}`} />
                   )}
                   {isBlackout && (
-                    <div className="absolute inset-0 bg-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2 text-center">
+                    <div className="absolute inset-0 bg-red-500/5  transition-opacity flex items-center justify-center p-2 text-center">
                        <p className="text-[9px] font-bold text-red-700 leading-tight">Annual Strategy Retreat</p>
                     </div>
                   )}

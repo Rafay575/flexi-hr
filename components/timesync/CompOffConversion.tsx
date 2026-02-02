@@ -135,7 +135,7 @@ export const CompOffConversion: React.FC = () => {
                            </div>
                         </td>
                         <td className="px-6 py-5 text-right">
-                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <div className="flex items-center justify-end gap-2  transition-all">
                              <button onClick={() => handleAction(req.id, 'APPROVE')} className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-500 hover:text-white transition-all shadow-sm">
                                <Check size={14} />
                              </button>

@@ -198,11 +198,11 @@ export const DeviceHealthDashboard: React.FC = () => {
                             <p className="text-xs font-bold text-gray-800">{alert.device}</p>
                             <p className="text-[10px] text-gray-500 mt-0.5">{alert.type}</p>
                          </div>
-                         <button className="p-2 opacity-0 group-hover:opacity-100 transition-all text-indigo-600">
+                         <button className="p-2  transition-all text-indigo-600">
                            <ArrowUpRight size={14} />
                          </button>
                       </div>
-                      <div className="mt-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                      <div className="mt-4 flex gap-2  transition-all">
                          <button className="flex-1 py-1.5 bg-[#3E3B6F] text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Diagnose</button>
                          <button className="flex-1 py-1.5 bg-white border border-gray-200 text-gray-500 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all">Ignore</button>
                       </div>

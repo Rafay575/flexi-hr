@@ -202,7 +202,7 @@ export const OTForecast: React.FC = () => {
                 <span className="text-[8px] font-black text-gray-400 mt-3 uppercase whitespace-nowrap">{day.date}</span>
                 
                 {/* TOOLTIP */}
-                <div className="absolute bottom-full mb-4 bg-gray-900 text-white rounded-xl p-3 z-20 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-32">
+                <div className="absolute bottom-full mb-4 bg-gray-900 text-white rounded-xl p-3 z-20 shadow-2xl  transition-opacity pointer-events-none w-32">
                    <p className="text-[10px] font-black uppercase text-indigo-400 mb-1">{day.date}</p>
                    <div className="space-y-1 text-[9px] font-bold">
                       <div className="flex justify-between"><span>Forecast:</span> <span>{day.forecast}h</span></div>

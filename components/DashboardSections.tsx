@@ -144,7 +144,7 @@ export const ManagerView = () => (
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${item.sla === 'Overdue' ? 'bg-red-100 text-red-600' : 'bg-gray-200 text-gray-600'}`}>
                   {item.sla}
                 </span>
-                <button className="block text-xs font-bold text-[#3E3B6F] mt-1 opacity-0 group-hover:opacity-100 transition-opacity underline">Review</button>
+                <button className="block text-xs font-bold text-[#3E3B6F] mt-1  transition-opacity underline">Review</button>
               </div>
             </div>
           ))}

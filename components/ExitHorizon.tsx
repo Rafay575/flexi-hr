@@ -28,7 +28,7 @@ const BarChart = ({ data }: { data: { label: string, value: number }[] }) => {
                     <div key={idx} className="flex flex-col items-center flex-1 group cursor-default">
                         <div className="relative w-full px-1 h-full flex items-end justify-center">
                             {/* Tooltip */}
-                            <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-800 text-white text-[10px] py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
+                            <div className="absolute -top-8  transition-opacity bg-neutral-800 text-white text-[10px] py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
                                 {item.value} Exits
                             </div>
                             {/* Bar */}

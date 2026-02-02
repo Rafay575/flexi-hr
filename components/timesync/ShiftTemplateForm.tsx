@@ -258,7 +258,7 @@ export const ShiftTemplateForm: React.FC<{ onClose: () => void }> = ({ onClose }
                           </div>
                           <button 
                             onClick={() => removeBreak(b.id)}
-                            className="p-3 bg-white border border-gray-200 text-red-500 rounded-xl hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+                            className="p-3 bg-white border border-gray-200 text-red-500 rounded-xl hover:bg-red-50 transition-all "
                           >
                             <Trash2 size={16} />
                           </button>

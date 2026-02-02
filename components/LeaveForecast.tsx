@@ -150,7 +150,7 @@ export const LeaveForecast = () => {
             <div key={m} className="flex flex-col items-center gap-4 z-10">
                <div className="group relative">
                   <div className="w-2.5 h-2.5 rounded-full bg-[#3E3B6F] ring-4 ring-white shadow-sm" />
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#3E3B6F] text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
+                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[#3E3B6F] text-white text-[10px] font-bold px-2 py-1 rounded  transition-opacity whitespace-nowrap shadow-xl">
                     Est: {forecastData[i]} days
                   </div>
                </div>

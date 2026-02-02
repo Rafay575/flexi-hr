@@ -150,7 +150,7 @@ export const CurrencyFXRates: React.FC = () => {
                             ) : (
                               <button className="p-2 text-gray-300 cursor-not-allowed" title="Base currency is locked"><Lock size={16}/></button>
                             )}
-                            <button className="p-2 text-gray-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-0" disabled={c.status === 'Base'}><Trash2 size={16}/></button>
+                            <button className="p-2 text-gray-300 hover:text-red-500 transition-all  disabled:opacity-0" disabled={c.status === 'Base'}><Trash2 size={16}/></button>
                           </div>
                         </td>
                       </tr>

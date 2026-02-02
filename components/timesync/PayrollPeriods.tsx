@@ -202,7 +202,7 @@ export const PayrollPeriods: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <div className="flex items-center justify-end gap-1  transition-all">
                            <button className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-white rounded-lg" title="View Audit"><Eye size={16}/></button>
                            <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-white rounded-lg" title="Download Export"><Download size={16}/></button>
                            {p.status === 'LOCKED' && (
@@ -251,7 +251,7 @@ export const PayrollPeriods: React.FC = () => {
                      </div>
                      <div className="flex gap-2">
                         <button className="px-4 py-1.5 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 active:scale-95 transition-all">Review</button>
-                        <button className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><X size={16}/></button>
+                        <button className="p-2 text-gray-300 hover:text-red-500  transition-all"><X size={16}/></button>
                      </div>
                   </div>
                 ))}

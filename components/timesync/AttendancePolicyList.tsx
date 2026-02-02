@@ -21,6 +21,7 @@ import {
   Settings2,
   CheckCircle2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 type PolicyType = 'OFFICE' | 'FACTORY' | 'FIELD' | 'FLEXI';
 type DeductionRule = 'LEAVE_AUTO' | 'SALARY_DEDUCT' | 'NONE';
@@ -64,6 +65,7 @@ const MOCK_POLICIES: AttendancePolicy[] = [
 
 export const AttendancePolicyList: React.FC<{ onCreateNew?: () => void }> = ({ onCreateNew }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const filteredPolicies = MOCK_POLICIES.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -92,7 +94,7 @@ export const AttendancePolicyList: React.FC<{ onCreateNew?: () => void }> = ({ o
             />
           </div>
           <button 
-            onClick={onCreateNew}
+            onClick={() => navigate("/timesync/policy-builder/new")}
             className="flex items-center gap-2 px-6 py-2.5 bg-[#3E3B6F] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-[#3E3B6F]/20 hover:scale-[1.02] active:scale-95 transition-all"
           >
             <Plus size={18} /> Create Policy
@@ -166,7 +168,7 @@ export const AttendancePolicyList: React.FC<{ onCreateNew?: () => void }> = ({ o
                     </div>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex items-center justify-end gap-1  transition-all">
                       <button className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg transition-all" title="Edit"><Edit3 size={16}/></button>
                       <button className="p-2 text-gray-400 hover:text-blue-500 hover:bg-white rounded-lg transition-all" title="Simulate Results"><PlayCircle size={16}/></button>
                       <button className="p-2 text-gray-400 hover:text-orange-500 hover:bg-white rounded-lg transition-all" title="Version History"><History size={16}/></button>

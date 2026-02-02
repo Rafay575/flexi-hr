@@ -193,7 +193,7 @@ export const ShiftSwapRequestsList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-right">
                     {item.status === 'PENDING' ? (
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                      <div className="flex items-center justify-end gap-2  transition-all">
                         <button 
                           onClick={() => handleAction(item.id, 'APPROVED')}
                           className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-500 hover:text-white transition-all shadow-sm"

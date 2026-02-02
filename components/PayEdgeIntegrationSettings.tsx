@@ -250,7 +250,7 @@ export const PayEdgeIntegrationSettings: React.FC = () => {
                            </td>
                            <td className="px-8 py-4 text-right">
                               {/* Fixed: Trash2 icon is now imported */}
-                              <button className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={16}/></button>
+                              <button className="p-2 text-gray-300 hover:text-red-500  transition-all"><Trash2 size={16}/></button>
                            </td>
                         </tr>
                        ))}

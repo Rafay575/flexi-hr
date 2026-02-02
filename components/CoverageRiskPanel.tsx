@@ -166,7 +166,7 @@ export const CoverageRiskPanel = () => {
                      </div>
                    )}
                    {/* Tooltip Overlay Mock */}
-                   <div className="absolute inset-0 z-20 bg-[#3E3B6F] opacity-0 group-hover:opacity-100 transition-all p-3 flex flex-col justify-between text-white scale-95 group-hover:scale-100 rounded-lg pointer-events-none">
+                   <div className="absolute inset-0 z-20 bg-[#3E3B6F]  transition-all p-3 flex flex-col justify-between text-white scale-95 group-hover:scale-100 rounded-lg pointer-events-none">
                       <p className="text-[10px] font-bold uppercase tracking-widest">Coverage Info</p>
                       <div>
                         <p className="text-xl font-bold">{day >= 25 ? '35%' : day >= 15 ? '68%' : '94%'}</p>

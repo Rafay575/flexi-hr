@@ -154,7 +154,7 @@ export const EmployeeLeaveAssignments = () => {
                     </span>
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-end gap-2  transition-all" onClick={(e) => e.stopPropagation()}>
                       <button onClick={() => setSelectedEmp(emp)} className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-gray-100 transition-all"><Edit3 size={18}/></button>
                       <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-gray-100 transition-all"><Trash2 size={18}/></button>
                     </div>

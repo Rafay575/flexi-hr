@@ -129,7 +129,7 @@ export const OTPolicySetup: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex items-center justify-end gap-1  transition-all">
                       <button className="p-2 text-gray-400 hover:text-blue-500 hover:bg-white rounded-lg transition-all"><Edit3 size={16}/></button>
                       <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all"><Trash2 size={16}/></button>
                       <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all"><MoreVertical size={16}/></button>

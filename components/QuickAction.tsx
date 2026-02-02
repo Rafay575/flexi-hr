@@ -62,7 +62,7 @@ const QuickAction: React.FC<QuickActionProps> = ({ type, onClick }) => {
       <div className="w-full">
         <div className="flex justify-between items-center">
             <h4 className={`font-bold text-neutral-primary text-sm ${colorClass} transition-colors`}>{label}</h4>
-            <ChevronRight className="h-4 w-4 text-neutral-muted opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0" />
+            <ChevronRight className="h-4 w-4 text-neutral-muted  transition-opacity -translate-x-2 group-hover:translate-x-0" />
         </div>
         <p className="text-xs text-neutral-secondary font-medium mt-1">{description}</p>
       </div>

@@ -152,7 +152,7 @@ export const PayEdgeAIChat: React.FC = () => {
                   className="w-full text-left p-4 bg-white border border-gray-100 rounded-2xl text-xs font-bold text-gray-600 hover:border-primary hover:text-primary hover:shadow-md transition-all group"
                 >
                    {s}
-                   <ChevronRight size={14} className="float-right opacity-0 group-hover:opacity-100 transition-all" />
+                   <ChevronRight size={14} className="float-right  transition-all" />
                 </button>
               ))}
            </div>

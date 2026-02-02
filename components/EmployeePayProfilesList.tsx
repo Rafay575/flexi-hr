@@ -201,7 +201,7 @@ export const EmployeePayProfilesList: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-end gap-1  transition-opacity">
                       <button 
                         onClick={() => setSelectedEmployee(profile)}
                         className="p-2 text-gray-400 hover:text-primary hover:bg-white rounded shadow-sm border border-transparent hover:border-gray-100" 

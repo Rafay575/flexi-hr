@@ -20,6 +20,7 @@ import {
   Zap,
   Info
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Internal icon shim - Moved above usage to prevent "used before its declaration" errors
 const ArrowRightLeft: React.FC<{ size: number, className?: string }> = ({ size, className }) => (
@@ -187,7 +188,7 @@ const MOCK_WORKFLOWS: Workflow[] = [
 
 export const TimeSyncWorkflowsList: React.FC<{ onCreateNew?: () => void }> = ({ onCreateNew }) => {
   const [searchQuery, setSearchQuery] = useState('');
-
+  const navigate = useNavigate();
   const filteredWorkflows = MOCK_WORKFLOWS.filter(wf => 
     wf.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     wf.entity.toLowerCase().includes(searchQuery.toLowerCase())
@@ -204,7 +205,7 @@ export const TimeSyncWorkflowsList: React.FC<{ onCreateNew?: () => void }> = ({ 
           <p className="text-sm text-gray-500 font-medium italic mt-1">Configure multi-stage routing and SLA rules for all time-related entities</p>
         </div>
         <button 
-          onClick={onCreateNew}
+          onClick={()=>navigate('/timesync/workflows/new')}
           className="flex items-center gap-2 px-6 py-2.5 bg-[#3E3B6F] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-[#3E3B6F]/20 hover:scale-[1.02] active:scale-95 transition-all"
         >
           <Plus size={18} /> Create Workflow
@@ -294,7 +295,7 @@ export const TimeSyncWorkflowsList: React.FC<{ onCreateNew?: () => void }> = ({ 
                     </div>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex items-center justify-end gap-1  transition-all">
                        <button className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg" title="View Detail"><Eye size={16}/></button>
                        <button className="p-2 text-gray-400 hover:text-blue-500 hover:bg-white rounded-lg" title="Edit Logic"><Edit3 size={16}/></button>
                        <button className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-white rounded-lg" title="Clone"><Copy size={16}/></button>

@@ -107,7 +107,7 @@ function DesignationCardNode({ data }: NodeProps<DesignationNode>) {
             <StatusBadge status={d.active ? "active" : "inactive"} />
 
             {/* ✅ actions only appear on hover (clean UI) */}
-            <div className="opacity-0 group-hover:opacity-100 transition">
+            <div className=" transition">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button size="icon" variant="ghost" className="h-9 w-9 rounded-full">

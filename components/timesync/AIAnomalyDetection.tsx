@@ -197,7 +197,7 @@ export const AIAnomalyDetection: React.FC = () => {
                         <span className="text-[10px] font-bold text-gray-400 uppercase tabular-nums">{item.detectedAt}</span>
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                        <div className="flex items-center justify-end gap-1  transition-all">
                            <button className="p-2 text-gray-400 hover:text-purple-600 hover:bg-white rounded-lg shadow-none hover:shadow-sm transition-all"><Eye size={16}/></button>
                            <button className="p-2 text-gray-400 hover:text-red-500 hover:bg-white rounded-lg transition-all"><XCircle size={16}/></button>
                         </div>

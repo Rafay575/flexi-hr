@@ -141,7 +141,7 @@ export const PayslipDetail: React.FC<PayslipDetailProps> = ({ isOpen, onClose, m
                           <td className="px-6 py-4">
                              <div className="flex items-center gap-2">
                                 <span className="font-bold text-gray-700">{c.label}</span>
-                                <HelpCircle size={12} className="text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <HelpCircle size={12} className="text-gray-300  transition-opacity" />
                              </div>
                           </td>
                           <td className="px-6 py-4 text-right font-mono text-gray-400">{formatPKR(c.prev)}</td>

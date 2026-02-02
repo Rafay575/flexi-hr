@@ -145,7 +145,7 @@ export const RejectionReasonCategories = () => {
                     </button>
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <div className="flex justify-end items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex justify-end items-center gap-2  transition-all">
                       <button onClick={() => handleEdit(r)} className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-gray-100 transition-all">
                         <Edit3 size={16} />
                       </button>

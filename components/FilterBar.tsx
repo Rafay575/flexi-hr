@@ -148,7 +148,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                                         <Star className={`h-3.5 w-3.5 ${view.isDefault ? 'fill-flexi-gold text-flexi-gold' : 'text-neutral-muted'}`} />
                                         {view.name}
                                     </button>
-                                    <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity gap-1">
+                                    <div className="flex items-center  transition-opacity gap-1">
                                         <button 
                                             onClick={(e) => {
                                                 e.stopPropagation();

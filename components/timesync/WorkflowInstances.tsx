@@ -186,7 +186,7 @@ export const WorkflowInstances: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-5 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex items-center justify-end gap-1  transition-all">
                       <button 
                         onClick={() => setSelectedInstance(inst)}
                         className="px-4 py-1.5 bg-[#3E3B6F] text-white rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-[#3E3B6F]/20 hover:scale-105 active:scale-95 transition-all"

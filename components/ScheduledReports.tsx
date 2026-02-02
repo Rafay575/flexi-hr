@@ -121,7 +121,7 @@ export const ScheduledReports: React.FC = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex justify-end gap-1  transition-opacity">
                     <button className="p-2 text-gray-400 hover:text-primary transition-all"><Play size={16} fill="currentColor" /></button>
                     <button className="p-2 text-gray-400 hover:text-red-500 transition-all"><Trash2 size={16} /></button>
                     <button className="p-2 text-gray-400 hover:text-gray-800 transition-all"><MoreVertical size={16} /></button>

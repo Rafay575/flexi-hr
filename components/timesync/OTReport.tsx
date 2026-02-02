@@ -153,7 +153,7 @@ export const OTReport: React.FC = () => {
                       style={{ height: `${h}%` }} 
                       className={`w-full rounded-t-sm transition-all cursor-pointer ${isWeekend ? 'bg-orange-400/40 hover:bg-orange-400' : 'bg-[#3E3B6F]/20 hover:bg-[#3E3B6F]'}`}
                      >
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white px-2 py-1 rounded text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white px-2 py-1 rounded text-[8px] font-bold  transition-opacity whitespace-nowrap z-10">
                           {h}h total
                         </div>
                      </div>

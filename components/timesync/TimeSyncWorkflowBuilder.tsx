@@ -53,50 +53,9 @@ export const TimeSyncWorkflowBuilder: React.FC<{ onClose: () => void }> = ({ onC
   const activeStep = steps.find(s => s.id === activeStepId);
 
   return (
-    <div className="fixed inset-0 z-[200] bg-[#F5F5F5] flex flex-col animate-in fade-in duration-500">
+    <div className=" bg-[#F5F5F5] flex flex-col animate-in fade-in duration-500">
       {/* HEADER */}
-      <header className="h-20 bg-white border-b border-gray-200 px-8 flex items-center justify-between shrink-0 shadow-sm z-20">
-        <div className="flex items-center gap-6">
-          <div className="w-12 h-12 bg-primary-gradient rounded-2xl flex items-center justify-center text-white shadow-lg">
-            <GitMerge size={24} />
-          </div>
-          <div className="h-10 w-px bg-gray-100" />
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <input 
-                value={workflowName}
-                onChange={(e) => setWorkflowName(e.target.value)}
-                className="text-xl font-bold text-gray-800 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-[#3E3B6F] outline-none transition-all"
-              />
-              <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-black uppercase tracking-widest border border-blue-100">v4.0 Draft</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Routing Entity:</span>
-              <select 
-                value={entity}
-                onChange={(e) => setEntity(e.target.value as EntityType)}
-                className="text-[10px] font-black text-[#3E3B6F] bg-indigo-50 px-2 py-1 rounded-lg outline-none cursor-pointer border border-indigo-100"
-              >
-                <option>Regularization</option>
-                <option>OT Request</option>
-                <option>Shift Swap</option>
-                <option>Manual Punch</option>
-                <option>Roster Publish</option>
-                <option>Retro Correction</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button className="px-6 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all">Save Draft</button>
-          <button className="px-6 py-2.5 bg-white border border-gray-200 text-[#3E3B6F] rounded-xl text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all flex items-center gap-2">
-            <Play size={14} fill="currentColor" /> Test Logic
-          </button>
-          <button className="px-8 py-2.5 bg-[#3E3B6F] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-xl shadow-[#3E3B6F]/20 hover:scale-105 transition-all">Publish</button>
-          <button onClick={onClose} className="ml-4 p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-all"><X size={24} /></button>
-        </div>
-      </header>
+      
 
       <div className="flex-1 flex overflow-hidden">
         {/* CANVAS AREA */}
@@ -311,29 +270,7 @@ export const TimeSyncWorkflowBuilder: React.FC<{ onClose: () => void }> = ({ onC
       </div>
 
       {/* FOOTER BAR */}
-      <div className="h-12 bg-[#3E3B6F] text-white px-8 flex items-center justify-between shrink-0">
-         <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-green-400" />
-               <span className="text-[9px] font-black uppercase tracking-widest">Flow Valid</span>
-            </div>
-            <div className="flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-green-400" />
-               <span className="text-[9px] font-black uppercase tracking-widest">No Deadlocks</span>
-            </div>
-            <div className="flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-green-400" />
-               <span className="text-[9px] font-black uppercase tracking-widest">SLA Optimised</span>
-            </div>
-         </div>
-         <div className="flex items-center gap-4 text-[9px] font-bold text-white/50">
-            <span>Last Auto-saved: 12:05 PM</span>
-            <div className="flex items-center gap-2 bg-white/10 px-2 py-0.5 rounded">
-               <Lock size={10} />
-               <span>IMMUTABLE VERSIONING ENABLED</span>
-            </div>
-         </div>
-      </div>
+   
     </div>
   );
 };

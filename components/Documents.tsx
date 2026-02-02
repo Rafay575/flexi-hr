@@ -247,7 +247,7 @@ const Documents: React.FC = () => {
                                     onClick={() => openPreview(doc)}
                                     className="group relative bg-white border border-neutral-border rounded-xl p-6 flex flex-col items-center text-center shadow-sm hover:shadow-card hover:border-flexi-primary transition-all cursor-pointer"
                                   >
-                                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <div className="absolute top-2 right-2  transition-opacity">
                                           <button className="p-1.5 hover:bg-neutral-page rounded-md text-neutral-muted hover:text-neutral-primary">
                                               <MoreHorizontal className="w-4 h-4" />
                                           </button>
@@ -299,7 +299,7 @@ const Documents: React.FC = () => {
                                           <td className="p-4 text-sm text-neutral-primary">{doc.uploadedBy}</td>
                                           <td className="p-4 text-sm text-neutral-secondary">{doc.uploadDate}</td>
                                           <td className="p-4 text-right pr-2">
-                                              <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                              <div className="flex justify-end gap-2  transition-opacity">
                                                   <button className="p-1.5 text-neutral-muted hover:text-flexi-primary hover:bg-white rounded transition-colors">
                                                       <Download className="w-4 h-4" />
                                                   </button>
@@ -627,7 +627,7 @@ const Documents: React.FC = () => {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-xs text-neutral-primary font-medium">{ver.date}</p>
-                                            <button className="text-[10px] text-flexi-primary hover:underline opacity-0 group-hover:opacity-100 transition-opacity">Download</button>
+                                            <button className="text-[10px] text-flexi-primary hover:underline  transition-opacity">Download</button>
                                         </div>
                                     </div>
                                 </div>

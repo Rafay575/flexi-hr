@@ -202,7 +202,7 @@ export const MyCompOffCredits = ({ onApply }: { onApply: () => void }) => {
                     </span>
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex justify-end gap-2  transition-all">
                       {c.status === 'Available' && (
                         <button 
                           onClick={onApply}

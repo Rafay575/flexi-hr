@@ -184,7 +184,7 @@ export const WorkflowInstancesList = () => {
                       )}
                     </td>
                     <td className="px-8 py-5 text-right">
-                       <button className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-gray-100 transition-all opacity-0 group-hover:opacity-100">
+                       <button className="p-2 text-gray-400 hover:text-[#3E3B6F] hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-gray-100 transition-all ">
                           <Eye size={18}/>
                        </button>
                     </td>

@@ -120,7 +120,7 @@ export const LeaveAnalytics = () => {
                     <div className="absolute bottom-0 w-full bg-[#3E3B6F] rounded-full transition-all duration-1000" style={{ height: `${h}%` }} />
                  </div>
                  <span className="text-[10px] font-bold text-gray-400 uppercase">{['J','F','M','A','M','J','J','A','S','O','N','D'][i]}</span>
-                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#3E3B6F] text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#3E3B6F] text-white text-[10px] font-bold px-2 py-1 rounded  transition-opacity">
                     {h} days
                  </div>
                </div>

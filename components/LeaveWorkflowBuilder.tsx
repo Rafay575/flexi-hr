@@ -124,7 +124,7 @@ export const LeaveWorkflowBuilder = () => {
                       : 'bg-white border-gray-100 shadow-sm hover:border-indigo-200 text-gray-800'
                   }`}
                 >
-                   <div className={`absolute -left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all ${selectedStepId === step.id ? 'bg-white/10' : 'bg-gray-50'}`}>
+                   <div className={`absolute -left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg  transition-all ${selectedStepId === step.id ? 'bg-white/10' : 'bg-gray-50'}`}>
                       <GripVertical size={14} className={selectedStepId === step.id ? 'text-white/40' : 'text-gray-300'} />
                    </div>
                    

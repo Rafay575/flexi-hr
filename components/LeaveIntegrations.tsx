@@ -219,7 +219,7 @@ export const LeaveIntegrations = () => {
                     </span>
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <button className="p-2 text-gray-400 hover:text-[#3E3B6F] transition-all opacity-0 group-hover:opacity-100">
+                    <button className="p-2 text-gray-400 hover:text-[#3E3B6F] transition-all ">
                       <ChevronRight size={18} />
                     </button>
                   </td>

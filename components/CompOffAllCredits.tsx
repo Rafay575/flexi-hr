@@ -213,7 +213,7 @@ export const CompOffAllCredits = () => {
                       </span>
                     </td>
                     <td className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                      <div className="flex justify-end gap-2  transition-all">
                         {item.status === 'Pending' ? (
                           <>
                             <button className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100"><CheckSquare size={16}/></button>

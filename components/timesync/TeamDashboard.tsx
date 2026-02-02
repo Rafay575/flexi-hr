@@ -294,7 +294,7 @@ export const TeamDashboard: React.FC = () => {
                     <span className="text-[8px] font-black text-gray-400 mt-2">{hour}h</span>
                     
                     {/* Tooltip */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-800 text-white px-2 py-1 rounded text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-800 text-white px-2 py-1 rounded text-[8px] font-bold  transition-opacity z-10 pointer-events-none">
                        {liveH}% / {reqH}%
                     </div>
                   </div>

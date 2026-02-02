@@ -184,7 +184,7 @@ export const LeaveAnomalyDetection = () => {
                     </span>
                   </td>
                   <td className="px-8 py-5 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="flex justify-end gap-2  transition-all">
                        <button className="p-2 bg-white border border-gray-100 rounded-lg text-gray-400 hover:text-[#3E3B6F] shadow-sm"><Eye size={16}/></button>
                        <button className="p-2 bg-white border border-gray-100 rounded-lg text-gray-400 hover:text-indigo-600 shadow-sm"><CheckCircle2 size={16}/></button>
                     </div>
