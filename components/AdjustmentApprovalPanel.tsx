@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { 
   ShieldCheck, CheckCircle2, XCircle, Eye, Sliders, 
-  User, Database, ArrowRight, FileText, Download, 
-  Info, Clock, X, CheckSquare, Search, Filter, 
+ ArrowRight, FileText, Download, 
+   Clock, X, CheckSquare, 
   AlertTriangle, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 
