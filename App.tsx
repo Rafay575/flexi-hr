@@ -317,6 +317,7 @@ import { RosterSetupPage } from "./pages/RosterSetupPage";
 import RosterTemplatesPage from "./pages/RosterTemplatesPage";
 import ShiftTemplatesPage from "./pages/ShiftTemplatesPage";
 import LeaveEaseDashboard from "./components/leavease/LeaveEaseDashboard";
+import { EligibilityGroupsPage } from "./components/EligibilityGroupsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -1022,10 +1023,7 @@ const App: React.FC = () => {
                     <Route
                       path="eligibility"
                       element={
-                        <EligibilityGroupForm
-                          isOpen={true}
-                          onClose={() => {}}
-                        />
+                        <EligibilityGroupsPage />
                       }
                     />
                     <Route

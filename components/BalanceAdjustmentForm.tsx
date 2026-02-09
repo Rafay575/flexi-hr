@@ -50,7 +50,7 @@ export const BalanceAdjustmentForm: React.FC<BalanceAdjustmentFormProps> = ({ is
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 !m-0">
       <div className="absolute inset-0 bg-[#3E3B6F]/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose} />
       
       <div className="relative bg-[#F5F5F5] rounded-[40px] w-full max-w-[650px] max-h-[95vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in duration-300">

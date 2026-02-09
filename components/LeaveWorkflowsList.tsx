@@ -64,9 +64,7 @@ export const LeaveWorkflowsList = () => {
             <p className="text-gray-500 font-medium">Design and automate approval paths with custom conditions and multi-stage routing.</p>
           </div>
         </div>
-        <button className="bg-[#3E3B6F] text-white px-8 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-[#4A4680] shadow-xl shadow-[#3E3B6F]/20 transition-all active:scale-95">
-          <Plus size={20} /> Create Workflow
-        </button>
+      
       </div>
 
       {/* Main Table */}

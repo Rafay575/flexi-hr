@@ -203,7 +203,7 @@ export const BlackoutPeriods = () => {
 
       {/* Blackout Creation Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 !m-0">
           <div className="absolute inset-0 bg-[#3E3B6F]/40 backdrop-blur-sm animate-in fade-in" onClick={() => setIsModalOpen(false)} />
           <div className="relative bg-white rounded-[40px] w-full max-w-[550px] shadow-2xl overflow-hidden animate-in zoom-in duration-300">
             <div className="bg-white px-10 py-8 border-b border-gray-100 flex items-center justify-between">

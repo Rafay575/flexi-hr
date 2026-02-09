@@ -327,10 +327,10 @@ export const LeaveTypesList = () => {
       />
 
       {/* Eligibility Group Form */}
-      <EligibilityGroupForm 
+      {/* <EligibilityGroupForm 
         isOpen={isGroupFormOpen}
         onClose={() => setIsGroupFormOpen(false)}
-      />
+      /> */}
     </div>
   );
 };

@@ -168,7 +168,8 @@ export const EmployeeLeaveAssignments = () => {
 
       {/* Edit Drawer */}
       {selectedEmp && (
-        <div className="fixed inset-0 z-[100] overflow-hidden">
+        <div className='h-100vh'>
+        <div className="fixed inset-0 z-[100] overflow-hidden ">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedEmp(null)} />
           <div className="absolute right-0 top-0 h-full w-full max-w-[650px] bg-[#F5F5F5] shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col">
             <div className="p-8 bg-white border-b border-gray-100 flex items-center justify-between shrink-0">
@@ -288,11 +289,12 @@ export const EmployeeLeaveAssignments = () => {
             </div>
           </div>
         </div>
+        </div>
       )}
 
       {/* Bulk Assign Modal */}
       {isBulkModalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 !m-0">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsBulkModalOpen(false)} />
           <div className="relative bg-white rounded-[40px] w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in duration-300 flex flex-col max-h-[90vh]">
             <div className="bg-[#3E3B6F] p-8 text-white flex justify-between items-center shrink-0">
