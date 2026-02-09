@@ -236,7 +236,7 @@ import { LeaveEntitlements } from "./components/LeaveEntitlements";
 import { PayrollPeriodsList } from "./components/PayrollPeriodsList";
 import { OrgLeaveCalendar } from "./components/OrgLeaveCalendar";
 import { SLAMonitorDashboard } from "./components/SLAMonitorDashboard";
-import { ApprovalsInbox as LeaveApprovalsInbox } from "./components/timesync/ApprovalsInbox";
+import { LeaveApprovalsInbox} from "./components/leavease/LeaveApprovalsInbox";
 import { DelegationSettings } from "./components/DelegationSettings";
 import { EligibilityGroupForm } from "./components/EligibilityGroupForm";
 

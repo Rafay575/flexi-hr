@@ -51,8 +51,8 @@ export const LeaveTypeForm: React.FC<{ isOpen: boolean; onClose: () => void; ini
   const update = (key: string, val: any) => setFormData(prev => ({ ...prev, [key]: val }));
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative bg-[#F5F5F5] w-full max-w-6xl h-[90vh] flex flex-col rounded-[32px] overflow-hidden shadow-2xl scale-in-center">
+    <div className="fixed !m-0 p-0 inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative bg-[#F5F5F5] w-full max-w-6xl h-[90vh] flex flex-col rounded-[32px] overflow-hidden shadow-2xl scale-in-centerb !m-0">
         {/* Header */}
         <div className="bg-white px-8 py-6 border-b border-gray-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
