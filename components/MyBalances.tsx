@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
-import { Calendar, HeartPulse, Coffee, Zap, Info, ChevronRight, History, ExternalLink, Clock, Plus } from 'lucide-react';
+import { Calendar, HeartPulse, Coffee, Zap, Info, ChevronRight, History, ExternalLink, Clock, Plus, X } from 'lucide-react';
 import { LeaveType } from '../types';
+import { ApplyLeaveWizard } from './ApplyLeaveWizard'; // Make sure this path is correct
 
 interface Balance {
   type: LeaveType | string;
@@ -34,7 +34,15 @@ const getIcon = (type: string) => {
   }
 };
 
-const BalanceCard = ({ balance, onApply }: { balance: Balance, onApply: () => void }) => {
+const BalanceCard = ({ 
+  balance, 
+
+  onOpenWizard 
+}: { 
+  balance: Balance, 
+  onApply: () => void,
+  onOpenWizard: (leaveType: string) => void 
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isZero = balance.remaining === 0;
   const isLow = typeof balance.remaining === 'number' && balance.remaining < 2 && balance.remaining > 0;
@@ -43,6 +51,12 @@ const BalanceCard = ({ balance, onApply }: { balance: Balance, onApply: () => vo
   const percentage = typeof balance.total === 'number' 
     ? Math.min(100, (balance.used / balance.total) * 100) 
     : 0;
+
+  const handleApplyClick = () => {
+    if (!isZero) {
+      onOpenWizard(balance.type);
+    }
+  };
 
   return (
     <div className={`rounded-xl border transition-all duration-300 overflow-hidden ${
@@ -122,7 +136,7 @@ const BalanceCard = ({ balance, onApply }: { balance: Balance, onApply: () => vo
           </button>
           <button 
             disabled={isZero}
-            onClick={onApply}
+            onClick={handleApplyClick}
             className="bg-[#3E3B6F] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#4A4680] transition-colors disabled:bg-gray-200 disabled:text-gray-400"
           >
             Apply
@@ -154,78 +168,138 @@ const BalanceCard = ({ balance, onApply }: { balance: Balance, onApply: () => vo
   );
 };
 
-export const MyBalances = ({ onApply }: { onApply: () => void }) => {
+export const MyBalances = () => {
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [selectedLeaveType, setSelectedLeaveType] = useState<string>('Annual Leave');
+
+  const handleApplyClick = () => {
+    setSelectedLeaveType('Annual Leave');
+    setIsWizardOpen(true);
+  };
+
+  const handleCardApplyClick = (leaveType: string) => {
+    setSelectedLeaveType(leaveType);
+    setIsWizardOpen(true);
+  };
+
+  const handleWizardSubmit = (formData: any) => {
+    console.log('Leave application submitted:', formData);
+    // Here you would typically send the data to your API
+    alert(`Leave application submitted for ${formData.leaveType} from ${formData.startDate} to ${formData.endDate}`);
+    setIsWizardOpen(false);
+  };
+
+  const handleWizardClose = () => {
+    setIsWizardOpen(false);
+  };
+
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-[#3E3B6F]">My Leave Balances</h2>
-          <p className="text-gray-500">Overview of your current entitlements and history.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <select className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#3E3B6F]/20">
-            <option>Year 2024</option>
-            <option>Year 2023</option>
-          </select>
-          <button 
-            onClick={onApply}
-            className="bg-[#3E3B6F] text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-[#4A4680] shadow-lg shadow-[#3E3B6F]/20 transition-all active:scale-95"
-          >
-            <Plus size={18} /> Apply Leave
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {MOCK_BALANCES.map((b, i) => (
-              <BalanceCard key={i} balance={b} onApply={onApply} />
-            ))}
+    <>
+      <div className="p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-8 animate-in fade-in duration-500">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-[#3E3B6F]">My Leave Balances</h2>
+            <p className="text-gray-500">Overview of your current entitlements and history.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <select className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold text-gray-600 outline-none focus:ring-2 focus:ring-[#3E3B6F]/20">
+              <option>Year 2024</option>
+              <option>Year 2023</option>
+            </select>
+            <button 
+              onClick={handleApplyClick}
+              className="bg-[#3E3B6F] text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-[#4A4680] shadow-lg shadow-[#3E3B6F]/20 transition-all active:scale-95"
+            >
+              <Plus size={18} /> Apply Leave
+            </button>
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="bg-[#3E3B6F] rounded-2xl p-8 text-white relative overflow-hidden shadow-xl">
-            <div className="relative z-10">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 mb-1">Total Available</p>
-              <h3 className="text-5xl font-bold mb-6">52 <span className="text-xl font-normal text-white/50">Days</span></h3>
-              
-              <div className="space-y-4">
-                <div className="bg-white/10 p-4 rounded-xl border border-white/10">
-                  <p className="text-[10px] font-bold uppercase text-white/60 mb-1">Next Approved Leave</p>
-                  <p className="font-bold">Feb 10, 2024</p>
-                  <p className="text-xs text-white/40">Casual Leave (2 Days)</p>
-                </div>
-                <div className="bg-white/10 p-4 rounded-xl border border-white/10">
-                  <p className="text-[10px] font-bold uppercase text-white/60 mb-1">Pending Requests</p>
-                  <p className="font-bold">3 Applications</p>
-                  <p className="text-xs text-white/40">Awaiting Manager Approval</p>
-                </div>
-              </div>
-            </div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-          </div>
-
-          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-            <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <Plus size={18} className="text-[#3E3B6F]" /> Quick Links
-            </h4>
-            <div className="space-y-3">
-              {[
-                { label: 'Leave Policy Guide', icon: ExternalLink },
-                { label: 'Public Holiday List', icon: Calendar },
-                { label: 'Balance Adjustments', icon: History }
-              ].map((link, i) => (
-                <button key={i} className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group">
-                  <span className="text-sm font-medium text-gray-600">{link.label}</span>
-                  <link.icon size={14} className="text-gray-400 group-hover:text-[#3E3B6F]" />
-                </button>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {MOCK_BALANCES.map((b, i) => (
+                <BalanceCard 
+                  key={i} 
+                  balance={b} 
+                  onApply={() => {}} 
+                  onOpenWizard={handleCardApplyClick}
+                />
               ))}
             </div>
           </div>
+
+          <div className="space-y-6">
+            <div className="bg-[#3E3B6F] rounded-2xl p-8 text-white relative overflow-hidden shadow-xl">
+              <div className="relative z-10">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/50 mb-1">Total Available</p>
+                <h3 className="text-5xl font-bold mb-6">52 <span className="text-xl font-normal text-white/50">Days</span></h3>
+                
+                <div className="space-y-4">
+                  <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                    <p className="text-[10px] font-bold uppercase text-white/60 mb-1">Next Approved Leave</p>
+                    <p className="font-bold">Feb 10, 2024</p>
+                    <p className="text-xs text-white/40">Casual Leave (2 Days)</p>
+                  </div>
+                  <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                    <p className="text-[10px] font-bold uppercase text-white/60 mb-1">Pending Requests</p>
+                    <p className="font-bold">3 Applications</p>
+                    <p className="text-xs text-white/40">Awaiting Manager Approval</p>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+            </div>
+
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+              <h4 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Plus size={18} className="text-[#3E3B6F]" /> Quick Links
+              </h4>
+              <div className="space-y-3">
+                {[
+                  { label: 'Leave Policy Guide', icon: ExternalLink },
+                  { label: 'Public Holiday List', icon: Calendar },
+                  { label: 'Balance Adjustments', icon: History }
+                ].map((link, i) => (
+                  <button key={i} className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group">
+                    <span className="text-sm font-medium text-gray-600">{link.label}</span>
+                    <link.icon size={14} className="text-gray-400 group-hover:text-[#3E3B6F]" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Leave Application Stats */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+          <h3 className="text-xl font-bold text-[#3E3B6F] mb-4">Quick Apply Tips</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-4 rounded-xl border border-blue-200">
+              <div className="text-blue-600 font-bold text-sm mb-2">✓ Fast Approval</div>
+              <p className="text-gray-600 text-sm">Apply 7+ days in advance for 95% faster approval</p>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-blue-200">
+              <div className="text-blue-600 font-bold text-sm mb-2">⏱ Save Time</div>
+              <p className="text-gray-600 text-sm">Complete applications take less than 2 minutes</p>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-blue-200">
+              <div className="text-blue-600 font-bold text-sm mb-2">📱 Mobile Friendly</div>
+              <p className="text-gray-600 text-sm">Apply on-the-go from your mobile device</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Apply Leave Wizard Modal */}
+      <ApplyLeaveWizard
+        isOpen={isWizardOpen}
+        onClose={handleWizardClose}
+        onSubmit={handleWizardSubmit}
+    
+      />
+    </>
   );
 };
+
+// If you don't have the ApplyLeaveWizard component, here's a basic version you can use:

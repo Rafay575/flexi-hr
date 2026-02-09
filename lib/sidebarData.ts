@@ -238,10 +238,6 @@ export const modules: ModuleItem[] = [
         },
       ],
     },
-
-    // ═══════════════════════════════════════════════════════════════════
-    // 4. APPROVALS INBOX (4 items - expanded from standalone)
-    // ═══════════════════════════════════════════════════════════════════
     {
       id: 4,
       icon: "Inbox",
@@ -249,21 +245,11 @@ export const modules: ModuleItem[] = [
       pathname: "/timesync/approvals-inbox",
      
     },
-
-    // ═══════════════════════════════════════════════════════════════════
-    // 5. WORKFLOWS (6 items - Payroll Control moved to System Settings)
-    // ═══════════════════════════════════════════════════════════════════
     {
       id: 5,
       icon: "GitBranch",
       title: "WORKFLOWS",
       subMenu: [
-        // {
-        //   id: 51,
-        //   icon: "FileCheck",
-        //   title: "Regularizations",
-        //   pathname: "/timesync/regularizations",
-        // },
         {
           id: 52,
           icon: "ClipboardList",
@@ -1092,12 +1078,7 @@ export const modules: ModuleItem[] = [
             title: "My Balances",
             pathname: "/leaveease/my-balances",
           },
-          {
-            id: 202,
-            icon: "Zap",
-            title: "Apply Leave",
-            pathname: "/leaveease/apply-leave",
-          },
+          
           {
             id: 203,
             icon: "Trophy",
@@ -1165,7 +1146,7 @@ export const modules: ModuleItem[] = [
             id: 401,
             icon: "CheckSquare",
             title: "Approvals Inbox",
-            pathname: "/leaveease/approvals-inbox",
+            pathname: "/leaveease/approvals-inbox-leave",
           },
           {
             id: 402,

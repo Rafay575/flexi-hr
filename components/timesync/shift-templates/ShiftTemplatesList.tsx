@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { ShiftTemplate, ShiftType, ShiftStatus } from './types';
 import { ShiftTemplateForm } from './ShiftTemplateForm';
+import { useNavigate } from 'react-router-dom';
 
 const TYPE_CONFIG = {
   FIXED: { label: 'Fixed', color: 'bg-blue-50 text-blue-600 border-blue-100', icon: <Sun size={12} /> },
@@ -179,7 +180,7 @@ export const ShiftTemplatesList = () => {
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [selectedShift, setSelectedShift] = useState<ShiftTemplate | null>(null);
   const [activeActionMenu, setActiveActionMenu] = useState<string | null>(null);
-
+  const [isOpen, setIsOpen] = useState(false);
   const filteredShifts = useMemo(() => {
     return shifts.filter(shift => {
       const matchesSearch = shift.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -192,11 +193,7 @@ export const ShiftTemplatesList = () => {
     });
   }, [shifts, searchQuery, filterType, filterStatus]);
 
-  const handleCreateTemplate = () => {
-    setSelectedShift(null);
-    setFormMode('create');
-    setShowForm(true);
-  };
+ const navigate = useNavigate();
 
   const handleEditTemplate = (shift: ShiftTemplate) => {
     setSelectedShift(shift);
@@ -284,7 +281,7 @@ export const ShiftTemplatesList = () => {
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500 overflow-hidden">
-      {/* HEADER */}
+    
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Shift Templates</h2>
@@ -303,7 +300,7 @@ export const ShiftTemplatesList = () => {
             />
           </div>
           <button 
-            onClick={handleCreateTemplate}
+          onClick={()=> navigate("/timesync/shift-templates/new")}
             className="flex items-center gap-2 px-6 py-2.5 bg-[#3E3B6F] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-[#3E3B6F]/20 hover:scale-[1.02] active:scale-95 transition-all"
           >
             <Plus size={18} /> Create Template
@@ -602,19 +599,7 @@ export const ShiftTemplatesList = () => {
       </div>
 
       {/* FORM MODAL */}
-      {showForm && (
-        <ShiftTemplateForm
-          template={selectedShift || undefined}
-          onSave={handleSaveTemplate}
-          onClose={() => {
-            if (window.confirm('Are you sure you want to discard your changes?')) {
-              setShowForm(false);
-              setSelectedShift(null);
-            }
-          }}
-          mode={formMode}
-        />
-      )}
+     
     </div>
   );
 };

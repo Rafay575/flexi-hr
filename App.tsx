@@ -316,6 +316,7 @@ import { RoasterChangeRequest } from "./components/timesync/roasterchange";
 import { RosterSetupPage } from "./pages/RosterSetupPage";
 import RosterTemplatesPage from "./pages/RosterTemplatesPage";
 import ShiftTemplatesPage from "./pages/ShiftTemplatesPage";
+import LeaveEaseDashboard from "./components/leavease/LeaveEaseDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -407,167 +408,6 @@ const LeaveEaseApp: React.FC = () => {
 };
 
 // ---------- LeaveEase Dashboard Component ----------
-const LeaveEaseDashboard: React.FC = () => {
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const navigate = useNavigate();
-  const [history] = useState<LeaveRequest[]>(MOCK_HISTORY);
-
-  const getStatusStyle = (status: LeaveStatus) => {
-    switch (status) {
-      case LeaveStatus.APPROVED:
-        return "bg-emerald-100 text-emerald-700 border-emerald-200";
-      case LeaveStatus.PENDING:
-        return "bg-amber-100 text-amber-700 border-amber-200";
-      case LeaveStatus.REJECTED:
-        return "bg-red-100 text-red-700 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-500 border-gray-200";
-    }
-  };
-
-  return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-700">
-      {/* Welcome Banner */}
-      <section className="bg-primary-gradient rounded-2xl p-6 lg:p-10 text-white relative overflow-hidden shadow-2xl">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-[#E8D5A3] text-[#3E3B6F] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                Active Period: 2025
-              </span>
-            </div>
-            <h2 className="text-3xl lg:text-4xl font-bold mb-2">
-              Welcome back, John! 👋
-            </h2>
-            <p className="text-white/80 max-w-md text-lg">
-              You have <span className="text-[#E8D5A3] font-bold">16 days</span>{" "}
-              of Annual Leave remaining. Ready for a break?
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20 min-w-[200px]">
-              <p className="text-xs uppercase tracking-widest text-white/60 mb-2">
-                Upcoming Leave
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="text-center px-4 py-2 bg-accent-cream rounded-lg text-[#3E3B6F]">
-                  <p className="text-[10px] font-bold leading-none">FEB</p>
-                  <p className="text-xl font-bold">10</p>
-                </div>
-                <div>
-                  <p className="font-bold text-sm">Annual Leave</p>
-                  <p className="text-xs text-white/70">3 Days Pending</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20 flex flex-col justify-center">
-              <button
-                onClick={() => setIsWizardOpen(true)}
-                className="bg-[#E8D5A3] text-[#3E3B6F] px-6 py-3 rounded-lg font-bold flex items-center gap-2 hover:bg-white transition-all shadow-xl active:scale-95 whitespace-nowrap"
-              >
-                <Plus size={18} />
-                New Application
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#E8B4A0]/10 rounded-full blur-2xl"></div>
-      </section>
-
-      <EmployeeView onApply={() => setIsWizardOpen(true)} />
-      <ManagerView />
-      <HRView />
-
-      <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-12">
-        <div className="px-6 py-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-xl font-bold text-gray-800">
-              Recent Leave Activity
-            </h3>
-            <p className="text-sm text-gray-500">
-              A quick glance at your latest requests.
-            </p>
-          </div>
-          <button
-            onClick={() => navigate("/leaveease/my-requests")}
-            className="text-sm font-bold text-[#3E3B6F] hover:underline"
-          >
-            View All Requests
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50/50">
-              <tr>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
-                  Ref ID
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
-                  Type
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
-                  Duration
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em]">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-[0.15em] text-right">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {history.slice(0, 4).map((request) => (
-                <tr
-                  key={request.id}
-                  className="hover:bg-gray-50/50 transition-colors group"
-                >
-                  <td className="px-6 py-5 font-mono text-xs text-gray-400">
-                    {request.id}
-                  </td>
-                  <td className="px-6 py-5 font-bold text-gray-800 text-sm">
-                    {request.type}
-                  </td>
-                  <td className="px-8 py-5 text-sm font-bold text-[#3E3B6F]">
-                    {request.days} Days
-                  </td>
-                  <td className="px-6 py-5">
-                    <span
-                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wider `}
-                    >
-                      {request.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-5 text-right">
-                    <button
-                      onClick={() => navigate("/leaveease/my-requests")}
-                      className="text-gray-400 hover:text-[#3E3B6F] transition-colors p-2 rounded-lg hover:bg-white shadow-sm border border-transparent hover:border-gray-100"
-                    >
-                      <ChevronRight size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <footer className="py-10 text-center space-y-2 border-t border-gray-100">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-          Powered by Flexi HRMS Engine
-        </p>
-      </footer>
-      <ApplyLeaveWizard
-        isOpen={isWizardOpen}
-        onClose={() => setIsWizardOpen(false)}
-        onSubmit={() => {}}
-      />
-    </div>
-  );
-};
 
 // ---------- PayEdge Wrapper Component ----------
 
@@ -1129,29 +969,22 @@ const App: React.FC = () => {
                       path="my-balances"
                       element={
                         <MyBalances
-                          onApply={() =>
-                            (window.location.href = "/leaveease/apply-leave")
-                          }
+                      
                         />
                       }
                     />
                     <Route
                       path="apply-leave"
                       element={
-                        <MyBalances
-                          onApply={() =>
-                            (window.location.href = "/leaveease/apply-leave")
-                          }
-                        />
+                        <MyBalances />
                       }
                     />
                     <Route
                       path="my-requests"
                       element={
                         <MyRequests
-                          onApply={() =>
-                            (window.location.href = "/leaveease/apply-leave")
-                          }
+                         
+                         
                         />
                       }
                     />
@@ -1173,7 +1006,7 @@ const App: React.FC = () => {
                     />
                     {/* Approvals Section */}
                     <Route
-                      path="approvals-inbox"
+                      path="approvals-inbox-leave"
                       element={<LeaveApprovalsInbox />}
                     />
                     <Route

@@ -354,7 +354,7 @@ export const ApplyLeaveWizard: React.FC<{ isOpen: boolean; onClose: () => void; 
 
   if (isSuccess) {
     return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 !m-0">
         <div className="absolute inset-0 bg-[#3E3B6F]/90 backdrop-blur-md" />
         <div className="relative bg-white rounded-3xl p-10 max-w-md w-full text-center space-y-6 shadow-2xl animate-in zoom-in duration-300">
           <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
@@ -374,7 +374,7 @@ export const ApplyLeaveWizard: React.FC<{ isOpen: boolean; onClose: () => void; 
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 !m-0">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-[#F5F5F5] rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col h-[85vh] md:h-auto">
         
