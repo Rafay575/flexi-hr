@@ -52,7 +52,7 @@ export const LeaveWorkflowsList = () => {
   };
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-8 animate-in fade-in duration-500 font-['League_Spartan']">
+    <div className="p-0 !m-0 lg:p-8 max-w-7xl mx-auto w-full space-y-8 animate-in fade-in duration-500 font-['League_Spartan']">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
@@ -206,7 +206,7 @@ export const LeaveWorkflowsList = () => {
 
       {/* Logic Preview Modal */}
       {selectedWorkflow && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 !m-0">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedWorkflow(null)} />
           <div className="relative bg-white rounded-[40px] w-full max-w-[600px] shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col max-h-[85vh]">
              <div className="bg-[#3E3B6F] p-10 text-white flex justify-between items-center shrink-0">
