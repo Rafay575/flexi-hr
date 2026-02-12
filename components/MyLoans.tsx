@@ -53,12 +53,7 @@ export const MyLoans = () => {
           <h2 className="text-2xl font-bold text-gray-800 tracking-tight">My Loans & Advances</h2>
           <p className="text-sm text-gray-500">Track your active liabilities and apply for short-term financial support</p>
         </div>
-        <button 
-   
-          className="bg-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95"
-        >
-          <Plus size={18} /> Request Salary Advance
-        </button>
+       
       </div>
 
       {/* Active Loan Card */}

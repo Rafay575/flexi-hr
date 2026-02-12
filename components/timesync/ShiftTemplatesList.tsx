@@ -1,17 +1,16 @@
-
-import React, { useState, useMemo } from 'react';
-import { 
-  Search, 
-  Filter, 
-  Plus, 
-  MoreVertical, 
-  Clock, 
-  Coffee, 
-  UserCheck, 
-  ChevronRight, 
-  Copy, 
-  History, 
-  Power, 
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  Search,
+  Filter,
+  Plus,
+  MoreVertical,
+  Clock,
+  Coffee,
+  UserCheck,
+  ChevronRight,
+  Copy,
+  History,
+  Power,
   Settings2,
   Calendar,
   Moon,
@@ -19,9 +18,15 @@ import {
   LayoutGrid,
   Zap,
   ArrowRight,
-  Download
+  Download,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
+import { api } from '../api/client';
 
+// ------------------------------
+// Types & Config (unchanged)
+// ------------------------------
 type ShiftType = 'FIXED' | 'FLEXI' | 'ROTATING' | 'SPLIT' | 'RAMZAN';
 type ShiftStatus = 'ACTIVE' | 'INACTIVE';
 
@@ -45,31 +50,137 @@ const TYPE_CONFIG: Record<ShiftType, { label: string; color: string; icon: React
   RAMZAN: { label: 'Ramzan', color: 'bg-yellow-50 text-yellow-700 border-yellow-200', icon: <Moon size={12} /> },
 };
 
-const MOCK_SHIFTS: ShiftTemplate[] = [
-  { id: 'ST-001', code: 'MORN', name: 'Morning Shift', type: 'FIXED', timing: '9:00 AM - 6:00 PM', breakTime: '60 min', grace: { in: 15, out: 15 }, employeeCount: 85, status: 'ACTIVE' },
-  { id: 'ST-002', code: 'EVE', name: 'Evening Shift', type: 'FIXED', timing: '2:00 PM - 11:00 PM', breakTime: '60 min', grace: { in: 15, out: 15 }, employeeCount: 42, status: 'ACTIVE' },
-  { id: 'ST-003', code: 'NIGHT', name: 'Night Shift', type: 'FIXED', timing: '10:00 PM - 7:00 AM', breakTime: '60 min', grace: { in: 15, out: 15 }, employeeCount: 12, status: 'ACTIVE' },
-  { id: 'ST-004', code: 'FLEXI', name: 'General Flexi', type: 'FLEXI', timing: '8h window (7 AM - 8 PM)', breakTime: '60 min', grace: { in: 0, out: 0 }, employeeCount: 30, status: 'ACTIVE' },
-  { id: 'ST-005', code: 'FRI', name: 'Friday Special', type: 'FIXED', timing: '9:00 AM - 6:30 PM', breakTime: '120 min (Prayer)', grace: { in: 15, out: 15 }, employeeCount: 156, status: 'ACTIVE' },
-  { id: 'ST-006', code: 'RMZ', name: 'Ramzan Shift', type: 'RAMZAN', timing: '9:00 AM - 4:00 PM', breakTime: '30 min', grace: { in: 30, out: 0 }, employeeCount: 156, status: 'INACTIVE' },
-  { id: 'ST-007', code: 'SPLT', name: 'Split Shift (Ops)', type: 'SPLIT', timing: '8A-12P | 4P-8P', breakTime: '240 min', grace: { in: 10, out: 10 }, employeeCount: 8, status: 'ACTIVE' },
-  { id: 'ST-008', code: 'ROTA', name: 'Rotation A', type: 'ROTATING', timing: 'Weekly Rotation', breakTime: '60 min', grace: { in: 15, out: 15 }, employeeCount: 24, status: 'ACTIVE' },
-  { id: 'ST-009', code: 'W-OFF', name: 'Weekend Shift', type: 'FIXED', timing: '10:00 AM - 4:00 PM', breakTime: '45 min', grace: { in: 30, out: 30 }, employeeCount: 5, status: 'ACTIVE' },
-  { id: 'ST-010', code: 'INT', name: 'Intern Flexi', type: 'FLEXI', timing: '4h window', breakTime: '15 min', grace: { in: 0, out: 0 }, employeeCount: 15, status: 'ACTIVE' },
-];
+// ------------------------------
+// Helper functions
+// ------------------------------
+const formatTime12h = (time24: string): string => {
+  if (!time24) return '';
+  const [hour, minute] = time24.split(':').map(Number);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${minute.toString().padStart(2, '0')} ${period}`;
+};
 
+const transformApiShift = (apiShift: any): ShiftTemplate => {
+  // Map API category to our ShiftType – add more mappings if needed
+  const typeMapping: Record<string, ShiftType> = {
+    FIXED: 'FIXED',
+    FLEXI: 'FLEXI',
+    ROTATING: 'ROTATING',
+    SPLIT: 'SPLIT',
+    RAMZAN: 'RAMZAN',
+  };
+  const shiftType: ShiftType = typeMapping[apiShift.category] || 'FIXED';
+
+  // Build timing string from shift_start/end_time
+  const start = formatTime12h(apiShift.timing?.shift_start_time);
+  const end = formatTime12h(apiShift.timing?.shift_end_time);
+  const timing = start && end ? `${start} - ${end}` : apiShift.timing?.total_duration_display || '—';
+
+  // Sum break durations from the "breaks" array
+  const totalBreakMinutes = apiShift.breaks?.reduce((acc: number, b: any) => acc + (b.duration_minutes || 0), 0) || 0;
+  const breakTime = totalBreakMinutes > 0 ? `${totalBreakMinutes} min` : '—';
+
+  // Grace policy
+  const graceIn = apiShift.grace_buffer?.grace_in_minutes ?? 0;
+  const graceOut = apiShift.grace_buffer?.grace_out_minutes ?? 0;
+
+  // Status: treat "published" or non‑null published_at as ACTIVE, otherwise INACTIVE
+  const isActive = apiShift.status === 'published' || !!apiShift.published_at;
+  const status: ShiftStatus = isActive ? 'ACTIVE' : 'INACTIVE';
+
+  // Employee count is not provided by this endpoint → default to 0
+  const employeeCount = 0;
+
+  return {
+    id: `ST-${apiShift.id}`,
+    code: apiShift.shift_code || '',
+    name: apiShift.display_name || '',
+    type: shiftType,
+    timing,
+    breakTime,
+    grace: { in: graceIn, out: graceOut },
+    employeeCount,
+    status,
+  };
+};
+
+// ------------------------------
+// Main Component
+// ------------------------------
 export const ShiftTemplatesList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<ShiftType | 'ALL'>('ALL');
+  const [shifts, setShifts] = useState<ShiftTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch data on mount
+useEffect(() => {
+  const fetchShifts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.get('/v1/shift-templates?per_page=15');
+      // axios puts the response data in response.data
+      const json = response.data;
+      if (json.success && Array.isArray(json.data)) {
+        const transformed = json.data.map(transformApiShift);
+        setShifts(transformed);
+      } else {
+        throw new Error('Invalid API response');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchShifts();
+}, []);
+
+  // Filter & search logic (same as before)
   const filteredShifts = useMemo(() => {
-    return MOCK_SHIFTS.filter(shift => {
-      const matchesSearch = shift.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           shift.code.toLowerCase().includes(searchQuery.toLowerCase());
+    return shifts.filter(shift => {
+      const matchesSearch = shift.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        shift.code.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesType = filterType === 'ALL' || shift.type === filterType;
       return matchesSearch && matchesType;
     });
-  }, [searchQuery, filterType]);
+  }, [shifts, searchQuery, filterType]);
+
+  // ------------------------------
+  // Render
+  // ------------------------------
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <Loader2 className="animate-spin text-[#3E3B6F] mx-auto mb-4" size={32} />
+          <p className="text-sm font-medium text-gray-500">Loading shift templates…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center bg-red-50 p-6 rounded-2xl border border-red-100">
+          <AlertCircle className="text-red-500 mx-auto mb-4" size={32} />
+          <h3 className="text-sm font-black uppercase tracking-widest text-red-700 mb-2">Failed to load</h3>
+          <p className="text-xs text-red-600">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-white border border-red-200 rounded-xl text-xs font-bold text-red-700 hover:bg-red-50 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full animate-in fade-in duration-500 overflow-hidden">
@@ -83,16 +194,15 @@ export const ShiftTemplatesList = () => {
         <div className="flex items-center gap-3">
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#3E3B6F]" size={16} />
-            <input 
-              type="text" 
-              placeholder="Search code or name..." 
+            <input
+              type="text"
+              placeholder="Search code or name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-medium w-64 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 focus:border-[#3E3B6F] transition-all shadow-sm"
             />
           </div>
-          <button 
-          
+          <button
             className="flex items-center gap-2 px-6 py-2.5 bg-[#3E3B6F] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-[#3E3B6F]/20 hover:scale-[1.02] active:scale-95 transition-all"
           >
             <Plus size={18} /> Create Shift
@@ -102,7 +212,7 @@ export const ShiftTemplatesList = () => {
 
       {/* FILTER BAR */}
       <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-2">
-        <button 
+        <button
           onClick={() => setFilterType('ALL')}
           className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all ${
             filterType === 'ALL' ? 'bg-[#3E3B6F] text-white border-transparent shadow-md' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
@@ -111,7 +221,7 @@ export const ShiftTemplatesList = () => {
           All Shifts
         </button>
         {(['FIXED', 'FLEXI', 'ROTATING', 'SPLIT', 'RAMZAN'] as ShiftType[]).map(type => (
-          <button 
+          <button
             key={type}
             onClick={() => setFilterType(type)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all ${
@@ -175,7 +285,7 @@ export const ShiftTemplatesList = () => {
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-3 text-[10px] font-bold">
                       <div className="bg-green-50 text-green-700 px-2 py-0.5 rounded border border-green-100">IN: {shift.grace.in}m</div>
-                      <div className="bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-orange-100">OUT: {shift.grace.out}m</div>
+                      <div className="bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-orange-100">OUT: {shift.grace.out}m </div>
                     </div>
                   </td>
                   <td className="px-6 py-5 text-center">
@@ -203,7 +313,14 @@ export const ShiftTemplatesList = () => {
                         <History size={16} />
                       </button>
                       <div className="w-px h-4 bg-gray-200 mx-1"></div>
-                      <button className={`p-2 rounded-lg transition-all ${shift.status === 'ACTIVE' ? 'text-red-400 hover:bg-red-50 hover:text-red-600' : 'text-green-400 hover:bg-green-50 hover:text-green-600'}`} title={shift.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}>
+                      <button
+                        className={`p-2 rounded-lg transition-all ${
+                          shift.status === 'ACTIVE'
+                            ? 'text-red-400 hover:bg-red-50 hover:text-red-600'
+                            : 'text-green-400 hover:bg-green-50 hover:text-green-600'
+                        }`}
+                        title={shift.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
+                      >
                         <Power size={16} />
                       </button>
                     </div>
@@ -212,7 +329,7 @@ export const ShiftTemplatesList = () => {
               ))}
             </tbody>
           </table>
-          {filteredShifts.length === 0 && (
+          {filteredShifts.length === 0 && !loading && (
             <div className="h-full flex flex-col items-center justify-center p-20 text-center opacity-30">
               <Clock size={64} className="text-gray-300 mb-4" />
               <h3 className="text-lg font-black uppercase tracking-widest text-gray-500">No Shifts Found</h3>
@@ -220,18 +337,18 @@ export const ShiftTemplatesList = () => {
             </div>
           )}
         </div>
-        
+
         {/* FOOTER */}
         <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-6">
-             <div className="flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-green-500"></div>
-               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Policies</span>
-             </div>
-             <div className="flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Extended Breaks Active</span>
-             </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Policies</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Extended Breaks Active</span>
+            </div>
           </div>
           <div className="flex gap-2">
             <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition-all">

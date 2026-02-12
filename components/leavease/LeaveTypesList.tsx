@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { LeaveTypeForm } from './LeaveTypeForm';
 import { LeaveTypeVersionHistory } from './LeaveTypeVersionHistory';
-import { EligibilityGroupForm } from './EligibilityGroupForm';
+import { EligibilityGroupForm } from '../EligibilityGroupForm';
 
 interface LeaveTypeConfig {
   code: string;

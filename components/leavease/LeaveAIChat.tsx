@@ -6,7 +6,7 @@ import {
   /* Added missing ShieldCheck import */
   ShieldCheck
 } from 'lucide-react';
-import { LeaveType } from '../types';
+import { LeaveType } from '../../types';
 
 interface Message {
   id: string;

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { PayrollStatus } from '../types';
 import { EmployeePayProfileForm } from './EmployeePayProfileForm';
+import { TemplateAssignmentModal } from './TemplateAssignmentModal';
 
 interface EmployeeProfile {
   id: string;
@@ -20,27 +21,876 @@ interface EmployeeProfile {
   overridesCount: number;
   bankInfo: boolean;
   statutoryInfo: boolean;
-  status: PayrollStatus;
+  status: string;
 }
 
-const MOCK_PROFILES: EmployeeProfile[] = [
-  { id: 'EMP-1001', name: 'Arsalan Khan', avatar: 'AK', dept: 'Engineering', grade: 'G18', template: 'ENG-SR-18', gross: 215000, overridesCount: 2, bankInfo: true, statutoryInfo: true, status: PayrollStatus.Approved },
-  { id: 'EMP-1002', name: 'Saira Ahmed', avatar: 'SA', dept: 'HR', grade: 'G15', template: 'OPS-G15', gross: 85000, overridesCount: 0, bankInfo: true, statutoryInfo: true, status: PayrollStatus.Approved },
-  { id: 'EMP-1003', name: 'Umar Farooq', avatar: 'UF', dept: 'Sales', grade: 'G12', template: null, gross: 45000, overridesCount: 0, bankInfo: false, statutoryInfo: false, status: PayrollStatus.Pending },
-  { id: 'EMP-1004', name: 'Zainab Bibi', avatar: 'ZB', dept: 'Operations', grade: 'G15', template: 'OPS-G15', gross: 92000, overridesCount: 1, bankInfo: true, statutoryInfo: true, status: PayrollStatus.Approved },
-  { id: 'EMP-1005', name: 'Mustafa Kamal', avatar: 'MK', dept: 'Engineering', grade: 'G20', template: 'EXEC-G20', gross: 550000, overridesCount: 4, bankInfo: true, statutoryInfo: true, status: PayrollStatus.Approved },
-];
+
 
 const formatPKR = (val: number) => `PKR ${val.toLocaleString()}`;
+// Mock payroll templates with different structures for various employee categories
+export const MOCK_TEMPLATES = [
+  {
+    id: 'TMP-001',
+    name: 'ENG-SR-18',
+    code: 'ENG-SR-18',
+    description: 'Senior Engineering Staff - Grade G18 (Development Team)',
+    type: 'STANDARD' as const,
+    category: 'GRADE' as const,
+    applicableTo: ['G18'],
+    effectiveFrom: '2024-01-01',
+    effectiveTo: null,
+    status: 'ACTIVE' as const,
+    salaryComponents: [
+      { 
+        id: 'comp-1', 
+        name: 'Basic Salary', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 50, 
+        isTaxable: true, 
+        isStatutory: true, 
+        order: 1,
+        formula: 'base * 0.5',
+        remarks: 'Core salary component'
+      },
+      { 
+        id: 'comp-2', 
+        name: 'House Rent Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 40, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 2,
+        formula: 'base * 0.4',
+        remarks: 'Housing allowance as per policy'
+      },
+      { 
+        id: 'comp-3', 
+        name: 'Medical Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 15000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 3,
+        formula: '15000',
+        remarks: 'Non-taxable medical benefit'
+      },
+      { 
+        id: 'comp-4', 
+        name: 'Conveyance Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 8000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 4,
+        formula: '8000',
+        remarks: 'Transportation allowance'
+      },
+      { 
+        id: 'comp-5', 
+        name: 'Special Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 10, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 5,
+        formula: 'base * 0.1',
+        remarks: 'Performance linked allowance'
+      },
+      { 
+        id: 'comp-6', 
+        name: 'Income Tax', 
+        type: 'DEDUCTION' as const, 
+        calculationType: 'FORMULA' as const, 
+        value: 0, 
+        isTaxable: false, 
+        isStatutory: true, 
+        order: 6,
+        formula: 'calculateTax(totalEarnings)',
+        remarks: 'As per FBR tax slabs'
+      },
+      { 
+        id: 'comp-7', 
+        name: 'EOBI', 
+        type: 'DEDUCTION' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 530, 
+        isTaxable: false, 
+        isStatutory: true, 
+        order: 7,
+        formula: '530',
+        remarks: 'Employees Old-Age Benefits Institution'
+      }
+    ],
+    calculationRules: {
+      baseAmount: 'grossSalary',
+      rounding: 'UP_TO_NEAREST_100',
+      proRateForPartialMonth: true,
+      includeIncentives: true
+    },
+    totalEarnings: 100,
+    totalDeductions: 10,
+    netPercentage: 90,
+    createdAt: '2024-01-15T10:30:00Z',
+    updatedAt: '2024-01-15T10:30:00Z',
+    createdBy: 'Admin User',
+    updatedBy: 'Admin User',
+    version: '1.0',
+    isActive: true,
+    approvalStatus: 'APPROVED',
+    lastApplied: '2024-02-01',
+    appliedCount: 25
+  },
+  {
+    id: 'TMP-002',
+    name: 'OPS-G15',
+    code: 'OPS-G15',
+    description: 'Operations Staff - Grade G15 (Admin & Support Roles)',
+    type: 'STANDARD' as const,
+    category: 'GRADE' as const,
+    applicableTo: ['G15'],
+    effectiveFrom: '2024-01-01',
+    effectiveTo: null,
+    status: 'ACTIVE' as const,
+    salaryComponents: [
+      { 
+        id: 'comp-1', 
+        name: 'Basic Salary', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 50, 
+        isTaxable: true, 
+        isStatutory: true, 
+        order: 1,
+        formula: 'base * 0.5',
+        remarks: 'Core salary component'
+      },
+      { 
+        id: 'comp-2', 
+        name: 'House Rent Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 40, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 2,
+        formula: 'base * 0.4',
+        remarks: 'Housing allowance'
+      },
+      { 
+        id: 'comp-3', 
+        name: 'Medical Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 10000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 3,
+        formula: '10000',
+        remarks: 'Non-taxable medical benefit'
+      },
+      { 
+        id: 'comp-4', 
+        name: 'Conveyance Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 5000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 4,
+        formula: '5000',
+        remarks: 'Transportation allowance'
+      },
+      { 
+        id: 'comp-5', 
+        name: 'Income Tax', 
+        type: 'DEDUCTION' as const, 
+        calculationType: 'FORMULA' as const, 
+        value: 0, 
+        isTaxable: false, 
+        isStatutory: true, 
+        order: 5,
+        formula: 'calculateTax(totalEarnings)',
+        remarks: 'As per FBR tax slabs'
+      },
+      { 
+        id: 'comp-6', 
+        name: 'EOBI', 
+        type: 'DEDUCTION' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 530, 
+        isTaxable: false, 
+        isStatutory: true, 
+        order: 6,
+        formula: '530',
+        remarks: 'Statutory deduction'
+      }
+    ],
+    calculationRules: {
+      baseAmount: 'grossSalary',
+      rounding: 'UP_TO_NEAREST_100',
+      proRateForPartialMonth: true,
+      includeIncentives: false
+    },
+    totalEarnings: 100,
+    totalDeductions: 8,
+    netPercentage: 92,
+    createdAt: '2024-01-10T09:15:00Z',
+    updatedAt: '2024-01-20T14:30:00Z',
+    createdBy: 'HR Manager',
+    updatedBy: 'HR Manager',
+    version: '1.1',
+    isActive: true,
+    approvalStatus: 'APPROVED',
+    lastApplied: '2024-02-01',
+    appliedCount: 42
+  },
+  {
+    id: 'TMP-003',
+    name: 'EXEC-G20',
+    code: 'EXEC-G20',
+    description: 'Executive Level - Grade G20 (C-Level & Senior Management)',
+    type: 'STANDARD' as const,
+    category: 'GRADE' as const,
+    applicableTo: ['G20'],
+    effectiveFrom: '2024-01-01',
+    effectiveTo: '2024-12-31',
+    status: 'ACTIVE' as const,
+    salaryComponents: [
+      { 
+        id: 'comp-1', 
+        name: 'Basic Salary', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 60, 
+        isTaxable: true, 
+        isStatutory: true, 
+        order: 1,
+        formula: 'base * 0.6',
+        remarks: 'Executive basic salary'
+      },
+      { 
+        id: 'comp-2', 
+        name: 'House Rent Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 35, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 2,
+        formula: 'base * 0.35',
+        remarks: 'Executive housing allowance'
+      },
+      { 
+        id: 'comp-3', 
+        name: 'Medical Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 25000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 3,
+        formula: '25000',
+        remarks: 'Executive medical coverage'
+      },
+      { 
+        id: 'comp-4', 
+        name: 'Car Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 30000, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 4,
+        formula: '30000',
+        remarks: 'Company car maintenance'
+      },
+      { 
+        id: 'comp-5', 
+        name: 'Utility Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 15000, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 5,
+        formula: '15000',
+        remarks: 'Electricity, gas, phone'
+      },
+      { 
+        id: 'comp-6', 
+        name: 'Performance Bonus', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 20, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 6,
+        formula: 'base * 0.2 * performanceFactor',
+        remarks: 'Quarterly performance based'
+      },
+      { 
+        id: 'comp-7', 
+        name: 'Income Tax', 
+        type: 'DEDUCTION' as const, 
+        calculationType: 'FORMULA' as const, 
+        value: 0, 
+        isTaxable: false, 
+        isStatutory: true, 
+        order: 7,
+        formula: 'calculateTax(totalEarnings)',
+        remarks: 'As per FBR tax slabs'
+      },
+      { 
+        id: 'comp-8', 
+        name: 'Professional Tax', 
+        type: 'DEDUCTION' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 2000, 
+        isTaxable: false, 
+        isStatutory: true, 
+        order: 8,
+        formula: '2000',
+        remarks: 'Annual professional tax'
+      }
+    ],
+    calculationRules: {
+      baseAmount: 'grossSalary',
+      rounding: 'UP_TO_NEAREST_1000',
+      proRateForPartialMonth: false,
+      includeIncentives: true
+    },
+    totalEarnings: 100,
+    totalDeductions: 15,
+    netPercentage: 85,
+    createdAt: '2024-01-20T11:45:00Z',
+    updatedAt: '2024-02-01T16:20:00Z',
+    createdBy: 'CEO',
+    updatedBy: 'CFO',
+    version: '2.0',
+    isActive: true,
+    approvalStatus: 'APPROVED',
+    lastApplied: '2024-02-01',
+    appliedCount: 8
+  },
+  {
+    id: 'TMP-004',
+    name: 'SALES-G12',
+    code: 'SALES-G12',
+    description: 'Sales Department - Grade G12 (Commission Based)',
+    type: 'CUSTOM' as const,
+    category: 'DESIGNATION' as const,
+    applicableTo: ['Sales Executive', 'Sales Representative', 'Business Development'],
+    effectiveFrom: '2024-02-01',
+    effectiveTo: null,
+    status: 'ACTIVE' as const,
+    salaryComponents: [
+      { 
+        id: 'comp-1', 
+        name: 'Basic Salary', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 40, 
+        isTaxable: true, 
+        isStatutory: true, 
+        order: 1,
+        formula: 'base * 0.4',
+        remarks: 'Fixed base for sales staff'
+      },
+      { 
+        id: 'comp-2', 
+        name: 'Commission', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 15, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 2,
+        formula: 'salesAmount * 0.15',
+        remarks: 'Sales commission percentage'
+      },
+      { 
+        id: 'comp-3', 
+        name: 'Travel Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 8000, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 3,
+        formula: '8000',
+        remarks: 'Field travel expenses'
+      },
+      { 
+        id: 'comp-4', 
+        name: 'Communication Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 3000, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 4,
+        formula: '3000',
+        remarks: 'Phone and internet'
+      },
+      { 
+        id: 'comp-5', 
+        name: 'Income Tax', 
+        type: 'DEDUCTION' as const, 
+        calculationType: 'FORMULA' as const, 
+        value: 0, 
+        isTaxable: false, 
+        isStatutory: true, 
+        order: 5,
+        formula: 'calculateTax(totalEarnings)',
+        remarks: 'As per FBR tax slabs'
+      }
+    ],
+    calculationRules: {
+      baseAmount: 'fixedSalary',
+      rounding: 'UP_TO_NEAREST_100',
+      proRateForPartialMonth: true,
+      includeIncentives: true,
+      commissionThreshold: 50000
+    },
+    totalEarnings: 100,
+    totalDeductions: 10,
+    netPercentage: 90,
+    createdAt: '2024-02-01T09:00:00Z',
+    updatedAt: '2024-02-01T09:00:00Z',
+    createdBy: 'Sales Director',
+    updatedBy: 'Sales Director',
+    version: '1.0',
+    isActive: true,
+    approvalStatus: 'PENDING',
+    lastApplied: null,
+    appliedCount: 0
+  },
+  {
+    id: 'TMP-005',
+    name: 'IT-SUPPORT',
+    code: 'IT-SUPPORT',
+    description: 'IT Support Team - All Grades (Shift Allowances Included)',
+    type: 'CUSTOM' as const,
+    category: 'DIVISION' as const,
+    applicableTo: ['IT Department'],
+    effectiveFrom: '2024-01-15',
+    effectiveTo: null,
+    status: 'ACTIVE' as const,
+    salaryComponents: [
+      { 
+        id: 'comp-1', 
+        name: 'Basic Salary', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 55, 
+        isTaxable: true, 
+        isStatutory: true, 
+        order: 1,
+        formula: 'base * 0.55',
+        remarks: 'Core salary component'
+      },
+      { 
+        id: 'comp-2', 
+        name: 'Shift Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 25, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 2,
+        formula: 'base * 0.25',
+        remarks: 'For night shift duties'
+      },
+      { 
+        id: 'comp-3', 
+        name: 'Technical Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 10000, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 3,
+        formula: '10000',
+        remarks: 'Technical skills premium'
+      },
+      { 
+        id: 'comp-4', 
+        name: 'On-Call Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 5000, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 4,
+        formula: '5000',
+        remarks: '24/7 support availability'
+      },
+      { 
+        id: 'comp-5', 
+        name: 'Medical Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 12000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 5,
+        formula: '12000',
+        remarks: 'Health insurance coverage'
+      }
+    ],
+    calculationRules: {
+      baseAmount: 'grossSalary',
+      rounding: 'UP_TO_NEAREST_100',
+      proRateForPartialMonth: true,
+      includeIncentives: false,
+      shiftBased: true
+    },
+    totalEarnings: 100,
+    totalDeductions: 12,
+    netPercentage: 88,
+    createdAt: '2024-01-15T14:20:00Z',
+    updatedAt: '2024-01-25T11:10:00Z',
+    createdBy: 'IT Manager',
+    updatedBy: 'IT Manager',
+    version: '1.2',
+    isActive: true,
+    approvalStatus: 'APPROVED',
+    lastApplied: '2024-02-01',
+    appliedCount: 12
+  },
+  {
+    id: 'TMP-006',
+    name: 'CONTRACTUAL',
+    code: 'CONTRACTUAL',
+    description: 'Contractual Employees - No Statutory Benefits',
+    type: 'CUSTOM' as const,
+    category: 'GROUP' as const,
+    applicableTo: ['Contract Staff', 'Project Based', 'Temporary'],
+    effectiveFrom: '2024-01-01',
+    effectiveTo: '2024-06-30',
+    status: 'ACTIVE' as const,
+    salaryComponents: [
+      { 
+        id: 'comp-1', 
+        name: 'Consolidated Salary', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 100, 
+        isTaxable: true, 
+        isStatutory: false, 
+        order: 1,
+        formula: 'agreedAmount',
+        remarks: 'All-inclusive consolidated pay'
+      },
+      { 
+        id: 'comp-2', 
+        name: 'Withholding Tax', 
+        type: 'DEDUCTION' as const, 
+        calculationType: 'PERCENTAGE' as const, 
+        value: 10, 
+        isTaxable: false, 
+        isStatutory: true, 
+        order: 2,
+        formula: 'totalEarnings * 0.1',
+        remarks: 'WHT as per contract'
+      }
+    ],
+    calculationRules: {
+      baseAmount: 'contractAmount',
+      rounding: 'NO_ROUNDING',
+      proRateForPartialMonth: true,
+      includeIncentives: false,
+      statutoryBenefits: false
+    },
+    totalEarnings: 100,
+    totalDeductions: 10,
+    netPercentage: 90,
+    createdAt: '2024-01-01T08:00:00Z',
+    updatedAt: '2024-01-01T08:00:00Z',
+    createdBy: 'HR Admin',
+    updatedBy: 'HR Admin',
+    version: '1.0',
+    isActive: true,
+    approvalStatus: 'APPROVED',
+    lastApplied: '2024-02-01',
+    appliedCount: 18
+  },
+  {
+    id: 'TMP-007',
+    name: 'INTERNS',
+    code: 'INTERN-TMP',
+    description: 'Internship Program - Stipend Structure',
+    type: 'STANDARD' as const,
+    category: 'GROUP' as const,
+    applicableTo: ['Interns', 'Trainees'],
+    effectiveFrom: '2024-01-01',
+    effectiveTo: '2024-12-31',
+    status: 'ACTIVE' as const,
+    salaryComponents: [
+      { 
+        id: 'comp-1', 
+        name: 'Monthly Stipend', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 25000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 1,
+        formula: '25000',
+        remarks: 'Fixed stipend amount'
+      },
+      { 
+        id: 'comp-2', 
+        name: 'Transport Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 3000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 2,
+        formula: '3000',
+        remarks: 'Daily commute support'
+      },
+      { 
+        id: 'comp-3', 
+        name: 'Meal Allowance', 
+        type: 'EARNING' as const, 
+        calculationType: 'FIXED' as const, 
+        value: 5000, 
+        isTaxable: false, 
+        isStatutory: false, 
+        order: 3,
+        formula: '5000',
+        remarks: 'Cafeteria meal card'
+      }
+    ],
+    calculationRules: {
+      baseAmount: 'fixedStipend',
+      rounding: 'NO_ROUNDING',
+      proRateForPartialMonth: true,
+      includeIncentives: false,
+      statutoryBenefits: false
+    },
+    totalEarnings: 100,
+    totalDeductions: 0,
+    netPercentage: 100,
+    createdAt: '2024-01-05T10:00:00Z',
+    updatedAt: '2024-01-05T10:00:00Z',
+    createdBy: 'Talent Acquisition',
+    updatedBy: 'Talent Acquisition',
+    version: '1.0',
+    isActive: true,
+    approvalStatus: 'APPROVED',
+    lastApplied: '2024-02-01',
+    appliedCount: 15
+  }
+];
+
+// Extended employee profiles to match templates
+export const MOCK_PROFILES: EmployeeProfile[] = [
+  { 
+    id: 'EMP-1001', 
+    name: 'Arsalan Khan', 
+    avatar: 'AK', 
+    dept: 'Engineering', 
+    grade: 'G18', 
+    designation: 'Senior Developer',
+    division: 'Technology',
+    template: 'ENG-SR-18', 
+    gross: 215000, 
+    overridesCount: 2, 
+    bankInfo: true, 
+    statutoryInfo: true, 
+    status: 'APPROVED'
+  },
+  { 
+    id: 'EMP-1002', 
+    name: 'Saira Ahmed', 
+    avatar: 'SA', 
+    dept: 'HR', 
+    grade: 'G15', 
+    designation: 'HR Manager',
+    division: 'Administration',
+    template: 'OPS-G15', 
+    gross: 85000, 
+    overridesCount: 0, 
+    bankInfo: true, 
+    statutoryInfo: true, 
+    status: 'APPROVED'
+  },
+  { 
+    id: 'EMP-1003', 
+    name: 'Umar Farooq', 
+    avatar: 'UF', 
+    dept: 'Sales', 
+    grade: 'G12', 
+    designation: 'Sales Executive',
+    division: 'Sales',
+    template: 'SALES-G12', 
+    gross: 45000, 
+    overridesCount: 0, 
+    bankInfo: false, 
+    statutoryInfo: false, 
+    status: 'PENDING'
+  },
+  { 
+    id: 'EMP-1004', 
+    name: 'Zainab Bibi', 
+    avatar: 'ZB', 
+    dept: 'Operations', 
+    grade: 'G15', 
+    designation: 'Ops Lead',
+    division: 'Operations',
+    template: 'OPS-G15', 
+    gross: 92000, 
+    overridesCount: 1, 
+    bankInfo: true, 
+    statutoryInfo: true, 
+    status: 'APPROVED'
+  },
+  { 
+    id: 'EMP-1005', 
+    name: 'Mustafa Kamal', 
+    avatar: 'MK', 
+    dept: 'Engineering', 
+    grade: 'G20', 
+    designation: 'CTO',
+    division: 'Technology',
+    template: 'EXEC-G20', 
+    gross: 550000, 
+    overridesCount: 4, 
+    bankInfo: true, 
+    statutoryInfo: true, 
+    status: 'APPROVED'
+  },
+  { 
+    id: 'EMP-1006', 
+    name: 'Ali Raza', 
+    avatar: 'AR', 
+    dept: 'IT', 
+    grade: 'G14', 
+    designation: 'System Administrator',
+    division: 'IT',
+    template: 'IT-SUPPORT', 
+    gross: 68000, 
+    overridesCount: 0, 
+    bankInfo: true, 
+    statutoryInfo: true, 
+    status: 'APPROVED'
+  },
+  { 
+    id: 'EMP-1007', 
+    name: 'Fatima Noor', 
+    avatar: 'FN', 
+    dept: 'Marketing', 
+    grade: 'G13', 
+    designation: 'Marketing Intern',
+    division: 'Marketing',
+    template: 'INTERNS', 
+    gross: 25000, 
+    overridesCount: 0, 
+    bankInfo: false, 
+    statutoryInfo: false, 
+    status: 'APPROVED'
+  },
+  { 
+    id: 'EMP-1008', 
+    name: 'Hassan Shah', 
+    avatar: 'HS', 
+    dept: 'Engineering', 
+    grade: 'G16', 
+    designation: 'QA Engineer',
+    division: 'Technology',
+    template: 'ENG-SR-18', 
+    gross: 105000, 
+    overridesCount: 1, 
+    bankInfo: true, 
+    statutoryInfo: true, 
+    status: 'APPROVED'
+  },
+  { 
+    id: 'EMP-1009', 
+    name: 'Ayesha Malik', 
+    avatar: 'AM', 
+    dept: 'Finance', 
+    grade: 'G17', 
+    designation: 'Financial Analyst',
+    division: 'Finance',
+    template: 'OPS-G15', 
+    gross: 125000, 
+    overridesCount: 0, 
+    bankInfo: true, 
+    statutoryInfo: true, 
+    status: 'APPROVED'
+  },
+  { 
+    id: 'EMP-1010', 
+    name: 'Bilal Ahmed', 
+    avatar: 'BA', 
+    dept: 'IT', 
+    grade: 'G15', 
+    designation: 'IT Support Specialist',
+    division: 'IT',
+    template: 'IT-SUPPORT', 
+    gross: 75000, 
+    overridesCount: 2, 
+    bankInfo: true, 
+    statutoryInfo: true, 
+    status: 'APPROVED'
+  }
+];
+
+// Update the interface to include missing fields
+interface EmployeeProfile {
+  id: string;
+  name: string;
+  avatar: string;
+  dept: string;
+  grade: string;
+  designation: string;
+  division: string;
+  template: string | null;
+  gross: number;
+  overridesCount: number;
+  bankInfo: boolean;
+  statutoryInfo: boolean;
+  status: string;
+}
+
+// Types for templates
+
 
 export const EmployeePayProfilesList: React.FC = () => {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'ALL' | 'MISSING_TEMPLATE' | 'OVERRIDES'>('ALL');
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeProfile | null>(null);
+  const [showAssignModal, setShowAssignModal] = useState(false);
 
+  const handleAssignTemplate = () => {
+    console.log(`Assigning template`);
+    setShowAssignModal(false);
+  };
+  const handleCreateTemplate = () => {
+    console.log(`Assigning template`);
+    setShowAssignModal(false);
+  };
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      {/* Page Header */}
+        {showAssignModal && (
+  <TemplateAssignmentModal
+    isOpen={showAssignModal}
+    onClose={() => setShowAssignModal(false)}
+    onAssign={handleAssignTemplate}
+    onCreateTemplate={handleCreateTemplate}
+    employees={MOCK_PROFILES}
+    templates={MOCK_TEMPLATES}
+  />
+)}
       <div className="flex flex-wrap justify-between items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 tracking-tight">Employee Pay Profiles</h2>
@@ -50,7 +900,7 @@ export const EmployeePayProfilesList: React.FC = () => {
           <button className="bg-white border border-gray-200 px-4 py-2.5 rounded-lg font-bold text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-2 transition-all">
             <Download size={18} /> Export Profiles
           </button>
-          <button className="bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95">
+          <button className="bg-primary text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95" onClick={()=>setShowAssignModal(true)}>
             <UserPlus size={18} /> Assign Template
           </button>
         </div>

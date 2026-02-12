@@ -42,7 +42,7 @@ export type LoginResponseRaw = { user: any; token: string };
 
 export async function login(payload: { email: string; password: string }) {
   const fd = new FormData();
-  fd.append("email", payload.email);
+  fd.append("email_or_employee", payload.email);
   fd.append("password", payload.password);
 
   const { data } = await api.post<LoginResponseRaw>("/login", fd, {

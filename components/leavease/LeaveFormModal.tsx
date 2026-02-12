@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { LeaveType, LeaveRequest, LeaveStatus } from '../types';
+import { LeaveType, LeaveRequest, LeaveStatus } from '../../types';
 import { X, Calendar as CalendarIcon, Send } from 'lucide-react';
 
 interface Props {

@@ -71,7 +71,7 @@ export const LeaveEntitlements = () => {
         {/* Main Tiers Section */}
         <div className="lg:col-span-8 space-y-8">
           {/* Plan Card */}
-          <div className="bg-primary-gradient rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl">
+          <div className="bg-primary rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl">
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">

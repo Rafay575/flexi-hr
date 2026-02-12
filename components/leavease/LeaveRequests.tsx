@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LeaveRequest, ApprovalStatus } from '../types';
+import { LeaveRequest, ApprovalStatus } from '../../types';
 import { Check, X, Clock } from 'lucide-react';
 
 interface LeaveRequestsProps {

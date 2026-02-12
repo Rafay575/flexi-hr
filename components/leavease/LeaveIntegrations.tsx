@@ -7,7 +7,7 @@ import {
   // Added missing imports to fix errors on lines 167 and 228
   Filter, Download
 } from 'lucide-react';
-import { IntegrationConfigDrawer } from './IntegrationConfigDrawer';
+import { IntegrationConfigDrawer } from '../IntegrationConfigDrawer';
 
 interface Integration {
   id: string;

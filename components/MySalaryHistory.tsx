@@ -53,28 +53,53 @@ export const MySalaryHistory: React.FC = () => {
 
       {/* Analytics Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-md border border-gray-100 flex flex-col justify-between relative overflow-hidden group">
-          <div className="relative z-10">
-            <h3 className="text-xs font-black uppercase tracking-[2px] text-gray-400 mb-8 flex items-center gap-2">
-              <BarChart3 size={16} className="text-primary" /> Salary Progression Chart
-            </h3>
-            <div className="h-48 flex items-end justify-between gap-4 px-2">
-              {MOCK_HISTORY.slice().reverse().map((h, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-3 group/bar">
-                  <div className="w-full bg-primary/5 rounded-t-xl relative flex flex-col justify-end overflow-hidden" style={{ height: `${(h.amount / currentSalary) * 100}%` }}>
-                    <div className="w-full bg-primary rounded-t-xl transition-all duration-700 group-hover/bar:bg-accent" style={{ height: '100%' }}></div>
-                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/bar:opacity-100 transition-opacity"></div>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[10px] font-black text-gray-800">{formatPKR(h.amount)}</p>
-                    <p className="text-[8px] font-bold text-gray-400 uppercase">{h.date.split(',')[1]}</p>
-                  </div>
+        <div className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-md border border-gray-100 flex flex-col relative overflow-hidden group">
+  <div className="relative z-10">
+    <h3 className="text-xs font-black uppercase tracking-[2px] text-gray-400 mb-8 flex items-center gap-2">
+      <BarChart3 size={16} className="text-primary" /> Salary Progression Chart
+    </h3>
+    
+    <div className="h-48 relative flex items-end">
+      {/* Bars with fixed minimum heights */}
+      <div className="flex items-end justify-between gap-2 w-full px-2">
+        {MOCK_HISTORY.slice().reverse().map((h, i) => {
+          // Fixed height values for demonstration
+          const heights = [40, 55, 70, 85, 100, 120, 140, 160]; // in pixels
+          const barHeight = heights[i % heights.length] || 100;
+          
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center">
+              {/* Bar */}
+              <div 
+                className="w-full rounded-t-lg transition-all duration-300 hover:scale-105 hover:shadow-lg relative"
+                style={{ 
+                  height: `${barHeight}px`,
+                  background: `linear-gradient(180deg, 
+                    hsl(${210 + i * 15}, 80%, 60%) 0%, 
+                    hsl(${210 + i * 15}, 90%, 45%) 100%)`
+                }}
+              >
+                {/* Value inside bar */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[9px] font-black text-white rotate-90 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {formatPKR(h.amount)}
+                  </span>
                 </div>
-              ))}
+              </div>
+              
+              {/* Date label */}
+              <div className="mt-2 text-center">
+                <p className="text-[8px] font-bold text-gray-400 uppercase">
+                  {h.date.split(',')[1]}
+                </p>
+              </div>
             </div>
-          </div>
-          <Zap className="absolute right-[-20px] top-[-20px] text-primary/5 w-40 h-40 -rotate-12" />
-        </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</div>
 
         <div className="bg-primary p-8 rounded-3xl text-white shadow-xl shadow-primary/20 flex flex-col justify-between relative overflow-hidden">
           <div className="relative z-10 space-y-6">

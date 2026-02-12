@@ -40,7 +40,7 @@ export const PayEdgeEntitlements: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       {/* Header & Plan Summary */}
       <div className="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
-        <div className="bg-gradient-to-r from-primary to-indigo-900 p-8 text-white relative">
+        <div className="bg-primary  p-8 text-white relative">
           <div className="relative z-10 flex flex-wrap justify-between items-end gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -101,7 +101,7 @@ export const PayEdgeEntitlements: React.FC = () => {
 
         {/* Tier 2: Pro (Active) */}
         <div className="bg-white p-8 rounded-3xl shadow-xl border-2 border-primary space-y-6 relative">
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-accent text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-[2px] shadow-lg">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-black px-4 py-1 rounded-full uppercase tracking-[2px] shadow-lg">
             Current Tier
           </div>
           <div className="flex items-center justify-between">
