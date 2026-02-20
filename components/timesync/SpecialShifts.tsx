@@ -1477,7 +1477,7 @@ export const SpecialShifts: React.FC = () => {
       )}
 
       {/* FILTERS */}
-      <div className="flex flex-wrap items-center gap-4 bg-white p-0 !m-0 rounded-2xl border border-gray-200 shadow-sm">
+      <div className="flex flex-wrap items-center gap-4 bg-white p-4 !mT-3 rounded-2xl border border-gray-200 shadow-sm">
         <div className="relative flex-1 min-w-[240px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
           <input 

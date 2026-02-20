@@ -8,7 +8,7 @@ interface UpcomingEventsProps {
 
 const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events }) => {
   return (
-    <div className="bg-neutral-card rounded-xl shadow-card border border-neutral-border h-full">
+    <div className="bg-neutral-card rounded-xl shadow-card border border-neutral-border ">
       <div className="p-6 border-b border-neutral-border">
         <h3 className="font-bold text-flexi-primary text-lg flex items-center gap-2">
             <Calendar className="h-5 w-5 text-flexi-gold" />

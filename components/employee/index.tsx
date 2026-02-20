@@ -5,6 +5,8 @@ import React, {
   useMemo,
   useRef,
   useState,
+  forwardRef,
+  useImperativeHandle,
 } from "react";
 import {
   Check,
@@ -15,18 +17,24 @@ import {
   Send,
   Shield,
   Zap,
+  Bolt,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useEnrollmentContext } from "@/context/EnrollmentContext";
 import { quickFormSteps, detailedFormSteps } from "./steps";
-import { Mode, StepDef } from "./types";
+import { StepDef } from "./types";
 import { buildZodSchema } from "./buildSchema";
 import { api } from "@/components/api/client";
 
 import { stepComponents, StepHandle } from "./stepComponents";
 import { toast } from "sonner";
+
+/**
+ * ✅ Add third mode
+ */
+type ModeX = "quick" | "detailed" | "instant";
 
 const colors = {
   primary: "#3D3A5C",
@@ -40,8 +48,8 @@ const colors = {
 // ─────────────────────────────────────────────────────────────
 type ConfirmSwitchModalProps = {
   open: boolean;
-  fromMode: Mode;
-  toMode: Mode;
+  fromMode: ModeX;
+  toMode: ModeX;
   onCancel: () => void;
   onContinue: () => void;
   loading?: boolean;
@@ -57,6 +65,9 @@ function ConfirmSwitchModal({
 }: ConfirmSwitchModalProps) {
   if (!open) return null;
 
+  const label = (m: ModeX) =>
+    m === "quick" ? "Quick" : m === "detailed" ? "Detailed" : "Instant";
+
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center">
       <button
@@ -68,14 +79,12 @@ function ConfirmSwitchModal({
 
       <div className="relative w-[92%] max-w-md rounded-xl bg-white border border-gray-200 shadow-xl p-4">
         <h3 className="text-sm font-bold" style={{ color: colors.primary }}>
-          Switch to {toMode === "quick" ? "Quick" : "Detailed"} form?
+          Switch to {label(toMode)}?
         </h3>
 
         <p className="mt-1 text-[12px] text-gray-600 leading-relaxed">
-          If you continue, your current{" "}
-          <b>{fromMode === "quick" ? "Quick" : "Detailed"}</b> draft data will
-          be <b>deleted</b>. You will start a new{" "}
-          <b>{toMode === "quick" ? "Quick" : "Detailed"}</b> draft.
+          If you continue, your current <b>{label(fromMode)}</b> draft data will
+          be <b>deleted</b>. You will start a new <b>{label(toMode)}</b> draft.
         </p>
 
         <div className="mt-4 flex items-center justify-end gap-2">
@@ -106,14 +115,287 @@ function ConfirmSwitchModal({
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// Instant Create Step (fields you provided)
+// ─────────────────────────────────────────────────────────────
+
+// If you already have these in a shared place, import them instead.
+// Kept local to make this file drop-in.
+type EmpStatus = "ACTIVE" | "ON_LEAVE" | "INACTIVE";
+type EmploymentType = "PERMANENT" | "CONTRACT" | "INTERN";
+
+const DEPARTMENTS = ["Engineering", "Product", "HR", "Finance", "Ops", "IT"];
+const DESIGNATIONS = [
+  "Software Engineer",
+  "Senior Engineer",
+  "Team Lead",
+  "Product Analyst",
+  "HR Officer",
+  "Accountant",
+  "Ops Coordinator",
+  "IT Support",
+];
+const LOCATIONS = ["Lahore", "Islamabad", "Karachi", "Remote"];
+
+const TYPE_CONFIG: Record<EmploymentType, { label: string }> = {
+  PERMANENT: { label: "Permanent" },
+  CONTRACT: { label: "Contract" },
+  INTERN: { label: "Intern" },
+};
+
+const STATUS_CONFIG: Record<EmpStatus, { label: string }> = {
+  ACTIVE: { label: "Active" },
+  ON_LEAVE: { label: "On Leave" },
+  INACTIVE: { label: "Inactive" },
+};
+
+const Field: React.FC<{ label: string; children: React.ReactNode }> = ({
+  label,
+  children,
+}) => (
+  <div className="space-y-2">
+    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+      {label}
+    </p>
+    {children}
+  </div>
+);
+
+type InstantCreateProps = {
+  disabled?: boolean;
+};
+
+const InstantCreateEmployee = forwardRef<StepHandle, InstantCreateProps>(
+  function InstantCreateEmployee({ disabled }, ref) {
+    const [name, setName] = useState("Ahmed Khan");
+    const [employeeId, setEmployeeId] = useState("EMP-2001");
+    const [email, setEmail] = useState("ahmed.khan@company.com");
+    const [phone, setPhone] = useState("+92 300 0000000");
+    const [department, setDepartment] = useState("Engineering");
+    const [designation, setDesignation] = useState("Software Engineer");
+    const [location, setLocation] = useState("Lahore");
+    const [employmentType, setEmploymentType] =
+      useState<EmploymentType>("PERMANENT");
+    const [status, setStatus] = useState<EmpStatus>("ACTIVE");
+    const [joinedAt, setJoinedAt] = useState("2025-01-01");
+    const [managerName, setManagerName] = useState("You (Manager)");
+
+    const [saving, setSaving] = useState(false);
+
+    const buildPayload = () => ({
+      name,
+      employeeId,
+      email,
+      phone,
+      department,
+      designation,
+      location,
+      employmentType,
+      status,
+      joinedAt,
+      managerName,
+      avatar: name
+        .split(" ")
+        .slice(0, 2)
+        .map((x) => x[0]?.toUpperCase())
+        .join(""),
+    });
+
+    // This is what OnboardX expects when clicking Next/Submit.
+    useImperativeHandle(ref, () => ({
+      submit: async () => {
+        if (disabled || saving) return false;
+
+        // minimal validation (keep it simple)
+        if (!name.trim() || !email.trim() || !employeeId.trim()) {
+          toast("Name, Employee ID and Email are required");
+          return false;
+        }
+
+        try {
+          setSaving(true);
+
+          // ✅ Replace this endpoint with your real create-employee API
+          // Example:
+          // await api.post("/v1/employees", buildPayload(), { headers: { ... } });
+
+          console.log("INSTANT CREATE EMPLOYEE PAYLOAD", buildPayload());
+          toast("Employee created (instant)!");
+
+          return true;
+        } catch (e: any) {
+          toast(e?.response?.data?.message || e?.message || "Create failed");
+          return false;
+        } finally {
+          setSaving(false);
+        }
+      },
+    }));
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Field label="Name">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          />
+        </Field>
+
+        <Field label="Employee ID">
+          <input
+            value={employeeId}
+            onChange={(e) => setEmployeeId(e.target.value)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          />
+        </Field>
+
+        <Field label="Email">
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          />
+        </Field>
+
+        <Field label="Phone">
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          />
+        </Field>
+
+        <Field label="Department">
+          <select
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          >
+            {DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Designation">
+          <select
+            value={designation}
+            onChange={(e) => setDesignation(e.target.value)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          >
+            {DESIGNATIONS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Location">
+          <select
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          >
+            {LOCATIONS.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Employment Type">
+          <select
+            value={employmentType}
+            onChange={(e) => setEmploymentType(e.target.value as any)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          >
+            {Object.keys(TYPE_CONFIG).map((t) => (
+              <option key={t} value={t}>
+                {TYPE_CONFIG[t as EmploymentType].label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Status">
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as any)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          >
+            {Object.keys(STATUS_CONFIG).map((s) => (
+              <option key={s} value={s}>
+                {STATUS_CONFIG[s as EmpStatus].label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="Joined At">
+          <input
+            type="date"
+            value={joinedAt}
+            onChange={(e) => setJoinedAt(e.target.value)}
+            disabled={disabled || saving}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+          />
+        </Field>
+
+        <div className="md:col-span-2">
+          <Field label="Manager Name">
+            <input
+              value={managerName}
+              onChange={(e) => setManagerName(e.target.value)}
+              disabled={disabled || saving}
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 outline-none focus:ring-4 focus:ring-[#3E3B6F]/5 disabled:opacity-60"
+            />
+          </Field>
+        </div>
+
+        <div className="md:col-span-2 pt-2">
+          <button
+            type="button"
+            disabled={disabled || saving}
+            onClick={() => ref && (ref as any)?.current?.submit?.()}
+            className="w-full px-3 py-2 rounded-lg font-semibold text-xs text-white flex items-center justify-center gap-2 disabled:opacity-60"
+            style={{
+              background: `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`,
+            }}
+          >
+            {saving ? "Creating..." : "Create Employee Instantly"}
+            <Bolt className="w-3.5 h-3.5" />
+          </button>
+          <p className="mt-2 text-[11px] text-gray-500 text-center">
+            This is the Instant tab. Wire it to your real API endpoint.
+          </p>
+        </div>
+      </div>
+    );
+  },
+);
+
 export default function OnboardX() {
-  const [uiMode, setUiMode] = useState<Mode>("quick");
+  const [uiMode, setUiMode] = useState<ModeX>("quick");
   const [step, setStep] = useState<number>(0);
 
   const [switching, setSwitching] = useState(false);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingMode, setPendingMode] = useState<Mode | null>(null);
+  const [pendingMode, setPendingMode] = useState<ModeX | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
   const {
@@ -124,10 +406,13 @@ export default function OnboardX() {
     clearEnrollment,
   } = useEnrollmentContext();
 
-  // Sync UI from backend draft state
+  // Sync UI from backend draft state (only for QUICK/DETAILED)
   useEffect(() => {
     if (!enrollmentMode) return;
-    setUiMode(enrollmentMode === "QUICK" ? "quick" : "detailed");
+
+    // If backend draft exists, we stay in quick/detailed.
+    const m: ModeX = enrollmentMode === "QUICK" ? "quick" : "detailed";
+    setUiMode(m);
     setStep(stepIndex ?? 0);
   }, [enrollmentMode, stepIndex]);
 
@@ -136,6 +421,7 @@ export default function OnboardX() {
   useEffect(() => {
     if (hasInitRef.current) return;
 
+    // If draft already exists, don't create a new one.
     if (enrollmentMode || enrollmentId) {
       hasInitRef.current = true;
       return;
@@ -151,17 +437,28 @@ export default function OnboardX() {
   }, [startEnrollmentDraft, enrollmentMode, enrollmentId]);
 
   // steps + schema (kept for progress, counts, titles)
-  const steps = useMemo<StepDef[]>(
-    () => (uiMode === "quick" ? quickFormSteps : detailedFormSteps),
-    [uiMode]
-  );
+  const steps = useMemo<StepDef[]>(() => {
+    if (uiMode === "quick") return quickFormSteps;
+    if (uiMode === "detailed") return detailedFormSteps;
+
+    // ✅ Instant mode = single “step” for UI consistency
+    return [
+      {
+        id: "instant-create",
+        title: "Instant Create",
+        subtitle: "Create an employee instantly (no enrollment wizard).",
+        icon: Bolt,
+        fields: [], // no zod fields in wizard schema
+      },
+    ] as any;
+  }, [uiMode]);
+
   const current = steps[step];
   const total = steps.length;
 
-  // keep your zod schema building (even if step components also validate internally)
+  // keep your zod schema building
   const schema = useMemo(() => buildZodSchema(steps), [steps]);
 
-  // this form remains (you can later remove if each step owns its own state)
   const form = useForm({
     resolver: zodResolver(schema),
     mode: "onTouched",
@@ -172,16 +469,17 @@ export default function OnboardX() {
 
   const progress = ((step + 1) / total) * 100;
   const totalFields = useMemo(
-    () => steps.reduce((s, st) => s + st.fields.length, 0),
-    [steps]
+    () => steps.reduce((s, st) => s + (st.fields?.length ?? 0), 0),
+    [steps],
   );
   const requiredFields = useMemo(
     () =>
       steps.reduce(
-        (s, st) => s + st.fields.filter((f) => f.required).length,
-        0
+        (s, st) =>
+          s + (st.fields?.filter?.((f: any) => f.required)?.length ?? 0),
+        0,
       ),
-    [steps]
+    [steps],
   );
 
   // Current step component ref
@@ -189,14 +487,14 @@ export default function OnboardX() {
 
   // Switch Mode flow
   const requestToggleMode = useCallback(
-    (m: Mode) => {
+    (m: ModeX) => {
       if (switching) return;
       if (m === uiMode) return;
 
       setPendingMode(m);
       setConfirmOpen(true);
     },
-    [switching, uiMode]
+    [switching, uiMode],
   );
 
   const onConfirmCancel = useCallback(() => {
@@ -211,7 +509,8 @@ export default function OnboardX() {
       setConfirmLoading(true);
       setSwitching(true);
 
-      // 1) delete existing draft (if id exists)
+      // 1) delete existing draft (if id exists) ONLY if we were in quick/detailed
+      //    (Instant doesn't create drafts by itself)
       if (enrollmentId) {
         await api.delete(`/v1/enrollments/${enrollmentId}`, {
           headers: {
@@ -224,19 +523,21 @@ export default function OnboardX() {
       // 2) clear local
       clearEnrollment();
 
-      // 3) start new draft with new mode
-      await startEnrollmentDraft({
-        mode: pendingMode === "quick" ? "QUICK" : "DETAILED",
-        type: "CREATE",
-        employee_id: null,
-      });
+      // 3) start new draft ONLY for quick/detailed.
+      if (pendingMode === "quick" || pendingMode === "detailed") {
+        await startEnrollmentDraft({
+          mode: pendingMode === "quick" ? "QUICK" : "DETAILED",
+          type: "CREATE",
+          employee_id: null,
+        });
+      }
 
       // 4) reset UI
       setUiMode(pendingMode);
       setStep(0);
     } catch (e: any) {
       toast(
-        e?.response?.data?.message || e?.message || "Failed to switch form"
+        e?.response?.data?.message || e?.message || "Failed to switch form",
       );
     } finally {
       setConfirmLoading(false);
@@ -246,11 +547,10 @@ export default function OnboardX() {
     }
   }, [pendingMode, enrollmentId, clearEnrollment, startEnrollmentDraft]);
 
-  // Footer Next: call current step submit() (API) then goNext
+  // Footer Next: call current step submit() then goNext
   const goNext = async () => {
     if (switching || confirmLoading) return;
 
-    // call step API via ref
     const ok = await stepRef.current?.submit?.();
     if (!ok) return;
 
@@ -263,45 +563,52 @@ export default function OnboardX() {
   };
 
   const onSubmit = async () => {
-    // final submit (example)
     console.log("FINAL SUBMIT", { enrollmentId, values: getValues() });
     toast("Form Submitted!");
   };
 
   const Icon = current.icon;
 
-  // pick correct step component from map
-  const StepComponent = stepComponents[uiMode][step];
+  // pick correct step component
+  const StepComponent =
+    uiMode === "instant"
+      ? (InstantCreateEmployee as any)
+      : stepComponents[uiMode][step];
+
+  const modeBtnStyle = (active: boolean) => ({
+    background: active ? "white" : "transparent",
+    color: active ? colors.primary : "#706C7A",
+    boxShadow: active ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
+  });
 
   return (
     <div>
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-3 h-12 flex items-center justify-between">
+        <div className=" mx-auto px-3 h-12 flex items-center justify-between">
           <div
             className="flex items-center gap-1 p-0.5 rounded-lg"
             style={{ background: "#F1F1F3" }}
           >
-            {(["quick", "detailed"] as const).map((m) => (
+            {(["quick", "detailed", "instant"] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => requestToggleMode(m)}
                 disabled={switching}
                 className="px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all flex items-center gap-1"
-                style={{
-                  background: uiMode === m ? "white" : "transparent",
-                  color: uiMode === m ? colors.primary : "#706C7A",
-                  boxShadow:
-                    uiMode === m ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
-                }}
+                style={modeBtnStyle(uiMode === m)}
               >
                 {m === "quick" ? (
                   <>
                     <Zap className="w-3 h-3" /> Quick
                   </>
-                ) : (
+                ) : m === "detailed" ? (
                   <>
                     <LayoutDashboard className="w-3 h-3" /> Detailed
+                  </>
+                ) : (
+                  <>
+                    <Bolt className="w-3 h-3" /> Instant
                   </>
                 )}
               </button>
@@ -310,7 +617,7 @@ export default function OnboardX() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-3 py-4">
+      <main className=" mx-auto px-3 py-4">
         {/* Progress Card */}
         <div className="bg-white rounded-xl border border-gray-200 p-3 mb-4">
           <div className="flex items-center justify-between mb-3">
@@ -322,9 +629,16 @@ export default function OnboardX() {
                 Employee Enrollment
               </h1>
               <p className="text-[11px] text-gray-500">
-                {uiMode === "quick" ? "Quick Form" : "Detailed Form"} • {total}{" "}
-                Steps • {totalFields} Fields • {requiredFields} Required
-                {enrollmentId ? ` • Draft #${enrollmentId}` : ""}
+                {uiMode === "quick"
+                  ? "Quick Form"
+                  : uiMode === "detailed"
+                    ? "Detailed Form"
+                    : "Instant Create"}{" "}
+                • {total} Steps • {totalFields} Fields • {requiredFields}{" "}
+                Required
+                {enrollmentId && uiMode !== "instant"
+                  ? ` • Draft #${enrollmentId}`
+                  : ""}
               </p>
             </div>
           </div>
@@ -365,13 +679,13 @@ export default function OnboardX() {
                     background: isActive
                       ? `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`
                       : isCompleted
-                      ? "#F4E8D4"
-                      : "#F1F1F3",
+                        ? "#F4E8D4"
+                        : "#F1F1F3",
                     color: isActive
                       ? "white"
                       : isCompleted
-                      ? "#A67F45"
-                      : "#8A8694",
+                        ? "#A67F45"
+                        : "#8A8694",
                   }}
                 >
                   {isCompleted ? (
@@ -388,7 +702,7 @@ export default function OnboardX() {
           </div>
         </div>
 
-        {/* Form container (keep your design) */}
+        {/* Form container */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="bg-white rounded-xl border border-gray-200 overflow-hidden"
@@ -419,7 +733,7 @@ export default function OnboardX() {
             </div>
           </div>
 
-          {/* ✅ STEP CONTENT (separate component), inside same padding like before */}
+          {/* STEP CONTENT */}
           <div className="p-4">
             {StepComponent ? (
               <StepComponent
@@ -435,7 +749,7 @@ export default function OnboardX() {
             )}
           </div>
 
-          {/* Footer Buttons (your design same) */}
+          {/* Footer Buttons */}
           <div
             className="px-4 py-3 border-t border-gray-100"
             style={{ background: "#FAFAFA" }}
@@ -524,7 +838,7 @@ export default function OnboardX() {
                   />
                   {law}
                 </span>
-              )
+              ),
             )}
           </div>
         </div>

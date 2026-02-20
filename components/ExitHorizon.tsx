@@ -17,34 +17,40 @@ interface ExitHorizonProps {
 
 // --- HELPER CHART COMPONENTS ---
 
-const BarChart = ({ data }: { data: { label: string, value: number }[] }) => {
-    const maxValue = Math.max(...data.map(d => d.value), 1);
-    
-    return (
-        <div className="flex items-end justify-between h-40 pt-6 pb-2 gap-2">
-            {data.map((item, idx) => {
-                const heightPct = (item.value / maxValue) * 100;
-                return (
-                    <div key={idx} className="flex flex-col items-center flex-1 group cursor-default">
-                        <div className="relative w-full px-1 h-full flex items-end justify-center">
-                            {/* Tooltip */}
-                            <div className="absolute -top-8  transition-opacity bg-neutral-800 text-white text-[10px] py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
-                                {item.value} Exits
-                            </div>
-                            {/* Bar */}
-                            <div 
-                                className="w-full max-w-[24px] bg-flexi-primary rounded-t-sm hover:bg-flexi-secondary transition-all duration-500 ease-out relative"
-                                style={{ height: `${heightPct}%`, opacity: heightPct === 0 ? 0.1 : 1 }}
-                            ></div>
-                        </div>
-                        <span className="text-[10px] text-neutral-secondary mt-2 font-medium truncate w-full text-center">
-                            {item.label}
-                        </span>
-                    </div>
-                )
-            })}
-        </div>
-    );
+const BarChart = ({ data }: { data: { label: string; value: number }[] }) => {
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
+
+  return (
+    <div className="flex items-end justify-between h-40 pt-6 pb-2 gap-2">
+      {data.map((item, idx) => {
+        const heightPct = (item.value / maxValue) * 100;
+        return (
+          <div
+            key={idx}
+            className="flex flex-col items-center flex-1 h-full group cursor-default" // added h-full
+          >
+            <div className="relative w-full px-1 h-full flex items-end justify-center">
+              {/* Tooltip */}
+              <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-800 text-white text-[10px] py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
+                {item.value} Exits
+              </div>
+              {/* Bar */}
+              <div
+                className="w-full max-w-[24px] bg-primary rounded-t-sm hover:bg-secondary transition-all duration-500 ease-out relative"
+                style={{
+                  height: `${heightPct}%`,
+                  opacity: heightPct === 0 ? 0.1 : 1,
+                }}
+              ></div>
+            </div>
+            <span className="text-[10px] text-neutral-secondary mt-2 font-medium truncate w-full text-center">
+              {item.label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
 };
 
 const DonutChart = ({ data }: { data: { label: string, value: number, color: string }[] }) => {
@@ -226,6 +232,14 @@ const ExitHorizon: React.FC<ExitHorizonProps> = ({ employees = [], onExitCreate 
           />
       );
   }
+const dummyData = [
+    { label: 'Sept', value: 9 },
+    { label: 'Oct', value: 7 },
+  { label: 'Nov', value: 5 },
+  { label: 'Dec', value: 8 },
+  { label: 'Jan', value: 3 },
+  { label: 'Feb', value: 15 },
+];
 
   if (selectedRequest) {
       return (
@@ -241,7 +255,7 @@ const ExitHorizon: React.FC<ExitHorizonProps> = ({ employees = [], onExitCreate 
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* Page Header with Flexi Gradient */}
-      <div className="bg-gradient-to-r from-flexi-primary to-flexi-secondary rounded-2xl p-8 shadow-lg text-white mb-8">
+      <div className="bg-primary  rounded-2xl p-8 shadow-lg text-white mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
                   <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Exit Horizon</h2>
@@ -251,7 +265,7 @@ const ExitHorizon: React.FC<ExitHorizonProps> = ({ employees = [], onExitCreate 
               </div>
               <button 
                   onClick={() => setShowWizard(true)}
-                  className="flex items-center gap-2 px-6 py-3 bg-white text-flexi-primary text-sm font-bold rounded-xl hover:bg-blue-50 shadow-md transition-all self-start md:self-auto"
+                  className="flex items-center gap-2 px-6 py-3 bg-white !text-gray-700 text-sm font-bold rounded-xl hover:bg-blue-50 shadow-md transition-all self-start md:self-auto"
               >
                   <UserX className="w-4 h-4" /> Initiate Exit
               </button>
@@ -317,13 +331,13 @@ const ExitHorizon: React.FC<ExitHorizonProps> = ({ employees = [], onExitCreate 
                   <div className="flex p-1 bg-neutral-page rounded-lg self-start sm:self-center">
                       <button 
                         onClick={() => setActiveTab('pipeline')}
-                        className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'pipeline' ? 'bg-white text-neutral-primary shadow-sm' : 'text-neutral-secondary hover:text-neutral-primary'}`}
+                        className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'pipeline' ? 'bg-primary text-white shadow-sm' : 'text-neutral-secondary hover:text-gray-700'}`}
                       >
                           Pipeline
                       </button>
                       <button 
                         onClick={() => setActiveTab('completed')}
-                        className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'completed' ? 'bg-white text-neutral-primary shadow-sm' : 'text-neutral-secondary hover:text-neutral-primary'}`}
+                        className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${activeTab === 'completed' ? 'bg-primary text-white shadow-sm' : 'text-neutral-secondary hover:text-gray-700'}`}
                       >
                           Completed / Archived
                       </button>
@@ -459,7 +473,7 @@ const ExitHorizon: React.FC<ExitHorizonProps> = ({ employees = [], onExitCreate 
                     <span className="text-[10px] bg-white border border-neutral-border px-2 py-0.5 rounded text-neutral-secondary">Last 6 Months</span>
                   </div>
                   <div className="p-6">
-                     <BarChart data={analyticsData.trendData} />
+                     <BarChart data={dummyData} />
                   </div>
               </div>
 

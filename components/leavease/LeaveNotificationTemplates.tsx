@@ -157,7 +157,7 @@ export const LeaveNotificationTemplates = () => {
                 {/* Channel Selector */}
                 <section className="bg-white rounded-[32px] border border-gray-100 p-8 shadow-sm">
                   <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-6">Delivery Channels</h3>
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     {Object.entries(channels).map(([name, enabled]) => (
                       <button 
                         key={name}

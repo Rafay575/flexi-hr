@@ -18,8 +18,8 @@ const QuickAction: React.FC<QuickActionProps> = ({ type, onClick }) => {
       label = 'Add Employee';
       description = 'Start OnboardX';
       Icon = Plus;
-      colorClass = 'group-hover:text-flexi-primary';
-      iconBgClass = 'text-flexi-primary bg-flexi-light';
+      colorClass = 'group-hover:text-primary';
+      iconBgClass = 'text-primary bg-light';
       break;
     case 'directory':
       label = 'Directory';
@@ -32,29 +32,29 @@ const QuickAction: React.FC<QuickActionProps> = ({ type, onClick }) => {
       label = 'Transfer';
       description = 'Dept/Role';
       Icon = ArrowRightLeft;
-      colorClass = 'group-hover:text-flexi-gold';
-      iconBgClass = 'text-flexi-gold bg-flexi-gold-light'; // Use Gold tint
+      colorClass = 'group-hover:text-gold';
+      iconBgClass = 'text-gold bg-gold-light'; // Use Gold tint
       break;
     case 'exit':
       label = 'Offboard';
       description = 'Start Exit';
       Icon = LogOut;
-      colorClass = 'group-hover:text-flexi-coral';
-      iconBgClass = 'text-flexi-coral bg-flexi-coral-light'; // Use Coral tint
+      colorClass = 'group-hover:text-coral';
+      iconBgClass = 'text-coral bg-coral-light'; // Use Coral tint
       break;
     case 'upload':
       label = 'Uploads';
       description = 'Bulk import';
       Icon = UploadCloud;
-      colorClass = 'group-hover:text-flexi-secondary';
-      iconBgClass = 'text-flexi-secondary bg-neutral-page';
+      colorClass = 'group-hover:text-secondary';
+      iconBgClass = 'text-secondary bg-neutral-page';
       break;
   }
 
   return (
     <button 
       onClick={onClick}
-      className="flex flex-col items-start p-5 rounded-xl border border-neutral-border bg-neutral-card hover:bg-neutral-page/50 hover:border-flexi-primary/30 hover:shadow-soft transition-all duration-300 group w-full text-left"
+      className="flex flex-col items-start p-5 rounded-xl border border-neutral-border bg-neutral-card hover:bg-neutral-page/50 hover:border-primary/30 hover:shadow-soft transition-all duration-300 group w-full text-left"
     >
       <div className={`p-3 rounded-xl mb-3 ${iconBgClass} transition-colors`}>
         <Icon className="h-6 w-6" />

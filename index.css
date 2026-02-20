@@ -43,6 +43,36 @@
     --color-status-rejected: #EF4444;
     --color-status-locked: #8B5CF6;
     --color-status-published: #6366F1;
+     --flexi-primary: #1E1B4B;
+  --flexi-secondary: #10B981;
+  --flexi-light: #E0E7FF;
+  --flexi-gold: #F59E0B;
+  --flexi-gold-light: #FEF3C7;
+  --flexi-coral: #EF4444;
+  --flexi-coral-light: #FEE2E2;
+  --state-success: #10B981;
+  --neutral-primary: #1F2937;
+  --neutral-secondary: #6B7280;
+  --neutral-muted: #9CA3AF;
+  --neutral-border: #E5E7EB;
+  --neutral-card: #FFFFFF;
+  --neutral-page: #F5F5F5;
+  
+  --flexi-primary: #1E1B4B;
+  --flexi-secondary: #F4B299;   /* <-- change this to your goldish color */
+  --flexi-light: #E0E7FF;
+  --flexi-gold: #F59E0B;
+  --flexi-gold-light: #FEF3C7;
+  --flexi-coral: #EF4444;
+  --flexi-coral-light: #FEE2E2;
+  --state-success: #10B981;
+  --neutral-primary: #1F2937;
+  --neutral-secondary: #6B7280;
+  --neutral-muted: #9CA3AF;
+  --neutral-border: #E5E7EB;
+  --neutral-card: #FFFFFF;
+  --neutral-page: #F5F5F5;
+
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -84,9 +114,15 @@
 .bg-primary{
   background-color:  #1E1B4B !important;
 }
+.bg-secondary{
+  background-color:  #F4B299  !important;
+}
 
 .text-primary-foreground{
   color: #f1f1f1 !important
+}
+.text-secondary{
+  color: #F4B299 !important
 }
 
  body {

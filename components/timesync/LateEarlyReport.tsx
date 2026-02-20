@@ -123,28 +123,41 @@ export const LateEarlyReport: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LATE BY DAY CHART */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-200 shadow-sm p-8 flex flex-col">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xs font-black text-gray-800 uppercase tracking-widest flex items-center gap-2">
-              <BarChart3 size={16} className="text-[#3E3B6F]" /> Late Arrivals by Day of Week
-            </h3>
-            <span className="text-[9px] font-black text-red-500 bg-red-50 px-2 py-1 rounded">PEAK: MONDAY</span>
+     <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-200 shadow-sm p-8 flex flex-col">
+  <div className="flex justify-between items-center mb-8">
+    <h3 className="text-xs font-black text-gray-800 uppercase tracking-widest flex items-center gap-2">
+      <BarChart3 size={16} className="text-[#3E3B6F]" /> Late Arrivals by Day of Week
+    </h3>
+    <span className="text-[9px] font-black text-red-500 bg-red-50 px-2 py-1 rounded">
+      PEAK: MONDAY
+    </span>
+  </div>
+
+  {/* CHART AREA: fixed height so bars always have a real height reference */}
+  <div className="h-[240px] flex items-end justify-between gap-4 px-4 relative border-b border-gray-100 pb-2">
+    {["Mon", "Tue", "Wed", "Thu", "Fri"].map((day, i) => {
+      const h = [95, 45, 30, 25, 60][i];
+
+      return (
+        <div key={day} className="flex-1 h-full flex flex-col items-center justify-end group">
+          {/* bar wrapper = full height */}
+          <div className="w-full h-full flex items-end">
+            <div
+              style={{ height: `${h}%` }}
+              className={`w-full rounded-t-xl transition-all ${
+                h > 70 ? "bg-red-400" : "bg-[#3E3B6F]"
+              } group-hover:opacity-80`}
+            />
           </div>
-          <div className="flex-1 min-h-[220px] flex items-end justify-between gap-4 px-4 relative border-b border-gray-100 pb-2">
-             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day, i) => {
-               const h = [95, 45, 30, 25, 60][i];
-               return (
-                 <div key={day} className="flex-1 flex flex-col items-center group">
-                    <div 
-                      style={{ height: `${h}%` }} 
-                      className={`w-full rounded-t-xl transition-all ${h > 70 ? 'bg-red-400' : 'bg-[#3E3B6F]/20'} group-hover:opacity-80`}
-                    />
-                    <span className="text-[10px] font-black text-gray-400 mt-3 uppercase">{day}</span>
-                 </div>
-               )
-             })}
-          </div>
+
+          <span className="text-[10px] font-black text-gray-400 mt-3 uppercase">
+            {day}
+          </span>
         </div>
+      );
+    })}
+  </div>
+</div>
 
         {/* PATTERN ALERTS */}
         <div className="bg-[#3E3B6F] rounded-3xl p-6 text-white shadow-xl relative overflow-hidden flex flex-col">

@@ -13,19 +13,14 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)',
       },
       colors: {
+        // Standard shadcn/ui colors (keep these as they are)
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-
-        // 🔽 UPDATED PRIMARY HERE
         primary: {
-          DEFAULT: "#1E1B4B",     // bg-primary, text-primary
-          foreground: "#FFFFFF",  // text-primary-foreground
+          DEFAULT: "#1E1B4B",
+          foreground: "#FFFFFF",
         },
-
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
+       
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
@@ -56,6 +51,8 @@ module.exports = {
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))',
         },
+
+    
       },
     },
   },

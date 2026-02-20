@@ -11,7 +11,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Sidebar } from "./components/Sidebar";
 
-// ---------- Flexi HQ pages ----------
 import { Dashboard } from "./pages/Dashboard";
 import CompaniesPage from "./pages/CompanyManagement";
 
@@ -24,11 +23,8 @@ import CostCenters from "./pages/CostCenters";
 import { AuditLog } from "./pages/AuditLog";
 
 import DashboardHeader from "./components/DashboardHeader";
-import StatCard from "./components/StatCard";
-import QuickAction from "./components/QuickAction";
-import RecentActivity from "./components/RecentActivity";
-import UpcomingEvents from "./components/UpcomingEvents";
-import Directory from "./components/employee/listing";
+
+import {EmployeeDirectory} from "./components/employee/listing";
 import Employee360 from "./components/Employee360";
 import OnboardX from "./components/employee";
 import Transfers from "./components/employee-transfer/Transfers";
@@ -286,7 +282,7 @@ import ShiftTemplatesPage from "./pages/ShiftTemplatesPage";
 import LeaveEaseDashboard from "./components/leavease/LeaveEaseDashboard";
 import { EligibilityGroupsPage } from "./components/EligibilityGroupsPage";
 import { ShiftTemplatesList } from "./components/timesync/shift-templates";
-
+import {PeopleHubDashboard} from "./components/PeopleHubDashboard";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -309,78 +305,7 @@ const Layout: React.FC = () => (
   </div>
 );
 
-// ---------- LeaveEase Wrapper Component ----------
-const LeaveEaseApp: React.FC = () => {
-  const [balances, setBalances] = useState<LeaveBalance[]>(INITIAL_BALANCES);
-  const [history, setHistory] = useState<LeaveRequest[]>(MOCK_HISTORY);
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
-  const [isIncentiveFormOpen, setIsIncentiveFormOpen] = useState(false);
-  const navigate = useNavigate();
 
-  const handleWizardSubmit = (data: any) => {
-    const newRequest: LeaveRequest = {
-      id: `LV-2025-${Math.floor(1000 + Math.random() * 9000)}`,
-      type: data.type,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      days: 3,
-      reason: data.reason,
-      status: ApprovalStatus.PENDING,
-      appliedDate: new Date().toISOString().split("T")[0],
-    };
-
-    setHistory([newRequest, ...history]);
-    setIsWizardOpen(false);
-    navigate("/leaveease/my-requests");
-  };
-
-  const getStatusStyle = (status: LeaveStatus) => {
-    switch (status) {
-      case LeaveStatus.APPROVED:
-        return "bg-emerald-100 text-emerald-700 border-emerald-200";
-      case LeaveStatus.PENDING:
-        return "bg-amber-100 text-amber-700 border-amber-200";
-      case LeaveStatus.REJECTED:
-        return "bg-red-100 text-red-700 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-500 border-gray-200";
-    }
-  };
-
-  const handleNavigate = (id: string) => {
-    if (id === "apply-leave") {
-      setIsWizardOpen(true);
-    } else {
-      navigate(`/leaveease/${id}`);
-    }
-  };
-
-  return (
-    <div className="font-['League_Spartan']">
-      <LeaveEaseShell
-        activeId={window.location.pathname.split("/").pop() || "dashboard"}
-        onNavigate={handleNavigate}
-      >
-        <Outlet />
-        <ApplyLeaveWizard
-          isOpen={isWizardOpen}
-          onClose={() => setIsWizardOpen(false)}
-          onSubmit={handleWizardSubmit}
-        />
-        <IncentiveRuleForm
-          isOpen={isIncentiveFormOpen}
-          onClose={() => setIsIncentiveFormOpen(false)}
-        />
-      </LeaveEaseShell>
-    </div>
-  );
-};
-
-// ---------- LeaveEase Dashboard Component ----------
-
-// ---------- PayEdge Wrapper Component ----------
-
-// ---------- PayEdge with Shell Component ----------
 const PayEdgeWithShell: React.FC = () => {
   const navigate = useNavigate();
 
@@ -396,91 +321,7 @@ const PayEdgeWithShell: React.FC = () => {
 };
 
 // ---------- PeopleHub Dashboard page ----------
-type PeopleHubDashboardProps = {
-  stats: StatMetric[];
-  activities: ActivityItem[];
-};
 
-const PeopleHubDashboard: React.FC<PeopleHubDashboardProps> = ({
-  stats,
-  activities,
-}) => {
-  const navigate = useNavigate();
-
-  return (
-    <>
-      {/* Stats Row */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-        {stats.map((stat) => (
-          <StatCard key={stat.id} metric={stat} />
-        ))}
-      </section>
-
-      {/* Main Grid: Actions + Activity vs Upcoming */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Left Column */}
-        <div className="xl:col-span-2 flex flex-col gap-8">
-          {/* Quick Actions */}
-          <section className="animate-in fade-in slide-in-from-left-4 duration-500 delay-100">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-neutral-primary">
-                Quick Actions
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              <QuickAction
-                type="add"
-                onClick={() => navigate("/peoplehub/onboardx")}
-              />
-              <QuickAction
-                type="directory"
-                onClick={() => navigate("/peoplehub/directory")}
-              />
-              <QuickAction
-                type="transfer"
-                onClick={() => navigate("/peoplehub/transfers")}
-              />
-              <QuickAction
-                type="exit"
-                onClick={() => navigate("/peoplehub/exit")}
-              />
-              <QuickAction
-                type="upload"
-                onClick={() => navigate("/peoplehub/import")}
-              />
-            </div>
-          </section>
-
-          {/* Recent Activity */}
-          <section className="flex-1 animate-in fade-in slide-in-from-left-4 duration-500 delay-200">
-            <RecentActivity activities={activities} />
-          </section>
-        </div>
-
-        {/* Right Column */}
-        <div className="xl:col-span-1 animate-in fade-in slide-in-from-right-4 duration-500 delay-300">
-          <UpcomingEvents events={INITIAL_UPCOMING_EVENTS} />
-
-          {/* Banner / Promotion Placeholder */}
-          <div className="mt-8 bg-gradient-to-r from-flexi-primary to-flexi-secondary rounded-xl p-6 text-white shadow-md relative overflow-hidden">
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl" />
-            <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl" />
-            <h3 className="text-lg font-bold relative z-10">
-              Annual Review Cycle
-            </h3>
-            <p className="text-sm text-blue-100 mt-2 relative z-10 font-light">
-              The 2024 performance review period begins in 5 days. Prepare your
-              team's documents.
-            </p>
-            <button className="mt-4 px-4 py-3 bg-white text-flexi-primary text-sm font-bold rounded-lg shadow-sm hover:bg-blue-50 transition-colors relative z-10">
-              View Guidelines
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
 
 const App: React.FC = () => {
   // ---------- PeopleHub state ----------
@@ -628,7 +469,7 @@ const App: React.FC = () => {
                   />
                   <Route
                     path="/peoplehub/directory"
-                    element={<Directory companyId={1} />}
+                    element={<EmployeeDirectory />}
                   />
                   <Route
                     path="/peoplehub/employee360"

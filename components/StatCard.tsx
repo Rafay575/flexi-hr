@@ -9,11 +9,11 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ metric }) => {
   const getIcon = () => {
     switch (metric.id) {
-      case 'total': return <Users className="h-5 w-5 text-white" />;
-      case 'new': return <UserPlus className="h-5 w-5 text-white" />;
-      case 'exits': return <UserMinus className="h-5 w-5 text-white" />;
-      case 'transfers': return <ArrowRightLeft className="h-5 w-5 text-white" />;
-      default: return <Users className="h-5 w-5 text-white" />;
+      case 'total': return <Users className="h-5 w-5 " />;
+      case 'new': return <UserPlus className="h-5 w-5 " />;
+      case 'exits': return <UserMinus className="h-5 w-5 " />;
+      case 'transfers': return <ArrowRightLeft className="h-5 w-5 " />;
+      default: return <Users className="h-5 w-5 " />;
     }
   };
 

@@ -83,7 +83,7 @@ const ExitDetails: React.FC<ExitDetailsProps> = ({ request, onBack, onUpdate }) 
               </div>
               <button 
                 onClick={() => setIsFinalModalOpen(true)}
-                className="px-4 py-2 bg-flexi-blue text-white text-sm font-bold rounded-lg hover:bg-flexi-end shadow-sm transition-all flex items-center gap-2"
+                className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-flexi-end shadow-sm transition-all flex items-center gap-2"
               >
                   Final Approval
               </button>

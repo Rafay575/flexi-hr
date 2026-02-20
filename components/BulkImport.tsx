@@ -284,7 +284,7 @@ const BulkImport: React.FC = () => {
                             >
                                 Import Another File
                             </button>
-                            <button className="px-6 py-3 bg-flexi-blue text-white font-bold rounded-xl hover:bg-flexi-end transition-colors shadow-lg shadow-blue-900/20 flex items-center gap-2">
+                            <button className="px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-flexi-end transition-colors shadow-lg shadow-blue-900/20 flex items-center gap-2">
                                 View Employee Directory <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
@@ -442,7 +442,7 @@ const BulkImport: React.FC = () => {
                             </button>
                             <button 
                                 onClick={handleFinalImport}
-                                className="px-8 py-3 bg-flexi-blue text-white font-bold rounded-xl hover:bg-flexi-end transition-colors shadow-lg shadow-blue-900/20 flex items-center gap-2"
+                                className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-flexi-end transition-colors shadow-lg shadow-blue-900/20 flex items-center gap-2"
                             >
                                 Start Import <ArrowRight className="w-4 h-4" />
                             </button>
@@ -475,7 +475,7 @@ const BulkImport: React.FC = () => {
                             Supported formats: .CSV, .XLSX, .XLS <br />
                             Max file size: 25MB
                         </p>
-                        <button className="px-6 py-3 bg-flexi-blue text-white font-bold rounded-xl shadow-md hover:bg-flexi-end transition-colors pointer-events-none">
+                        <button className=" px-4 py-3 bg-primary text-secondary font-bold rounded-lg hover:bg-flexi-secondary transition-colors text-sm shadow-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
                             Select File
                         </button>
                         <input 
@@ -530,7 +530,6 @@ const BulkImport: React.FC = () => {
                             <th className="p-4">Date & Time</th>
                             <th className="p-4">Records</th>
                             <th className="p-4">Status</th>
-                            <th className="p-4 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-neutral-border text-sm">
@@ -578,11 +577,7 @@ const BulkImport: React.FC = () => {
                                         {item.status}
                                     </span>
                                 </td>
-                                <td className="p-4 text-right">
-                                    <button className="p-2 text-neutral-muted hover:text-flexi-blue hover:bg-neutral-page rounded transition-colors">
-                                        <MoreHorizontal className="w-4 h-4" />
-                                    </button>
-                                </td>
+                              
                             </tr>
                         ))}
                     </tbody>

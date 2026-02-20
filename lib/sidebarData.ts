@@ -5,12 +5,9 @@ export const modules: ModuleItem[] = [
     id: 1,
     name: "Flexi HQ",
     icon: "Zap",
+    
     Menu: [
-      {
-        id: 11,
-        icon: "Orbit",
-        title: "Hr GroundZero",
-        subMenu: [
+      
           {
             id: 111,
             icon: "LayoutDashboard",
@@ -65,8 +62,7 @@ export const modules: ModuleItem[] = [
             title: "Audit Log",
             pathname: "/audit",
           },
-        ],
-      },
+       
     ],
     admin: false,
   },
@@ -76,11 +72,7 @@ export const modules: ModuleItem[] = [
     name: "PeopleHub",
     icon: "Zap",
     Menu: [
-      {
-        id: 21,
-        icon: "Zap",
-        title: "PeopleZone",
-        subMenu: [
+   
           {
             id: 211,
             icon: "LayoutDashboard",
@@ -93,18 +85,18 @@ export const modules: ModuleItem[] = [
             title: "Employee Directory",
             pathname: "/peoplehub/directory",
           },
-          {
-            id: 213,
-            icon: "UserCircle",
-            title: "Employee 360",
-            pathname: "/peoplehub/employee360",
-          },
-          {
-            id: 214,
-            icon: "UserPlus",
-            title: "OnboardX",
-            pathname: "/peoplehub/onboardx",
-          },
+          // {
+          //   id: 213,
+          //   icon: "UserCircle",
+          //   title: "Employee 360",
+          //   pathname: "/peoplehub/employee360",
+          // },
+          // {
+          //   id: 214,
+          //   icon: "UserPlus",
+          //   title: "OnboardX",
+          //   pathname: "/peoplehub/onboardx",
+          // },
           {
             id: 215,
             icon: "ArrowRightLeft",
@@ -129,8 +121,7 @@ export const modules: ModuleItem[] = [
             title: "Bulk Import",
             pathname: "/peoplehub/import",
           },
-        ],
-      },
+      
     ],
     admin: false,
   },

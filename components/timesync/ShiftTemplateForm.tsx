@@ -353,11 +353,6 @@ export const ShiftTemplateForm = () => {
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     // ✅ for now just log
     console.log("FORM VALUES:", values);
-
-    // ✅ later: send API
-    // const payload = toApiPayload(values);
-    // console.log("PAYLOAD:", payload);
-    // await mutation.mutateAsync(payload);
   };
 
   const ErrorText = ({ msg }: { msg?: string }) =>
