@@ -256,16 +256,21 @@ Flexi HR System`}
 
                 {/* Footer Actions */}
                 <div className="flex gap-4">
-                  <button className="px-8 py-4 bg-white border border-gray-200 text-gray-500 font-bold rounded-3xl hover:bg-gray-50 transition-all flex items-center gap-2">
-                    <RotateCcw size={18} /> Reset to Default
-                  </button>
-                  <button className="flex-1 py-4 bg-[#3E3B6F] text-white font-bold rounded-3xl shadow-xl shadow-[#3E3B6F]/20 hover:bg-[#4A4680] transition-all flex items-center justify-center gap-2 active:scale-95">
-                    <Save size={18} /> Save Template Configuration
-                  </button>
-                  <button className="px-8 py-4 bg-emerald-600 text-white font-bold rounded-3xl shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all flex items-center gap-2">
-                    <Send size={18} /> Test Send
-                  </button>
-                </div>
+  {/* Reset to Default Button */}
+  <button className="flex-1 py-4 bg-white border border-gray-200 text-gray-500 font-bold rounded-3xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+    <RotateCcw size={18} /> Reset
+  </button>
+  
+  {/* Save Template Button */}
+  <button className="flex-1 py-4 bg-[#3E3B6F] text-white font-bold rounded-3xl shadow-xl shadow-[#3E3B6F]/20 hover:bg-[#4A4680] transition-all flex items-center justify-center justify-center gap-2 active:scale-95">
+    <Save size={18} /> Save 
+  </button>
+  
+  {/* Test Send Button */}
+  <button className="flex-1 py-4 bg-emerald-600 text-white font-bold rounded-3xl shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+    <Send size={18} /> Test Send
+  </button>
+</div>
               </div>
 
               {/* Right Side: Quick Info */}
