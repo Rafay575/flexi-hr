@@ -141,7 +141,7 @@ const Step3: React.FC<props> = ({ next, prev }) => {
   }, [data, reset]);
 
   const onSubmit = async (values: CompanyStep3Form) => {
-    await mutateAsync(values);
+    // await mutateAsync(values);
     next();
   };
 
