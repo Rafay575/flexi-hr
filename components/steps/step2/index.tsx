@@ -73,7 +73,7 @@ const Step2: React.FC<props> = ({ next, prev, isLast }) => {
   }, [socials, reset]);
 
   const onSubmit = async (values: DigitalPresenceForm) => {
-    await updateDigitalPresence(values);
+    // await updateDigitalPresence(values);
     next();
   };
 
